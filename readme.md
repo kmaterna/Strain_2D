@@ -33,5 +33,5 @@ The code is written in Python3, and requires GMT5.  It may require Matlab or a F
 
 Example Output: 
 
-![hammond](https://github.com/kmaterna/Mendocino_Geodesy/tree/master/2D_Strain/Example_data/hammond.png)
+![strain](https://github.com/kmaterna/2D_Strain/Example_data/strain_example.png)
 
