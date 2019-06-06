@@ -1,0 +1,86 @@
+#!/bin/bash
+# GMT plotting of gpsgridder results
+
+lonE=-126.5
+lonW=-121.0
+latS=38.5
+latN=42.2
+# range="$lonW/$lonE/$latS/$latN"
+range="-126.5/-121.0/38.5/42.2"
+projection="M4.7i"
+out_strain="visr_fancy.ps"
+bigrange="-127.5/-114.0/35/46.5"
+bigprojection="m0.09i"
+
+
+# Strain
+gmt makecpt -T-1/5/0.5 -Crainbow.cpt > mycpt.cpt
+gmt grdimage I2nd.nc -R$range -J$projection -BWeSN+t"Strain In Mendocino" -Bp1.0 -Cmycpt.cpt -K > $out_strain
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Slightsteelblue2 -K -O >> $out_strain
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"log(I2)":/:: -Cmycpt.cpt -K -O >> $out_strain
+# gmt psvelo positive_eigs.txt -Se0.002/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_strain
+# gmt psvelo negative_eigs.txt -Se0.002/0.68/0 -A+b+pthick,red -Gred -R$range -J$projection -K -O >> $out_strain
+gmt psvelo tempgps.txt -Se0.03/0.68/0 -A+e+pthick,black -Gblack -R$range -J$projection -K -O >> $out_strain
+#awk '{print $1, $2, $4, $7}' misfitfile.txt | gmt psvelo -Se0.03/0.68/0 -A+e+pthick,black -Gblack -R$range -J$projection -K -O >> $out_strain
+
+# Add the fault map (on land)
+gmt psxy ../../Example_data/Mapping_Resources/Quaternary.txt -R$range -J$projection -Wthin,gray34 -K -O >> $out_strain
+
+# Add the plate boundaries
+gmt psxy ../../Example_data/Mapping_Resources/transform.gmt -R$range -J$projection -Wthin,red -Sf5/1+r+s+o3.25 -K -O >> $out_strain
+gmt psxy ../../Example_data/Mapping_Resources/ridge.gmt -R$range -J$projection -Wthin,red -K -O -Sf5/1+r+s+o1.3 >> $out_strain
+gmt psxy ../../Example_data/Mapping_Resources/trench.gmt -R$range -J$projection -Wthin,red -Sf1.5/0.6+r+t+o1.8 -K -O >> $out_strain
+
+# plot plate motion vectors
+gmt psvelo ../../Example_data/Mapping_Resources/Plate_arrows.txt -R$range -J$projection -A18p+e+gred+p2.7p -Se0.03/0.68/0 -Wred -K -O >> $out_strain
+# gmt pstext -R$range -J$projection -F+f14,black -K -O <<EOF >> $out_strain
+# -122.7 41.5 North
+# -122.7 41.40 American
+# -122.7 41.30 Plate
+# EOF
+gmt pstext -R$range -J$projection -F+f14,black -K -O <<EOF >> $out_strain
+-124.55 39.0 Pacific
+-124.55 38.85 Plate
+EOF
+gmt pstext -R$range -J$projection -F+f14,black -K -O <<EOF >> $out_strain
+-125.62 41.3 Gorda
+-125.62 41.15 Plate
+EOF
+
+
+gmt psvelo -R$range -J$projection -A14p+e+gblack+p2.7p -Se0.03/0.68/8 -Wblack -K -O <<EOF >> $out_strain
+-125.5 42.0 20 0 0.0 0.0 0.0 20mm/yr
+EOF
+
+# Label important faults
+gmt pstext -R$range -J$projection -F+a+f14p,Helvetica,red -K -O <<EOF >> $out_strain
+-124.30 40.05 -55 SAF
+-125.5 40.24 0 MFZ
+-124.84 41.10 -80 CSZ
+EOF
+
+
+#  Put a tiny map in the corner to orient you
+gmt pscoast -R$bigrange -J$bigprojection -Ggray -SWhite -Di -N2 -K -O -P >> $out_strain
+gmt psxy -R$bigrange -J$bigprojection -Wthick,red -K -O -P <<EOF >> $out_strain
+$lonW $latS
+$lonE $latS
+$lonE $latN
+$lonW $latN
+$lonW $latS
+EOF
+
+
+
+# Add the plate boundaries
+gmt psxy ../../Example_data/Mapping_Resources/transform.gmt -R$bigrange -J$bigprojection -Wthinnest,red -K -O >> $out_strain
+gmt psxy ../../Example_data/Mapping_Resources/ridge.gmt -R$bigrange -J$bigprojection -Wthinnest,red -K -O >> $out_strain
+gmt psxy ../../Example_data/Mapping_Resources/trench.gmt -R$bigrange -J$bigprojection -Wthinnest,red -K -O >> $out_strain
+
+
+
+rm gmt.history
+rm mycpt.cpt
+
+# rm tempgps.txt
+open $out_strain

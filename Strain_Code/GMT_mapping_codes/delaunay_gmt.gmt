@@ -1,0 +1,50 @@
+#!/bin/bash
+# GMT plotting of delaunay triangulation strain results. 
+
+range=$1
+projection="M3.7i"
+out_strain="delaunay_strain.ps"
+out_dila="delaunay_dilatation.ps"
+
+# # Strain
+gmt makecpt -T-1/5/0.5 -Crainbow.cpt > mycpt.cpt
+gmt psxy I2nd.txt -R$range -J$projection -BWeSN+t"Second Invariant" -Bp1.0 -Cmycpt.cpt -Wblack -L -K > $out_strain
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"log(I2)":/:: -Cmycpt.cpt -K -O >> $out_strain
+gmt psvelo positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_strain
+gmt psvelo negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_strain
+# gmt psvelo tempgps.txt -Se0.03/0.68/0 -A+e+pthick,white -Gwhite -R$range -J$projection -K -O >> $out_strain
+
+# Rotation
+gmt makecpt -T0/300/50 -Crainbow.cpt -D > mycpt.cpt
+gmt psxy rotation.txt -R$range -J$projection -Cmycpt.cpt -Wblack -BWeSN+t"Rotation" -Bp1.0 -X14 -Y0 -L -K -O >> $out_strain
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -Cmycpt.cpt -K -O >> $out_strain
+gmt psvelo tempgps.txt -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
+
+
+# # Dilatation
+gmt makecpt -Iz -D -T-350/350/35 -Cpolar.cpt > mycpt.cpt
+# gmt makecpt -Iz -D -T-40/40/2 -Cpolar.cpt > mycpt.cpt
+gmt psxy Dilatation.txt -R$range -J$projection -BWeSN+t"Dilatation" -Bp1.0 -Cmycpt.cpt -Wblack -L -K > $out_dila
+gmt pscoast -R$range -J$projection -Wthick,black -N2 -Df -Sgray -K -O >> $out_dila
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B200:"Dilatation":/:: -Cmycpt.cpt -K -O >> $out_dila
+# gmt psvelo positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_dila
+# gmt psvelo negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_dila
+# Add the fault map (on land)
+gmt psxy ../../Example_data/Mapping_Resources/Quaternary.txt -R$range -J$projection -Wthin,gray34 -K -O >> $out_dila
+# gmt psvelo tempgps.txt -Se0.03/0.68/0 -A+e+pthick,white -Gwhite -R$range -J$projection -K -O >> $out_strain
+
+# Rotation
+gmt makecpt -T0/300/50 -Crainbow.cpt -D > mycpt.cpt
+gmt psxy rotation.txt -R$range -J$projection -Cmycpt.cpt -Wblack -BWeSN+t"Rotation" -Bp1.0 -X14 -Y0 -L -K -O >> $out_dila
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_dila
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -Cmycpt.cpt -K -O >> $out_dila
+# gmt psvelo tempgps.txt -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_dila
+
+
+
+rm gmt.history
+rm mycpt.cpt
+
+open $out_strain
