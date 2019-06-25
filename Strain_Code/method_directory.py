@@ -35,6 +35,7 @@ def driver_2d(strain_method):
 driver_dict={
 	"delaunay":driver_1d, 
 	"hammond":driver_1d,
+	"lucy":driver_1d,
 	"spline":driver_2d,
 	"gpsgridder":driver_2d,
 	"visr": driver_2d };
