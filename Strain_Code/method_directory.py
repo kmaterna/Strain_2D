@@ -3,6 +3,7 @@ Send strain calculation to the right driver.
 """
 
 import common_functions
+import configure_functions
 import delaunay_strain
 import hammond_strain
 import gpsgridder_strain
@@ -12,14 +13,14 @@ import spline_strain
 
 # The types of driver functions. 
 def driver_1d(strain_method):
-	[MyParams] = common_functions.configure(strain_method);
+	[MyParams] = configure_functions.configure(strain_method);
 	[myVelfield] = common_functions.inputs(MyParams);
 	[xdata, ydata, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation] = compute_dict[strain_method](myVelfield, MyParams);
 	common_functions.outputs_1d(xdata, ydata, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, myVelfield, MyParams);	
 	return;
 
 def driver_2d(strain_method):
-	[MyParams] = common_functions.configure(strain_method);
+	[MyParams] = configure_functions.configure(strain_method);
 	[myVelfield] = common_functions.inputs(MyParams);
 	[xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation] = compute_dict[strain_method](myVelfield, MyParams);
 	common_functions.outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, myVelfield, MyParams);	
