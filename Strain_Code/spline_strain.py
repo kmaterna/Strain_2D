@@ -22,7 +22,7 @@ import strain_tensor_toolbox
 def compute(myVelfield, MyParams):
 	print("Computing strain via Numpy Spline method.");
 
-	interp_kind='linear';
+	interp_kind='quintic';
 	
 	# Scipy returns a function that you can use on a new set of x,y pairs. 
 	f_east = interpolate.interp2d(myVelfield.elon, myVelfield.nlat, myVelfield.e, kind=interp_kind);
@@ -44,7 +44,8 @@ def compute(myVelfield, MyParams):
 			new_north[i][j]=f_north(xarray[j],yarray[i]);
 
 	# Grid increments
-	typical_lat=float(MyParams.map_range[2]);
+	lats = np.array([MyParams.map_range[2], MyParams.map_range[3]], dtype=float)
+	typical_lat = np.mean(lats);
 	xinc = MyParams.grid_inc * 111.000 * np.cos(np.deg2rad(typical_lat)); # in km (not degrees)
 	yinc = MyParams.grid_inc * 111.000;  # in km (not degrees)
 

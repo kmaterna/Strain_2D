@@ -53,8 +53,10 @@ def outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, d
 	print("Max rot: %f " % (np.amax(rot)));
 	print("Min rot: %f " % (np.amin(rot)));
 	write_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11, MyParams);
+	gmt_file=open(MyParams.outdir+"run_gmt.gmt", 'w');
+	gmt_file.write("../../"+MyParams.gmtfile+" "+MyParams.map_range+"\n");
+	gmt_file.close();
 	print("../../"+MyParams.gmtfile+" "+MyParams.map_range);
-	subprocess.call("../../"+MyParams.gmtfile+" "+MyParams.map_range,shell=True,cwd=MyParams.outdir);
 	return;
 
 def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
@@ -66,7 +68,7 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
 	elif MyParams.strain_method=='gpsgridder':
 		eigs_dec=12;
 	elif MyParams.strain_method=='spline':
-		eigs_dec=12;
+		eigs_dec=8;
 	else:
 		print("Error! strain method not recognized for eigenvector plotting.");
 
