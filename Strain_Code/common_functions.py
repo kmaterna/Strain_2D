@@ -118,6 +118,8 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 	Dfile=open(MyParams.outdir+"Dilatation.txt",'w');
 	positive_file=open(MyParams.outdir+"positive_eigs.txt",'w');
 	negative_file=open(MyParams.outdir+"negative_eigs.txt",'w');
+	gmt_file=open(MyParams.outdir+"run_gmt.sh", 'w')
+	# lucy_file=open(MyParams.outdir+"lucy.txt", 'w');
 
 	outfile=open(MyParams.outdir+"tempgps.txt",'w');
 	for i in range(len(myVelfield.n)):
@@ -147,6 +149,8 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 		write_single_eigenvector(positive_file, negative_file, e1[i], v00[i], v10[i], xcentroid[i], ycentroid[i]);
 		write_single_eigenvector(positive_file, negative_file, e2[i], v01[i], v11[i], xcentroid[i], ycentroid[i]);
 	
+	gmt_file.write("../../"+MyParams.gmtfile+" "+MyParams.map_range+"\n")
+
 	print("Max I2: %f " % (max(I2nd)));
 	print("Max rot: %f " % (max(rot)));
 	print("Min rot: %f " % (min(rot)));
@@ -156,9 +160,10 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 	Dfile.close();
 	positive_file.close();
 	negative_file.close();
-	print("../../"+MyParams.gmtfile+" "+MyParams.map_range);
-	subprocess.call("../../"+MyParams.gmtfile+" "+MyParams.map_range,shell=True,cwd=MyParams.outdir);
+	gmt_file.close();
+
 	return;
+
 
 
 def write_single_eigenvector(positive_file, negative_file, e, v0, v1, x, y):

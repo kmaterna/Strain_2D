@@ -24,7 +24,7 @@ def configure(strain_method):
 	print("   Input data from        : %s" % input_file );
 	print("   Coordinates            : [%.2f, %.2f, %.2f, %.2f]" % (coord_box[0], coord_box[1], coord_box[2], coord_box[3]) );
 	print("   Putting the outputs    : %s \n" % outdir);
-	subprocess.call(['mkdir','-p',outdir],shell=False);
+	subprocess.call(['mkdir','-p',outdir],shell=False); 
 	MyParams=Params(strain_method=strain_method, input_file=input_file, map_range=map_range_string, coord_box=coord_box, coord_box_data=coord_box_data, num_years=num_years, max_sigma=max_sigma, grid_inc=grid_inc, outdir=outdir, gmtfile=gmtfile);
 	return [MyParams];
 
