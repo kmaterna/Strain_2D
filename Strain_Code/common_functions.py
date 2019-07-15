@@ -49,6 +49,8 @@ def outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, d
 	netcdf_functions.flip_if_necessary(MyParams.outdir+'rot.nc');
 	netcdf_functions.produce_output_netcdf(xdata, ydata, dilatation, 'per yr', MyParams.outdir+'dila.nc');
 	netcdf_functions.flip_if_necessary(MyParams.outdir+'dila.nc');
+	netcdf_functions.produce_output_netcdf(xdata, ydata, max_shear, 'per yr', MyParams.outdir+'max_shear.nc');
+	netcdf_functions.flip_if_necessary(MyParams.outdir+'max_shear.nc');
 	print("Max I2: %f " % (np.amax(I2nd)));
 	print("Max rot: %f " % (np.amax(rot)));
 	print("Min rot: %f " % (np.amin(rot)));
@@ -118,10 +120,10 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 	rotfile=open(MyParams.outdir+"rotation.txt",'w');
 	I2ndfile=open(MyParams.outdir+"I2nd.txt",'w');
 	Dfile=open(MyParams.outdir+"Dilatation.txt",'w');
+	maxfile=open(MyParams.outdir+"max_shear.txt",'w');
 	positive_file=open(MyParams.outdir+"positive_eigs.txt",'w');
 	negative_file=open(MyParams.outdir+"negative_eigs.txt",'w');
 	gmt_file=open(MyParams.outdir+"run_gmt.sh", 'w')
-	# lucy_file=open(MyParams.outdir+"lucy.txt", 'w');
 
 	outfile=open(MyParams.outdir+"tempgps.txt",'w');
 	for i in range(len(myVelfield.n)):
@@ -147,6 +149,12 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 		Dfile.write(str(polygon_vertices[i,1,0])+" "+str(polygon_vertices[i,1,1])+"\n");
 		Dfile.write(str(polygon_vertices[i,2,0])+" "+str(polygon_vertices[i,2,1])+"\n");
 
+		# Write the dilatation
+		maxfile.write("> -Z"+str(max_shear[i])+"\n"); 
+		maxfile.write(str(polygon_vertices[i,0,0])+" "+str(polygon_vertices[i,0,1])+"\n");
+		maxfile.write(str(polygon_vertices[i,1,0])+" "+str(polygon_vertices[i,1,1])+"\n");
+		maxfile.write(str(polygon_vertices[i,2,0])+" "+str(polygon_vertices[i,2,1])+"\n");
+
 		# Write the eigenvectors and eigenvalues
 		write_single_eigenvector(positive_file, negative_file, e1[i], v00[i], v10[i], xcentroid[i], ycentroid[i]);
 		write_single_eigenvector(positive_file, negative_file, e2[i], v01[i], v11[i], xcentroid[i], ycentroid[i]);
@@ -160,6 +168,7 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 	rotfile.close();
 	I2ndfile.close();
 	Dfile.close();
+	maxfile.close();
 	positive_file.close();
 	negative_file.close();
 	gmt_file.close();
