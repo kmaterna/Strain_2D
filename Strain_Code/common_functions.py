@@ -71,6 +71,8 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
 		eigs_dec=12;
 	elif MyParams.strain_method=='spline':
 		eigs_dec=8;
+	elif MyParams.strain_method=='ND_interp':
+		eigs_dec=12;
 	else:
 		print("Error! strain method not recognized for eigenvector plotting.");
 

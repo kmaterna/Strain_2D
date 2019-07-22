@@ -66,6 +66,13 @@ def get_tunable_options(strain_method, map_range):
 		outdir     ="Results/Results_Numpy_Spline/"
 		gmtfile    ="Strain_Code/GMT_mapping_codes/spline_gmt.gmt"
 
+	elif strain_method=="ND_interp":
+		grid_inc   =0.02; 
+		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];  # big box, small box
+		coord_box_data = [-126, -114, 32, 48,];
+		outdir     ="Results/Results_ND_interp/"
+		gmtfile    ="Strain_Code/GMT_mapping_codes/ND_interp_gmt.gmt"
+
 	else:
 		print("ERROR: "+strain_method+" is not a known strain method. ");
 		sys.exit(1);

@@ -9,7 +9,7 @@ import hammond_strain
 import gpsgridder_strain
 import visr_strain
 import spline_strain
-# import lucy_strains
+import ND_interp_strain
 
 
 # The types of driver functions. 
@@ -36,7 +36,7 @@ def driver_2d(strain_method):
 driver_dict={
 	"delaunay":driver_1d, 
 	"hammond":driver_1d,
-	# "lucy":driver_1d,
+	"ND_interp":driver_2d,
 	"spline":driver_2d,
 	"gpsgridder":driver_2d,
 	"visr": driver_2d };
@@ -45,7 +45,7 @@ driver_dict={
 compute_dict={
 	"delaunay":delaunay_strain.compute, 
 	"hammond":hammond_strain.compute,
-	# "lucy":lucy_strain.compute,
+	"ND_interp":ND_interp_strain.compute,
 	"spline":spline_strain.compute,
 	"gpsgridder":gpsgridder_strain.compute,
 	"visr":visr_strain.compute };
