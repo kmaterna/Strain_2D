@@ -32,7 +32,7 @@ def configure(strain_method):
 # A couple of options that change based on strain method. 
 def get_tunable_options(strain_method, map_range):
 	if strain_method=="gpsgridder":
-		grid_inc   =0.02;
+		grid_inc   =0.04;
 		coord_box  =[map_range[0]-1, map_range[1]+3, map_range[2]-2, map_range[3]+2];
 		coord_box_data = coord_box;
 		outdir     ="Results/Results_GPSgridder/";
@@ -60,14 +60,14 @@ def get_tunable_options(strain_method, map_range):
 		gmtfile    ="Strain_Code/GMT_mapping_codes/hammond_gmt.gmt"
 
 	elif strain_method=="spline":
-		grid_inc   =0.02; 
+		grid_inc   =0.04; 
 		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];  # big box, small box
 		coord_box_data = [-126, -114, 32, 48,];
 		outdir     ="Results/Results_Numpy_Spline/"
 		gmtfile    ="Strain_Code/GMT_mapping_codes/spline_gmt.gmt"
 
 	elif strain_method=="ND_interp":
-		grid_inc   =0.02; 
+		grid_inc   =0.04; 
 		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];  # big box, small box
 		coord_box_data = [-126, -114, 32, 48,];
 		outdir     ="Results/Results_ND_interp/"
