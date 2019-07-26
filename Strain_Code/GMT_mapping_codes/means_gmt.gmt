@@ -7,7 +7,7 @@ output_pdf="../../Results/Results_means/means.pdf"
 
 rm $output_pdf
 
-gmt makecpt -T-1/5/0.5 -Crainbow.cpt > mycpt.cpt
+gmt makecpt -T-1/5/0.1 -Crainbow.cpt > mycpt.cpt
 gmt grdimage $filename -R$range -J$projection -BWeSN+t"Mean I2nd" -Bp1.0 -Cmycpt.cpt -K > $output
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $output
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"I2nd (log 10)":/:: -Cmycpt.cpt -K -O >> $output

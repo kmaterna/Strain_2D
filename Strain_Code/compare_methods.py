@@ -21,19 +21,58 @@ def input_netcdf(nc):
 
 # uses uniform data points from net cdfs with different coord boxes, and confines it to a uniform coord box
 def confine_to_grid(x, y, values, xmin, xmax, ymin, ymax, inc):
+	print("registering %s to grid [%.2f %.2f %.2f %.2f %.2f] " % ("strain", xmin, xmax, ymin, ymax, inc) );
+
 	new_lon = np.arange(xmin, xmax, inc)
 	new_lat = np.arange(ymin, ymax, inc)
 	new_vals = []
+
+	x = np.around(x, 6)
+	xmin = abs(xmin) + 0.00002
+	xmax = abs(xmax) + 0.00002
+	ymin = abs(ymin) + 0.00002
+	ymax = abs(ymax) + 0.00002
+
 	for i in range(len(x)):
 		for j in range(len(y)):
-			if x[i] >= xmin and x[i] <= xmax and y[j] >= ymin and y[j] <= ymax:
+			if abs(x[i]) <= abs(xmin) and abs(x[i]) >= xmax and y[j] >= ymin and y[j] <= ymax:
 				new_vals.append(values[j][i])
-	print(len(new_vals))
+
 	final_vals = []
 	for i in np.arange(0, len(new_vals), len(new_lat)):
 		final_vals.append(new_vals[i:i+len(new_lat)])
 	final_vals = np.transpose(final_vals)
+
 	return new_lon, new_lat, final_vals
+
+def check_coregistration(v1, v2, v3, v4):
+	if np.shape(v1) != np.shape(v2):
+		print("\n   Oops! The shape of method 1 vals is %d by %d \n" % (np.shape(v1)[0], np.shape(v1)[1] ) );
+		print("   But shape of method 2 vals is %d by %d " % (np.shape(v2)[0], np.shape(v2)[1] ) );
+		print("   so not all value arrays are coregistered! \n")
+	elif np.shape(v1) != np.shape(v3):
+		print("\n   Oops! The shape of method 1 vals is %d by %d \n" % (np.shape(v1)[0], np.shape(v1)[1] ) );
+		print("   But shape of method 3 vals is %d by %d \n" % (np.shape(v3)[0], np.shape(v3)[1] ) );
+		print("   so not all value arrays are coregistered! \n")
+	elif np.shape(v1) != np.shape(v4):
+		print("\n   Oops! The shape of method 1 vals is %d by %d \n" % (np.shape(v1)[0], np.shape(v1)[1] ) );
+		print("   But shape of method 4 vals is %d by %d \n" % (np.shape(v4)[0], np.shape(v4)[1] ) );
+		print("   so not all value arrays are coregistered! \n")
+	elif np.shape(v2) != np.shape(v3):
+		print("\n   Oops! The shape of method 2 vals is %d by %d \n" % (np.shape(v2)[0], np.shape(v2)[1] ) );
+		print("   But shape of method 3 vals is %d by %d \n" % (np.shape(v3)[0], np.shape(v3)[1] ) );
+		print("   so not all value arrays are coregistered! \n")
+	elif np.shape(v2) != np.shape(v4):
+		print("\n   Oops! The shape of method 2 vals is %d by %d \n" % (np.shape(v2)[0], np.shape(v2)[1] ) );
+		print("   But shape of method 4 vals is %d by %d \n" % (np.shape(v4)[0], np.shape(v4)[1] ) );
+		print("   so not all value arrays are coregistered! \n")
+	elif np.shape(v3) != np.shape(v4):
+		print("\n   Oops! The shape of method 3 vals is %d by %d \n" % (np.shape(v3)[0], np.shape(v3)[1] ) );
+		print("   But shape of method 4 vals is %d by %d \n" % (np.shape(v4)[0], np.shape(v4)[1] ) );
+		print("   so not all value arrays are coregistered! \n")
+	else:
+		print("All methods are coregistered!")
+	return
 
 # gridwise, calculates means and standard deviations, and returns them as arrays with dimension latitude by longitude
 def grid_avg_std(x, y, vals1, vals2, vals3, vals4):
@@ -64,12 +103,21 @@ lon2, lat2, val2 = input_netcdf(file2)
 lon3, lat3, val3 = input_netcdf(file3)
 lon4, lat4, val4 = input_netcdf(file4)
 
-lons1, lats1, val1 = confine_to_grid(lon1, lat1, val1, -124.5, -121.5, 39, 42, 0.04)
-lons2, lats2, val2 = confine_to_grid(lon2, lat2, val2, -124.5, -121.5, 39, 42, 0.04)
-lons3, lats3, val3 = confine_to_grid(lon3, lat3, val3, -124.5, -121.5, 39, 42, 0.04)
-lons4, lats4, val4 = confine_to_grid(lon4, lat4, val4, -124.5, -121.5, 39, 42, 0.04)
 
-my_means, my_sds = grid_avg_std(lons2, lats2, val1, val2, val4, val4)
+lons1, lats1, val1 = confine_to_grid(lon1, lat1, val1, -124.3, -121.5, 39, 42, 0.04)
+lons2, lats2, val2 = confine_to_grid(lon2, lat2, val2, -124.3, -121.5, 39, 42, 0.04)
+lons3, lats3, val3 = confine_to_grid(lon3, lat3, val3, -124.3, -121.5, 39, 42, 0.04)
+lons4, lats4, val4 = confine_to_grid(lon4, lat4, val4, -124.3, -121.5, 39, 42, 0.04)
+
+check_coregistration(val1, val2, val3, val4);
+
+
+print(val1.shape)
+print(val2.shape)
+print(val3.shape)
+print(val4.shape)
+
+my_means, my_sds = grid_avg_std(lons2, lats2, val1, val3, val4, val4)
 
 output_nc(lons2, lats2, my_means, "means")
 output_nc(lons2, lats2, my_sds, "deviations")
