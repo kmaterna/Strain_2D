@@ -9,7 +9,7 @@ file1 = "../Results/Results_Delaunay/I2nd.nc"
 file2 = "../Results/Results_Numpy_Spline/I2nd.nc"
 file3 = "../Results/Results_Visr/I2nd.nc"
 file4 = "../Results/Results_ND_interp/I2nd.nc"
-
+file5 = "../Results/Results_Tape/I2nd.nc"
 # inputs data from netcdfs. netcdfs must have uniform grid size, and generally cover northern california
 # outputs an n-dim array of lons, and m-d array of lats, and an m by n array of values
 def input_netcdf(nc):
@@ -45,7 +45,7 @@ def confine_to_grid(x, y, values, xmin, xmax, ymin, ymax, inc):
 
 	return new_lon, new_lat, final_vals
 
-def check_coregistration(v1, v2, v3, v4):
+def check_coregistration(v1, v2, v3, v4, v5):
 	if np.shape(v1) != np.shape(v2):
 		print("\n   Oops! The shape of method 1 vals is %d by %d \n" % (np.shape(v1)[0], np.shape(v1)[1] ) );
 		print("   But shape of method 2 vals is %d by %d " % (np.shape(v2)[0], np.shape(v2)[1] ) );
@@ -75,7 +75,7 @@ def check_coregistration(v1, v2, v3, v4):
 	return
 
 # gridwise, calculates means and standard deviations, and returns them as arrays with dimension latitude by longitude
-def grid_avg_std(x, y, vals1, vals2, vals3, vals4):
+def grid_avg_std(x, y, vals1, vals2, vals3, vals4, vals5):
 	mean_vals = np.nan * np.ones([len(y), len(x)])
 	sd_vals = np.nan * np.ones([len(y), len(x)])
 	for j in range(len(y)):
@@ -102,14 +102,15 @@ lon1, lat1, val1 = input_netcdf(file1)
 lon2, lat2, val2 = input_netcdf(file2)
 lon3, lat3, val3 = input_netcdf(file3)
 lon4, lat4, val4 = input_netcdf(file4)
-
+# lon5, lat5, val5 = input_netcdf(file5)
 
 lons1, lats1, val1 = confine_to_grid(lon1, lat1, val1, -124.3, -121.5, 39, 42, 0.04)
 lons2, lats2, val2 = confine_to_grid(lon2, lat2, val2, -124.3, -121.5, 39, 42, 0.04)
 lons3, lats3, val3 = confine_to_grid(lon3, lat3, val3, -124.3, -121.5, 39, 42, 0.04)
 lons4, lats4, val4 = confine_to_grid(lon4, lat4, val4, -124.3, -121.5, 39, 42, 0.04)
+lons5, lats5, val5 = confine_to_grid(lon5, lat5, val5, -124.3, -121.5, 39, 42, 0.04)
 
-check_coregistration(val1, val2, val3, val4);
+check_coregistration(val1, val2, val3, val4, val5);
 
 
 print(val1.shape)
@@ -117,7 +118,9 @@ print(val2.shape)
 print(val3.shape)
 print(val4.shape)
 
-my_means, my_sds = grid_avg_std(lons2, lats2, val1, val3, val4, val4)
+my_means, my_sds = grid_avg_std(lons2, lats2, val1, val3, val4, val4, val5)
 
-output_nc(lons2, lats2, my_means, "means")
-output_nc(lons2, lats2, my_sds, "deviations")
+print(lons2)
+print(lats2)
+# output_nc(lons2, lats2, my_means, "means")
+# output_nc(lons2, lats2, my_sds, "deviations")
