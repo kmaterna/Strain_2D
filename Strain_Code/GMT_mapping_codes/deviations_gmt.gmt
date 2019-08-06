@@ -7,7 +7,7 @@ output_pdf="../../Results/Results_means/deviations.pdf"
 
 rm $output_pdf
 
-gmt makecpt -T0/2/0.01 -Cgray > greycpt.cpt
+gmt makecpt -T0/2/0.01 -Cjet > greycpt.cpt
 gmt grdimage $filename -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Cgreycpt.cpt -K > $output
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $output
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Deviations":/:: -Cgreycpt.cpt -K -O >> $output

@@ -1,15 +1,14 @@
 import numpy as np
-import sys
-import subprocess
-import scipy.io.netcdf as netcdf
-import matplotlib.pyplot as plt
+import scipy.interpolate as interp
+import matplotlib.path
 
-print('Hello');
-print("Exiting");
-# sys.exit(0);
-print("Haven't exited yet");
-subprocess.call(['mkdir','-p','hooray'],shell=False)
-print("Made directory!")
-# subprocess.call(['pwd'], shell=False, cwd="Strain_Code")
-subprocess.call(['pwd'], shell=False, cwd="Strain_Code")
-print("printed directory")
+x = (1, 3, 5, 7)
+y = (2, 4, 6, 8)
+vals = (2, 12, 30, 56)
+newx = (1, 2, 3, 4, 5, 6)
+newy = (1, 2, 3, 4, 5, 6)
+
+nearest = interp.NearestNDInterpolator((x, y), vals)
+newvals = nearest(2, 3)
+
+print(newvals)

@@ -27,16 +27,19 @@ def confine_to_grid(x, y, values, xmin, xmax, ymin, ymax, inc):
 	new_lat = np.arange(ymin, ymax, inc)
 	new_vals = []
 
-	x = np.around(x, 6)
-	xmin = abs(xmin) + 0.00002
-	xmax = abs(xmax) + 0.00002
-	ymin = abs(ymin) + 0.00002
-	ymax = abs(ymax) + 0.00002
+	x = np.around(x, 5)
+	y = np.around(y, 5)
+	# xmin = xmin + 0.00002
+	# xmax = xmax + 0.00002
+	# ymin = ymin + 0.00002
+	# ymax = ymax + 0.00002
+	tol = 0.002
 
 	for i in range(len(x)):
 		for j in range(len(y)):
-			if abs(x[i]) <= abs(xmin) and abs(x[i]) >= xmax and y[j] >= ymin and y[j] <= ymax:
-				new_vals.append(values[j][i])
+			if (xmin < x[i] < xmax) or (abs((x[i] - xmin)) < tol) or (abs((x[i] - xmax)) < tol):
+				if (ymin < y[j] < ymax) or  (abs((y[j] - ymin)) < tol) or (abs((y[j] - ymax)) < tol):
+					new_vals.append(values[j][i])
 
 	final_vals = []
 	for i in np.arange(0, len(new_vals), len(new_lat)):
@@ -57,6 +60,10 @@ def check_coregistration(v1, v2, v3, v4, v5):
 	elif np.shape(v1) != np.shape(v4):
 		print("\n   Oops! The shape of method 1 vals is %d by %d \n" % (np.shape(v1)[0], np.shape(v1)[1] ) );
 		print("   But shape of method 4 vals is %d by %d \n" % (np.shape(v4)[0], np.shape(v4)[1] ) );
+		print("   so not all value arrays are coregistered! \n")
+	elif np.shape(v1) != np.shape(v5):
+		print("\n   Oops! The shape of method 1 vals is %d by %d \n" % (np.shape(v1)[0], np.shape(v1)[1] ) );
+		print("   But shape of method 5 vals is %d by %d " % (np.shape(v5)[0], np.shape(v5)[1] ) );
 		print("   so not all value arrays are coregistered! \n")
 	elif np.shape(v2) != np.shape(v3):
 		print("\n   Oops! The shape of method 2 vals is %d by %d \n" % (np.shape(v2)[0], np.shape(v2)[1] ) );
@@ -84,8 +91,9 @@ def grid_avg_std(x, y, vals1, vals2, vals3, vals4, vals5):
 			val2 = vals2[j][i]
 			val3 = vals3[j][i]
 			val4 = vals4[j][i]
-			mean_val = np.nanmean([val1, val2, val3, val4])
-			sd_val = np.nanstd([val1, val2, val3, val4])
+			val5 = vals5[j][i]
+			mean_val = np.nanmean([val1, val2, val3, val4, val5])
+			sd_val = np.nanstd([val1, val2, val3, val4, val5])
 			if mean_val != float("-inf"):
 				mean_vals[j][i] = mean_val
 			sd_vals[j][i] = sd_val
@@ -102,13 +110,30 @@ lon1, lat1, val1 = input_netcdf(file1)
 lon2, lat2, val2 = input_netcdf(file2)
 lon3, lat3, val3 = input_netcdf(file3)
 lon4, lat4, val4 = input_netcdf(file4)
-# lon5, lat5, val5 = input_netcdf(file5)
+lon5, lat5, val5 = input_netcdf(file5)
 
-lons1, lats1, val1 = confine_to_grid(lon1, lat1, val1, -124.3, -121.5, 39, 42, 0.04)
-lons2, lats2, val2 = confine_to_grid(lon2, lat2, val2, -124.3, -121.5, 39, 42, 0.04)
-lons3, lats3, val3 = confine_to_grid(lon3, lat3, val3, -124.3, -121.5, 39, 42, 0.04)
-lons4, lats4, val4 = confine_to_grid(lon4, lat4, val4, -124.3, -121.5, 39, 42, 0.04)
-lons5, lats5, val5 = confine_to_grid(lon5, lat5, val5, -124.3, -121.5, 39, 42, 0.04)
+print(lon1[0])
+print(lon2[0])
+print(lon3[0])
+
+print("delaunay: %.2f %.2f %.2f %.2f " % ( min(lon1), max(lon1), min(lat1), max(lat1) ) );
+
+print("spline: %.2f %.2f %.2f %.2f " % ( min(lon2), max(lon2), min(lat2), max(lat2) ) );
+
+print("visr: %.2f %.2f %.2f %.2f " % ( min(lon3), max(lon3), min(lat3), max(lat3) ) );
+
+print("nd interp: %.2f %.2f %.2f %.2f " % ( min(lon4), max(lon4), min(lat4), max(lat4) ) );
+
+print("tape: %.2f %.2f %.2f %.2f " % ( min(lon5), max(lon5), min(lat5), max(lat5) ) );
+
+
+
+
+lons1, lats1, val1 = confine_to_grid(lon1, lat1, val1, -124.3, -121.2, 37.2, 42, 0.04)
+lons2, lats2, val2 = confine_to_grid(lon2, lat2, val2, -124.3, -121.2, 37.2, 42, 0.04)
+lons3, lats3, val3 = confine_to_grid(lon3, lat3, val3, -124.3, -121.2, 37.2, 42, 0.04)
+lons4, lats4, val4 = confine_to_grid(lon4, lat4, val4, -124.3, -121.2, 37.2, 42, 0.04)
+lons5, lats5, val5 = confine_to_grid(lon5, lat5, val5, -124.3, -121.2, 37.2, 42, 0.04)
 
 check_coregistration(val1, val2, val3, val4, val5);
 
@@ -117,10 +142,19 @@ print(val1.shape)
 print(val2.shape)
 print(val3.shape)
 print(val4.shape)
+print(val5.shape)
+# print(len(val1))
+# print(len(val2))
+# print(len(val3))
+# print(len(val4))
+# print(len(val5))
+
+print(len(lons5))
+print(len(lats5))
 
 my_means, my_sds = grid_avg_std(lons2, lats2, val1, val3, val4, val4, val5)
 
-print(lons2)
-print(lats2)
-# output_nc(lons2, lats2, my_means, "means")
-# output_nc(lons2, lats2, my_sds, "deviations")
+# print(lons2)
+# print(lats2)
+output_nc(lons2, lats2, my_means, "means")
+output_nc(lons2, lats2, my_sds, "deviations")

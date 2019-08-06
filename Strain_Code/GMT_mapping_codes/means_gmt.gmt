@@ -1,18 +1,28 @@
-filename="../../Results/Results_means/means.nc"
+file1="../../Results/Results_means/means.nc"
+file2="../../Results/Results_means/deviations.nc"
 projection="M3.7i"
-range="-124.5/-121.5/39/42"
-output="../../Results/Results_means/means.ps"
-output_pdf="../../Results/Results_means/means.pdf"
+range="-124.5/-121.2/37.3/42"
+output="../../Results/Results_means/means_deviations.ps"
+output_pdf="../../Results/Results_means/means_deviations.pdf"
 
 
 rm $output_pdf
 
-gmt makecpt -T-1/5/0.1 -Crainbow.cpt > mycpt.cpt
-gmt grdimage $filename -R$range -J$projection -BWeSN+t"Mean I2nd" -Bp1.0 -Cmycpt.cpt -K > $output
+gmt makecpt -T-1/5/0.1 -Crainbow.cpt > cpt1.cpt
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2.5 -K -O >> $output
+gmt grdimage $file1 -R$range -J$projection -BWeSN+t"Mean I2nd" -Bp1.0 -Ccpt1.cpt -K > $output
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $output
-gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"I2nd (log 10)":/:: -Cmycpt.cpt -K -O >> $output
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"I2nd (log 10)":/:: -Ccpt1.cpt -K -O >> $output
 
-gmt psconvert $output -Tf
+gmt makecpt -T0/2.2/0.01 -Cpolar > cpt2.cpt
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $output
+gmt grdimage $file2 -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $output
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $output
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $output
+
 
 rm gmt.history
-rm mycpt.cpt
+rm cpt1.cpt
+rm cpt2.cpt
+
+gmt psconvert $output -Tf
