@@ -1,5 +1,5 @@
-file1="../Example_data/unr_velo.txt"
-file2="../Example_data/unr_velo_clean.txt"
+file1="../../Example_data/unr_velo.txt"
+file2="../../Example_data/unr_velo_clean.txt"
 outfile1="unr_velo.ps"
 outfile1_pdf="unr_velo.pdf"
 outfile2="unr_velo_clean.ps"

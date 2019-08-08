@@ -1,6 +1,6 @@
 import gps_input_functions as gpsin
 
-[myVelfield] = gpsin.read_unr_vel_file("../Example_data/midas.NA12.txt")
+[myVelfield] = gpsin.read_unr_vel_file("../../Example_data/midas.NA12.txt")
 # [myVelfield] = gpsin.blacklist("../Example_data/blacklist_stations.txt", myVelfield)
 [myVelfield] = gpsin.clean_velfield(myVelfield, 2, .95, [-125, -121, 37, 42])
 
@@ -11,4 +11,4 @@ def output_unr(velfield, outdir):
 	outfile.close();
 	return;
 
-output_unr(myVelfield, "../Example_data/")
+output_unr(myVelfield, "../../Example_data/")
