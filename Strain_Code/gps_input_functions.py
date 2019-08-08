@@ -67,7 +67,7 @@ def read_unr_vel_file(infile):
 	ifile=open(infile,'r');
 	for line in ifile:
 		temp=line.split();
-		if temp[0]=="#":
+		if temp[0]=="#" or temp[0]=="COFL" or temp[0]=="COFM" or temp[0]=="COGV" or temp[0]=="TSTC" or temp[0]=="TXC2" or temp[0]=="TXMK":
 			continue;
 		else:
 			name.append(temp[0]);
@@ -81,7 +81,6 @@ def read_unr_vel_file(infile):
 
 	[elon,nlat]=get_coordinates_for_stations(name);
 	[first_epoch, last_epoch] = get_start_times_for_stations(name);
-
 	myVelfield = Velfield(name=name, nlat=nlat, elon=elon, n=n, e=e, u=u, sn=sn, se=sn, su=su, first_epoch=first_epoch, last_epoch=last_epoch);
 	return [myVelfield]; 
 
@@ -91,7 +90,7 @@ def clean_velfield(velfield, num_years, max_sigma, coord_box):
 # Take the raw GPS velocities, and clean them up. 
 # Remove data that's less than num_years long, 
 # has formal uncertainties above max_sigma, 
-# or is outside our box of intersest. 
+# or is outside our box of interest. 
 	name=[]; nlat=[]; elon=[]; n=[]; e=[]; u=[]; sn=[]; se=[]; su=[]; first_epoch=[]; last_epoch=[];
 	for i in range(len(velfield.n)):
 		if velfield.sn[i] > max_sigma:  
@@ -147,7 +146,7 @@ def remove_duplicates(velfield):
 
 
 
-def get_coordinates_for_stations(station_names,coordinates_file="../../GPS_POS_DATA/UNR_DATA/UNR_coords_july2018.txt"):
+def get_coordinates_for_stations(station_names,coordinates_file="../Example_data/DataHoldings.txt"):
 	lon=[];
 	lat=[];
 	reference_names=[]; reference_lons=[]; reference_lats=[];
@@ -180,7 +179,7 @@ def get_coordinates_for_stations(station_names,coordinates_file="../../GPS_POS_D
 	return [lon,lat];
 
 
-def get_start_times_for_stations(station_names,coordinates_file="../../GPS_POS_DATA/UNR_DATA/UNR_coords_july2018.txt"):
+def get_start_times_for_stations(station_names,coordinates_file="../Example_data/DataHoldings.txt"):
 	# Meant for UNR stations
 	end_time=[];
 	start_time=[];
@@ -210,5 +209,26 @@ def get_start_times_for_stations(station_names,coordinates_file="../../GPS_POS_D
 	return [start_time,end_time];
 
 
+def blacklist(blacklist, velfield):
+	with open (blacklist, "r") as f:
+		blacklist=f.readlines()
 
+	name=[]; nlat=[]; elon=[]; n=[]; e=[]; u=[]; sn=[]; se=[]; su=[]; first_epoch=[]; last_epoch=[];
+
+	for i in range(len(velfield.name)):
+		if velfield.name[i] not in blacklist:
+				name.append(velfield.name[i])
+				nlat.append(velfield.nlat[i])
+				elon.append(velfield.elon[i])
+				n.append(velfield.n[i])
+				e.append(velfield.e[i])
+				u.append(velfield.u[i])
+				sn.append(velfield.sn[i])
+				se.append(velfield.se[i])
+				su.append(velfield.su[i])
+				first_epoch.append(velfield.first_epoch[i])
+				last_epoch.append(velfield.last_epoch[i])
+
+	myVelfield = Velfield(name=name, nlat=nlat, elon=elon, n=n, e=e, u=u, sn=sn, se=sn, su=su, first_epoch=first_epoch, last_epoch=last_epoch);
+	return [myVelfield]; 
 

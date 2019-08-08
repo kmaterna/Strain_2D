@@ -1,0 +1,9 @@
+# GMT 5 Session common arguments shelf
+BEGIN GMT 5.4.5
+B	WESN+tUNR Velo Field (clean)
+J	M
+JM	M6i
+R	-125.5/-121/37/42
+Y	2.5
+L	2
+END

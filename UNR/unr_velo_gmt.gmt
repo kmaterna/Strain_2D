@@ -1,0 +1,20 @@
+file1="../Example_data/unr_velo.txt"
+file2="../Example_data/unr_velo_clean.txt"
+outfile1="unr_velo.ps"
+outfile1_pdf="unr_velo.pdf"
+outfile2="unr_velo_clean.ps"
+outfile2_pdf="unr_velo_clean.pdf"
+range="-125.5/-121/37/42"
+projection="M6i"
+
+rm $outfile1_pdf
+rm $outfile2_pdf
+
+gmt pscoast -J$projection -R$range -B2.0 -Dh -Ggrey -Na -Slightblue -Wthinner,black -P -K > $outfile1
+gmt psvelo $file1 -J$projection -R$range -BWESN+t"UNR Velo Field" -Se0.02/0.95/16 -Wred -Gred -K -O >> $outfile1
+
+gmt pscoast -J$projection -R$range -B2.0 -Dh -Ggrey -Na -Slightblue -Wthinner,black -P -K > $outfile2
+gmt psvelo $file2 -J$projection -R$range -BWESN+t"UNR Velo Field (clean)" -Se0.02/0.95/16 -Wred -Gred -K -O >> $outfile2
+
+gmt psconvert $outfile1 -Tf
+gmt psconvert $outfile2 -Tf
