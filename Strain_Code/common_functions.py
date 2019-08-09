@@ -11,6 +11,7 @@ import subprocess, sys, os
 import collections
 import gps_input_functions
 import netcdf_functions
+import strain_tensor_toolbox
 
 
 Params=collections.namedtuple("Params",['strain_method','input_file','map_range','coord_box','coord_box_data','num_years','max_sigma','grid_inc','outdir','gmtfile']);
@@ -43,6 +44,8 @@ def outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, d
 	for i in range(len(myVelfield.n)):
 		outfile.write("%f %f %f %f %f %f 0.0\n" % (myVelfield.elon[i], myVelfield.nlat[i], myVelfield.e[i], myVelfield.n[i], myVelfield.se[i], myVelfield.sn[i]) );
 	outfile.close();
+	azimuth = strain_tensor_toolbox.max_shortening_azimuth(e1, e2, v00, v01, v10, v11)
+	netcdf_functions.produce_output_netcdf(xdata, ydata, azimuth, 'degrees', MyParams.outdir+'azimuth.nc');
 	netcdf_functions.produce_output_netcdf(xdata, ydata, I2nd, 'per yr', MyParams.outdir+'I2nd.nc');
 	netcdf_functions.flip_if_necessary(MyParams.outdir+'I2nd.nc');
 	netcdf_functions.produce_output_netcdf(xdata, ydata, rot, 'per yr', MyParams.outdir+'rot.nc');

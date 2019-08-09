@@ -8,7 +8,7 @@
 
 
 import numpy as np 
-
+import math as m
 
 def second_invariant(exx, exy, eyy):
 	e2nd = exx*eyy - exy*exy;
@@ -51,4 +51,26 @@ def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
 	rot=rot*1000.0;
 	return [exx, exy, eyy, rot];
 
-	
+def max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
+	az = np.zeros(e1.shape)
+	for i in range(len(e1)):
+		for j in range(len(e1[0])):
+			az[i][j] = azimuth_math(e1[i][j], e2[i][j], v00[i][j], v01[i][j], v10[i][j], v11[i][j]);
+			if az[i][j]>179.999:
+				print("OOPSSSSS %d %d" % (i, j) )
+	print("Minimum azimuth: %.3f degrees" % np.min(az))
+	print("Maximum azimuth: %.3f degrees" % np.max(az))
+	return az
+
+def azimuth_math(e1, e2, v00, v01, v10, v11):
+	if e1 < e2:
+		maxv = np.array([v00, v10])
+	else:
+		maxv = np.array([v01, v11])
+	strike = np.arctan2(maxv[1],maxv[0])
+	theta = 90 - m.degrees(strike)
+	if theta < 0:
+		theta = 180 + theta
+	elif theta > 180:
+		theta = theta - 180
+	return theta

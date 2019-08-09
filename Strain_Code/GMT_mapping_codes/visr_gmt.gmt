@@ -6,6 +6,7 @@ projection="M3.7i"
 output="visr_vel.ps"
 out_strain="visr_strain.ps"
 out_dila="visr_dilatation.ps"
+out_az="visr_az.ps"
 # range="-121/-115/32/37"
 
 
@@ -48,6 +49,17 @@ gmt psvelo tempgps.txt -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$proj
 #awk '{print $1, $2, $4, $7}' misfitfile.txt | gmt psvelo -Se0.03/0.68/0 -A+e+pthick,black -Gblack -R$range -J$projection -K -O >> $out_strain
 
 
+# Azimuth
+gmt makecpt -T0/180/1 -D -Crainbow.cpt > mycpt.cpt
+gmt grdimage azimuth.nc -R$range -J$projection -BWeSN+t"Max Shortening Azimuth" -Bp1.0 -Cmycpt.cpt -P -K > $out_az
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B15.0:"degrees from north":/:: -Cmycpt.cpt -K -O >> $out_az
+gmt psvelo positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_az
+gmt psvelo negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_az
+gmt pscoast -R$range -J$projection -Wthick,black -Sgrey -Df -K -O >> $out_az
+
+gmt psconvert $out_strain -Tf
+gmt psconvert $out_dila -Tf
+gmt psconvert $out_az -Tf
 
 rm gmt.history
 rm mycpt.cpt

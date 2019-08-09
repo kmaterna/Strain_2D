@@ -1,37 +1,31 @@
-filename="../../Results/Results_Tape/I2nd.nc"
+#!/bin/bash
+
 projection="M3.7i"
 range="-124.5/-121.5/39/42"
-output="../../Results/Results_Tape/I2nd.ps"
-output_pdf="../../Results/Results_Tape/I2nd.pdf"
+out_strain="tape_strain.ps"
+out_strain_pdf="tape_strain.pdf"
+out_az="tape_az.ps"
+out_az_pdf="tape_az.pdf"
 
 
 rm $output_pdf
 
 gmt makecpt -T0/5/0.1 -Crainbow.cpt > mycpt.cpt
-gmt grdimage $filename -R$range -J$projection -BWeSN+t"I2nd" -Bp1.0 -Cmycpt.cpt -K > $output
-gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $output
-gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"I2nd (log 10)":/:: -Cmycpt.cpt -K -O >> $output
+gmt grdimage I2nd.nc -R$range -J$projection -BWeSN+t"I2nd" -Bp1.0 -Cmycpt.cpt -K > $out_strain
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"I2nd (log 10)":/:: -Cmycpt.cpt -K -O >> $out_strain
 
-gmt psconvert $output -Tf
+# Azimuth
+gmt makecpt -T0/180/1 -D -Crainbow.cpt > mycpt.cpt
+gmt grdimage azimuth.nc -R$range -J$projection -BWeSN+t"Max Shortening Azimuth" -Bp1.0 -Cmycpt.cpt -P -K > $out_az
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B15.0:"degrees from north":/:: -Cmycpt.cpt -K -O >> $out_az
+gmt psvelo positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_az
+gmt psvelo negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_az
+gmt pscoast -R$range -J$projection -Wthick,black -Sgrey -Df -K -O >> $out_az
+
+gmt psconvert $out_strain -Tf
+# gmt psconvert $out_dila -Tf
+gmt psconvert $out_az -Tf
 
 rm gmt.history
 rm mycpt.cpt
-
-# filename="../../Results/Results_Tape/I2nd_socal.nc"
-# projection="M3.7i"
-# range="-122/-113/30/38"
-# output="../../Results/Results_Tape/socal_I2nd.ps"
-# output_pdf="../../Results/Results_Tape/socal_I2nd.pdf"
-
-
-# rm $output_pdf
-
-# gmt makecpt -T-2/5/0.1 -D -Crainbow.cpt > mycpt.cpt
-# gmt grdimage $filename -R$range -J$projection -BWeSN+t"I2nd" -Bp1.0 -Cmycpt.cpt -K > $output
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -N1 -N2 -K -O >> $output
-# gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"I2nd":/:: -Cmycpt.cpt -K -O >> $output
-
-# gmt psconvert $output -Tf
-
-# rm gmt.history
-# rm mycpt.cpt
