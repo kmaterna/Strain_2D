@@ -90,8 +90,10 @@ def grid_avg_std(x, y, vals1, vals2, vals3, vals4, vals5):
 
 # writes the uniform latitude, longitude, and whichever statistical values are desired.
 # outputs to result directory for means as a netcdf which can then be manipulated further with gmt.
-def output_nc(lon, lat, vals, file):
-	netcdf_functions.produce_output_netcdf(lon, lat, vals, 'per yr', "../Results/Results_means/"+file+".nc");
+# stat = "means" or "deviations"
+# component = "I2nd", "max_shear", "dila", "az"
+def output_nc(lon, lat, vals, stat, component):
+	netcdf_functions.produce_output_netcdf(lon, lat, vals, 'per yr', "../Results/Results_means/"+stat+"_"+component+".nc");
 	return
 
 
