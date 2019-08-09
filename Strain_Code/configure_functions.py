@@ -30,54 +30,75 @@ def configure(strain_method):
 
 
 # A couple of options that change based on strain method. 
-def get_tunable_options(strain_method, map_range):
+def get_tunable_options(strain_method, map_range, ETS=0):
 	if strain_method=="gpsgridder":
 		grid_inc   =0.04;
 		coord_box  =[map_range[0]-1, map_range[1]+3, map_range[2]-2, map_range[3]+2];
 		coord_box_data = coord_box;
-		outdir     ="Results/Results_GPSgridder/";
+		if ETS==0:
+			outdir = "Results/Results_GPSgridder/";
+		if ETS==1:
+			outdir="Results/ETS_Results/Results_GPSgridder/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/gpsgridder_gmt.gmt";
 
 	elif strain_method=="visr":
 		grid_inc   =0.04;
 		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];
 		coord_box_data = coord_box;
-		outdir     ="Results/Results_Visr/";
+		if ETS==0:
+			outdir = "Results/Results_Visr/";
+		if ETS==1:
+			outdir="Results/ETS_Results/Results_Visr/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/visr_gmt.gmt";
 
 	elif strain_method=="delaunay":
 		grid_inc   =0.04; # larger interval for convenience, because it's slow. 
 		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];
 		coord_box_data = coord_box;
-		outdir     ="Results/Results_Delaunay/"
+		if ETS==0:
+			outdir = "Results/Results_Delaunay/";
+		if ETS==1:
+			outdir="Results/ETS_Results/Results_Delaunay/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/delaunay_gmt.gmt"
 
 	elif strain_method=="hammond":
 		grid_inc   =0.04; # larger interval for convenience, because it's slow. 
 		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];
 		coord_box_data = coord_box;
-		outdir     ="Results/Results_Hammond/"
+		if ETS==0:
+			outdir = "Results/Results_Hammond/";
+		if ETS==1:
+			outdir="Results/ETS_Results/Results_Hammond/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/hammond_gmt.gmt"
 
 	elif strain_method=="spline":
 		grid_inc   =0.04; 
 		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];  # big box, small box
 		coord_box_data = [-126, -114, 32, 48,];
-		outdir     ="Results/Results_Numpy_Spline/"
+		if ETS==0:
+			outdir = "Results/Results_Numpy_Spline/";
+		if ETS==1:
+			outdir="Results/ETS_Results/Results_Numpy_Spline/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/spline_gmt.gmt"
 
 	elif strain_method=="ND_interp":
 		grid_inc   =0.04; 
 		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];  # big box, small box
 		coord_box_data = [-126, -114, 32, 48,];
-		outdir     ="Results/Results_ND_interp/"
+		if ETS==0:
+			outdir = "Results/Results_ND_interp/";
+		if ETS==1:
+			outdir="Results/ETS_Results/Results_ND_interp/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/ND_interp_gmt.gmt"
 
 	elif strain_method=="tape":
 		grid_inc   =0.04; 
 		coord_box  =[map_range[0]-0.5, map_range[1]+0.5, map_range[2]-0.5, map_range[3]+0.5];  # big box, small box
 		coord_box_data = coord_box;
-		outdir     ="Results/Results_Tape/"
+		if ETS==0:
+			outdir = "Results/Results_Tape/";
+		if ETS==1:
+			outdir="Results/ETS_Results/Results_Tape/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/tape_gmt.gmt"
 
 	else:
