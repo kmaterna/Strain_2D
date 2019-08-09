@@ -211,7 +211,10 @@ def get_start_times_for_stations(station_names,coordinates_file="../Example_data
 
 def blacklist(blacklist, velfield):
 	with open (blacklist, "r") as f:
-		blacklist=f.readlines()
+		blacklist = []
+		blacklist_all=f.readlines()
+		for line in blacklist_all:
+			blacklist.append(line.split()[0])
 
 	name=[]; nlat=[]; elon=[]; n=[]; e=[]; u=[]; sn=[]; se=[]; su=[]; first_epoch=[]; last_epoch=[];
 
