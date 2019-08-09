@@ -21,8 +21,8 @@ def compute(myVelfield, MyParams):
 	print("Computing strain via Visr method.");
 
 	strain_config_file='Strain_Code/visr/visr_strain.drv';
-	strain_data_file='Strain_Code/visr/velocities.vel';
-	strain_output_file='Strain_Code/visr/strain.out';
+	strain_data_file='Strain_Code/visr/vec';  # THIS CAN ONLY BE 20 CHARACTERS LONG!!!
+	strain_output_file='Strain_Code/visr/str';  # THIS CAN ONLY BE 20 CHARACTERS LONG!!!
 	write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, MyParams);
 	write_fortran_data_file(strain_data_file, myVelfield);
 	call_fortran_compute(strain_config_file);
@@ -82,7 +82,7 @@ def call_fortran_compute(config_file):
 	# Here we will call the strain compute function, using visr's fortran code. 
 	# It will output a large text file. 	
 	print("Calling visr.exe fortran code to compute strain. ");
-	subprocess.call('visr/visr.exe < '+config_file, shell=True);
+	subprocess.call('Strain_Code/visr/visr.exe < '+config_file, shell=True);
 	return;
 
 
