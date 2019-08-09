@@ -11,7 +11,7 @@ Params=collections.namedtuple("Params",['strain_method','input_file','map_range'
 
 # ----------------- CONFIGURE -------------------------
 def configure(strain_method):
-	input_file="Example_data/NAM08_pbovelfile_feb2018.vel";
+	input_file="Example_data/midas.NA12.txt";
 	map_range=[-125, -121, 37.0, 42.2]; # Northern California
 	map_range_string = str(map_range[0])+'/'+str(map_range[1])+'/'+str(map_range[2])+'/'+str(map_range[3]);
 	num_years=3.0;

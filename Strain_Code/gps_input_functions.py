@@ -82,6 +82,8 @@ def read_unr_vel_file(infile):
 	[elon,nlat]=get_coordinates_for_stations(name);
 	[first_epoch, last_epoch] = get_start_times_for_stations(name);
 	myVelfield = Velfield(name=name, nlat=nlat, elon=elon, n=n, e=e, u=u, sn=sn, se=sn, su=su, first_epoch=first_epoch, last_epoch=last_epoch);
+	[myVelfield] = clean_velfield(myVelfield, 1, .95, [-125.5, -120.5, 36.5, 43])
+	[myVelfield] = blacklist("Example_data/blacklist_stations.txt", myVelfield)
 	return [myVelfield]; 
 
 
@@ -146,7 +148,7 @@ def remove_duplicates(velfield):
 
 
 
-def get_coordinates_for_stations(station_names,coordinates_file="../Example_data/DataHoldings.txt"):
+def get_coordinates_for_stations(station_names,coordinates_file="Example_data/DataHoldings.txt"):
 	lon=[];
 	lat=[];
 	reference_names=[]; reference_lons=[]; reference_lats=[];
@@ -179,7 +181,7 @@ def get_coordinates_for_stations(station_names,coordinates_file="../Example_data
 	return [lon,lat];
 
 
-def get_start_times_for_stations(station_names,coordinates_file="../Example_data/DataHoldings.txt"):
+def get_start_times_for_stations(station_names,coordinates_file="Example_data/DataHoldings.txt"):
 	# Meant for UNR stations
 	end_time=[];
 	start_time=[];

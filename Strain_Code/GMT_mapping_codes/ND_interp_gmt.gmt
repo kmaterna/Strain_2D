@@ -1,5 +1,4 @@
 #!/bin/bash
-# GMT plotting of gpsgridder results
 
 range=$1
 projection="M3.7i"
