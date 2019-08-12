@@ -119,7 +119,7 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
 
 
 
-def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, myVelfield, MyParams):
+def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, azimuth, myVelfield, MyParams):
 	print("Writing 1d outputs:");
 
 	rotfile=open(MyParams.outdir+"rotation.txt",'w');
@@ -128,7 +128,8 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 	maxfile=open(MyParams.outdir+"max_shear.txt",'w');
 	positive_file=open(MyParams.outdir+"positive_eigs.txt",'w');
 	negative_file=open(MyParams.outdir+"negative_eigs.txt",'w');
-	gmt_file=open(MyParams.outdir+"run_gmt.sh", 'w')
+	gmt_file=open(MyParams.outdir+"run_gmt.sh", 'w');
+	azfile=open(MyParams.outdir+"azimuth.txt", 'w');
 
 	outfile=open(MyParams.outdir+"tempgps.txt",'w');
 	for i in range(len(myVelfield.n)):
@@ -154,11 +155,17 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 		Dfile.write(str(polygon_vertices[i,1,0])+" "+str(polygon_vertices[i,1,1])+"\n");
 		Dfile.write(str(polygon_vertices[i,2,0])+" "+str(polygon_vertices[i,2,1])+"\n");
 
-		# Write the dilatation
+		# Write the max shear
 		maxfile.write("> -Z"+str(max_shear[i])+"\n"); 
 		maxfile.write(str(polygon_vertices[i,0,0])+" "+str(polygon_vertices[i,0,1])+"\n");
 		maxfile.write(str(polygon_vertices[i,1,0])+" "+str(polygon_vertices[i,1,1])+"\n");
 		maxfile.write(str(polygon_vertices[i,2,0])+" "+str(polygon_vertices[i,2,1])+"\n");
+
+		# Write the azimuth
+		azfile.write("> -Z"+str(azimuth[i])+"\n"); 
+		azfile.write(str(polygon_vertices[i,0,0])+" "+str(polygon_vertices[i,0,1])+"\n");
+		azfile.write(str(polygon_vertices[i,1,0])+" "+str(polygon_vertices[i,1,1])+"\n");
+		azfile.write(str(polygon_vertices[i,2,0])+" "+str(polygon_vertices[i,2,1])+"\n");
 
 		# Write the eigenvectors and eigenvalues
 		write_single_eigenvector(positive_file, negative_file, e1[i], v00[i], v10[i], xcentroid[i], ycentroid[i]);
@@ -177,6 +184,7 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 	positive_file.close();
 	negative_file.close();
 	gmt_file.close();
+	azfile.close();
 
 	return;
 

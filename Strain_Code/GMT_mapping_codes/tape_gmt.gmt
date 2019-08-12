@@ -8,7 +8,8 @@ out_az="tape_az.ps"
 out_az_pdf="tape_az.pdf"
 
 
-rm $output_pdf
+rm $out_strain_pdf
+rm $out_az_pdf
 
 gmt makecpt -T0/5/0.1 -Crainbow.cpt > mycpt.cpt
 gmt grdimage I2nd.nc -R$range -J$projection -BWeSN+t"I2nd" -Bp1.0 -Cmycpt.cpt -K > $out_strain

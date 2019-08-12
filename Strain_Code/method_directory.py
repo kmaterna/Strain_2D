@@ -16,8 +16,8 @@ import ND_interp_strain
 def driver_1d(strain_method):
 	[MyParams] = configure_functions.configure(strain_method);
 	[myVelfield] = common_functions.inputs(MyParams);
-	[xdata, ydata, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation] = compute_dict[strain_method](myVelfield, MyParams);
-	common_functions.outputs_1d(xdata, ydata, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, myVelfield, MyParams);
+	[xdata, ydata, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, azimuth] = compute_dict[strain_method](myVelfield, MyParams);
+	common_functions.outputs_1d(xdata, ydata, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, azimuth, myVelfield, MyParams);
 	return;
 
 def driver_2d(strain_method):
