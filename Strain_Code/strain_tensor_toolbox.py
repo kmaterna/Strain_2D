@@ -75,6 +75,7 @@ def azimuth_math(e1, e2, v00, v01, v10, v11):
 		theta = theta - 180
 	return theta
 
+# only used for tape
 def max_shortening_azimuth_1d(e1, e2, v00, v01, v10, v11):
 	az = np.zeros(len(e1))
 	for i in range(len(e1)):

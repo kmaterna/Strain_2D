@@ -1,7 +1,7 @@
 #!/bin/bash
 
 projection="M3.7i"
-range="-124.5/-121.2/37.3/42"
+range="-125/-121.2/37.3/42"
 
 out_strain="mean_strain.ps"
 out_strain_pdf="mean_strain.pdf"
@@ -9,8 +9,8 @@ out_dila="mean_dilatation.ps"
 out_dila_pdf="mean_dilatation.pdf"
 out_shear="mean_max_shear.ps"
 out_shear_pdf="mean_max_shear.pdf"
-out_az="mean_azimuth.ps"
-out_az_pdf="mean_azimuth.pdf"
+out_az="means_azimuth_test.ps"
+out_az_pdf="means_azimuth_test.pdf"
 
 
 rm $out_strain_pdf
@@ -20,7 +20,7 @@ rm $out_az_pdf
 
 # second invariant
 gmt makecpt -T-1/5/0.1 -Crainbow.cpt > cpt1.cpt
-gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2.5 -K -O >> $out_strain
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2 -K -O >> $out_strain
 gmt grdimage means_I2nd.nc -R$range -J$projection -BWeSN+t"Mean I2nd" -Bp1.0 -Ccpt1.cpt -K > $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"I2nd (log 10)":/:: -Ccpt1.cpt -K -O >> $out_strain
@@ -60,15 +60,15 @@ gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Deviations":/
 # max shortening azimuth
 gmt makecpt -T0/180/1 -Crainbow.cpt > cpt1.cpt
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2.5 -K -O >> $out_az
-gmt grdimage means_azimuth.nc -R$range -J$projection -BWeSN+t"Mean Azimuth (max shortening)" -Bp1.0 -Ccpt1.cpt -K > $out_az
+gmt grdimage means_azimuth_test.nc -R$range -J$projection -BWeSN+t"Mean Azimuth (max shortening)" -Bp1.0 -Ccpt1.cpt -K > $out_az
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B15.0:"degrees from North":/:: -Ccpt1.cpt -K -O >> $out_az
 
-gmt makecpt -T0/90/0.1 -Cpolar > cpt2.cpt
-gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
-gmt grdimage deviations_azimuth.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_az
-gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
-gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B10.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_az
+# gmt makecpt -T0/90/0.1 -Cpolar > cpt2.cpt
+# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
+# gmt grdimage deviations_azimuth_test.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_az
+# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
+# gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B10.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_az
 
 
 gmt psconvert $out_strain -Tf

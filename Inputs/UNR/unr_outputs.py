@@ -12,7 +12,8 @@ def output_unr(velfield, outdir, outname):
 
 
 [myVelfield] = gpsin.read_unr_vel_file("../../Example_data/midas.NA12.txt")
-output_unr(myVelfield, "../../Example_data/", "unr_velo_clean.txt")
+output_unr(myVelfield, "../../Example_data/", "unr_velo.txt")
 
 [myVelfield] = gpsin.clean_velfield(myVelfield, 2, .95, [-125, -121, 37, 42])
-output_unr(myVelfield, "../../Example_data/", "unr_velo.txt")
+[myVelfield] = gpsin.blacklist("../../Example_data/blacklist_stations.txt", myVelfield)
+output_unr(myVelfield, "../../Example_data/", "unr_velo_clean.txt")

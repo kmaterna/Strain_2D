@@ -82,7 +82,7 @@ def read_unr_vel_file(infile):
 	[elon,nlat]=get_coordinates_for_stations(name);
 	[first_epoch, last_epoch] = get_start_times_for_stations(name);
 	myVelfield = Velfield(name=name, nlat=nlat, elon=elon, n=n, e=e, u=u, sn=sn, se=sn, su=su, first_epoch=first_epoch, last_epoch=last_epoch);
-	[myVelfield] = clean_velfield(myVelfield, 1, .95, [-125.5, -120.5, 36.5, 43])
+	[myVelfield] = clean_velfield(myVelfield, 1, .95, [-126, -114, 32, 48])
 	[myVelfield] = blacklist("Example_data/blacklist_stations.txt", myVelfield)
 	return [myVelfield]; 
 
