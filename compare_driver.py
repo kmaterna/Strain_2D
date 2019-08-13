@@ -1,8 +1,8 @@
-import drive_methods
+import compiler
 
 component = "azimuth"
 # component = "I2nd"
 # component = "dilatation"
 # component = "test"
 
-drive_methods.drive(component);
+compiler.drive(component);

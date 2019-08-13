@@ -83,17 +83,19 @@ def grid_avg_std(x, y, vals1, vals2, vals3, vals4, vals5):
 
 def angle_means(x, y, vals1, vals2, vals3, vals4, vals5):
 	mean_vals = np.nan * np.ones([len(y), len(x)])
-	sd_vals = np.nan * np.ones([len(y), len(x)])
 	for j in range(len(y)):
 		for i in range(len(x)):
-			val1 = np.radians(90-vals1[j][i])
-			val2 = np.radians(90-vals2[j][i])
-			val3 = np.radians(90-vals3[j][i])
-			val4 = np.radians(90-vals4[j][i])
-			val5 = np.radians(90-vals5[j][i])
-			sin_sum = sum((np.sin(val1), np.sin(val2), np.sin(val3), np.sin(val4), np.sin(val5)))
-			cos_sum = sum((np.cos(val1), np.cos(val2), np.cos(val3), np.cos(val4), np.cos(val5)))
-			strike = np.arctan2(sin_sum, cos_sum)
+			val1 = 2*np.radians(90-vals1[j][i])
+			val2 = 2*np.radians(90-vals2[j][i])
+			val3 = 2*np.radians(90-vals3[j][i])
+			val4 = 2*np.radians(90-vals4[j][i])
+			val5 = 2*np.radians(90-vals5[j][i])
+			s = (sum((np.sin(val1), np.sin(val2), np.sin(val3), np.sin(val4), np.sin(val5))))/5
+			c = (sum((np.cos(val1), np.cos(val2), np.cos(val3), np.cos(val4), np.cos(val5))))/5
+			# R = (c**2 + s**2)**.5
+			# t = np.arctan2(s, c)
+			# strike = R*math.e**(math.i*t)
+			strike = np.arctan2(s, c)/2
 			theta = 90 - np.degrees(strike)
 			if theta < 0:
 				theta = 180 + theta
@@ -101,14 +103,32 @@ def angle_means(x, y, vals1, vals2, vals3, vals4, vals5):
 				theta = theta - 180
 			if theta != float("-inf"):
 				mean_vals[j][i] = theta
-	return mean_vals, sd_vals
+	return mean_vals
+
+def angle_sds(x, y, vals1, vals2, vals3, vals4, vals5):
+	sd_vals = np.nan * np.ones([len(y), len(x)])
+	for j in range(len(y)):
+		for i in range(len(x)):
+			val1 = 2*np.radians(90-vals1[j][i])
+			val2 = 2*np.radians(90-vals2[j][i])
+			val3 = 2*np.radians(90-vals3[j][i])
+			val4 = 2*np.radians(90-vals4[j][i])
+			val5 = 2*np.radians(90-vals5[j][i])
+			s = (sum((np.sin(val1), np.sin(val2), np.sin(val3), np.sin(val4), np.sin(val5))))/5
+			c = (sum((np.cos(val1), np.cos(val2), np.cos(val3), np.cos(val4), np.cos(val5))))/5
+			R = ((s**2 + c**2)**.5)
+			V = 1-R
+			# sd = np.degrees((2*V)**.5)
+			sd = np.degrees((-2*np.log(R))**.5)/2
+			# if sd != float("inf"):
+			# 	sd_vals[j][i] = sd
+			sd_vals[j][i] = sd
+	return sd_vals
 
 # writes the uniform latitude, longitude, and whichever statistical values are desired.
 # outputs to result directory for means as a netcdf which can then be manipulated further with gmt.
 # stat = "means" or "deviations"
-# component = "I2nd", "max_shear", "dila", "az"
+# component = "I2nd", "max_shear", "dilatation", "azimuth"
 def output_nc(lon, lat, vals, stat, component):
 	netcdf_functions.produce_output_netcdf(lon, lat, vals, 'per yr', "Results/Results_means/"+stat+"_"+component+".nc");
 	return
-
-

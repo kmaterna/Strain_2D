@@ -24,15 +24,17 @@ def drive(component):
 		print("nd interp range: %.2f %.2f %.2f %.2f " % ( min(lon4), max(lon4), min(lat4), max(lat4) ) );
 		print("tape range: %.2f %.2f %.2f %.2f " % ( min(lon5), max(lon5), min(lat5), max(lat5) ) );
 
-		lons1, lats1, val1 = comp.confine_to_grid(lon1, lat1, val1, -124.3, -121.2, 37.2, 42, 0.04)
-		lons2, lats2, val2 = comp.confine_to_grid(lon2, lat2, val2, -124.3, -121.2, 37.2, 42, 0.04)
-		lons3, lats3, val3 = comp.confine_to_grid(lon3, lat3, val3, -124.3, -121.2, 37.2, 42, 0.04)
-		lons4, lats4, val4 = comp.confine_to_grid(lon4, lat4, val4, -124.3, -121.2, 37.2, 42, 0.04)
-		lons5, lats5, val5 = comp.confine_to_grid(lon5, lat5, val5, -124.3, -121.2, 37.2, 42, 0.04)
+		lons1, lats1, val1 = comp.confine_to_grid(lon1, lat1, val1, -124.38, -121.2, 37.2, 42, 0.04)
+		lons2, lats2, val2 = comp.confine_to_grid(lon2, lat2, val2, -124.38, -121.2, 37.2, 42, 0.04)
+		lons3, lats3, val3 = comp.confine_to_grid(lon3, lat3, val3, -124.38, -121.2, 37.2, 42, 0.04)
+		lons4, lats4, val4 = comp.confine_to_grid(lon4, lat4, val4, -124.38, -121.2, 37.2, 42, 0.04)
+		lons5, lats5, val5 = comp.confine_to_grid(lon5, lat5, val5, -124.38, -121.2, 37.2, 42, 0.04)
 
 		comp.check_coregistration(val1, val2, val3, val4, val5);
-		my_means, my_sds = comp.angle_means(lons2, lats2, val1, val2, val3, val4, val5)
+		my_means = comp.angle_means(lons2, lats2, val1, val2, val3, val4, val5)
+		my_sds = comp.angle_sds(lons2, lats2, val1, val2, val3, val4, val5)
 		comp.output_nc(lons2, lats2, my_means, "means", "azimuth")
+		comp.output_nc(lons2, lats2, my_sds, "deviations", 'azimuth')
 
 	elif component == "I2nd":
 
@@ -54,11 +56,11 @@ def drive(component):
 		print("nd interp range: %.2f %.2f %.2f %.2f " % ( min(lon4), max(lon4), min(lat4), max(lat4) ) );
 		print("tape range: %.2f %.2f %.2f %.2f " % ( min(lon5), max(lon5), min(lat5), max(lat5) ) );
 
-		lons1, lats1, val1 = comp.confine_to_grid(lon1, lat1, val1, -124.3, -121.2, 37.2, 42, 0.04)
-		lons2, lats2, val2 = comp.confine_to_grid(lon2, lat2, val2, -124.3, -121.2, 37.2, 42, 0.04)
-		lons3, lats3, val3 = comp.confine_to_grid(lon3, lat3, val3, -124.3, -121.2, 37.2, 42, 0.04)
-		lons4, lats4, val4 = comp.confine_to_grid(lon4, lat4, val4, -124.3, -121.2, 37.2, 42, 0.04)
-		lons5, lats5, val5 = comp.confine_to_grid(lon5, lat5, val5, -124.3, -121.2, 37.2, 42, 0.04)
+		lons1, lats1, val1 = comp.confine_to_grid(lon1, lat1, val1, -124.38, -121.2, 37.2, 42, 0.04)
+		lons2, lats2, val2 = comp.confine_to_grid(lon2, lat2, val2, -124.38, -121.2, 37.2, 42, 0.04)
+		lons3, lats3, val3 = comp.confine_to_grid(lon3, lat3, val3, -124.38, -121.2, 37.2, 42, 0.04)
+		lons4, lats4, val4 = comp.confine_to_grid(lon4, lat4, val4, -124.38, -121.2, 37.2, 42, 0.04)
+		lons5, lats5, val5 = comp.confine_to_grid(lon5, lat5, val5, -124.38, -121.2, 37.2, 42, 0.04)
 
 		comp.check_coregistration(val1, val2, val3, val4, val5);
 		my_means, my_sds = comp.grid_avg_std(lons2, lats2, val1, val2, val3, val4, val5)

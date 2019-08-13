@@ -58,17 +58,17 @@ gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Deviations":/
 # gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_shear
 
 # max shortening azimuth
-gmt makecpt -T0/180/1 -Crainbow.cpt > cpt1.cpt
+gmt makecpt -T0/180/1 -D -Crainbow.cpt > cpt1.cpt
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2.5 -K -O >> $out_az
 gmt grdimage means_azimuth_test.nc -R$range -J$projection -BWeSN+t"Mean Azimuth (max shortening)" -Bp1.0 -Ccpt1.cpt -K > $out_az
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B15.0:"degrees from North":/:: -Ccpt1.cpt -K -O >> $out_az
 
-# gmt makecpt -T0/90/0.1 -Cpolar > cpt2.cpt
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
-# gmt grdimage deviations_azimuth_test.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_az
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
-# gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B10.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_az
+gmt makecpt -T0/40/0.01 -D -Cno_green > cpt2.cpt
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
+gmt grdimage deviations_azimuth.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_az
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_az
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B5.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_az
 
 
 gmt psconvert $out_strain -Tf
