@@ -5,6 +5,7 @@ import compare_methods as comp
 def drive(component):
 
 	if component == "azimuth":
+		print("Comparing %s across all methods" % component)
 		# directories to netcdfs for each method
 		file1 = "Results/Results_Hammond/azimuth.nc"
 		file2 = "Results/Results_Numpy_Spline/azimuth.nc"
@@ -37,6 +38,7 @@ def drive(component):
 		comp.output_nc(lons2, lats2, my_sds, "deviations", 'azimuth')
 
 	elif component == "I2nd":
+		print("Comparing %s across all methods" % component)
 
 		file1 = "Results/Results_Hammond/I2nd.nc"
 		file2 = "Results/Results_Numpy_Spline/I2nd.nc"
@@ -71,6 +73,7 @@ def drive(component):
 
 
 	elif component == "dilatation":
+		print("Comparing %s across all methods" % component)
 
 		file1 = "Results/Results_Hammond/dila.nc"
 		file2 = "Results/Results_Numpy_Spline/dila.nc"
@@ -104,6 +107,7 @@ def drive(component):
 		comp.output_nc(lons2, lats2, my_sds, "deviations", "dilatation")
 
 	elif component == "max_shear":
+		print("Comparing %s across all methods" % component)
 
 		file1 = "Results/Results_Hammond/max_shear.nc"
 		file2 = "Results/Results_Numpy_Spline/max_shear.nc"

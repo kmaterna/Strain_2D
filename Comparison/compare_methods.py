@@ -18,7 +18,7 @@ def input_netcdf(nc):
 # i.e. the starting values must be different by multiples of the incriment
 # this is controlled by configure_functions and produce_gridded, depending on the method.
 def confine_to_grid(x, y, values, xmin, xmax, ymin, ymax, inc):
-	print("registering %s to grid [%.2f %.2f %.2f %.2f %.2f] " % ("strain", xmin, xmax, ymin, ymax, inc) );
+	print("registering %s to grid [%.2f %.2f %.2f %.2f %.2f] " % ("component", xmin, xmax, ymin, ymax, inc) );
 
 	new_lon = np.arange(xmin, xmax, inc)
 	new_lat = np.arange(ymin, ymax, inc)

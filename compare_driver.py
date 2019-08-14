@@ -1,8 +1,8 @@
 import compiler
 
 # component = "azimuth"
-component = "I2nd"
+# component = "I2nd"
 # component = "dilatation"
-# component = "max_shear"
+component = "max_shear"
 
 compiler.drive(component);
