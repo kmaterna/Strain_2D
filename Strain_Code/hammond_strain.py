@@ -340,7 +340,7 @@ def compute(myVelfield, MyParams):
 
 		e1.append(-e11);  # the convention of this code returns negative eigenvalues compared to my other codes. 
 		e2.append(-e22);
-		max_shear.append((e11 - e22)/2);
+		max_shear.append(abs((-e11 + e22)/2)); # the convention of this code returns negative eigenvalues compared to my other codes. 
 		v00.append(v[0][0]);
 		v10.append(v[1][0]);
 		v01.append(v[0][1]);

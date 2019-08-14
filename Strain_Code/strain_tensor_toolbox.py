@@ -80,8 +80,8 @@ def max_shortening_azimuth_1d(e1, e2, v00, v01, v10, v11):
 	az = np.zeros(len(e1))
 	for i in range(len(e1)):
 		az[i] = azimuth_math(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
-		if az[i]>179.999:
-			print("OOPSSSSS %d %d" % (i, j) )
+		if az[i]>180:
+			print("OOPSSSSS %d " % (i) )
 	print("Minimum azimuth: %.3f degrees" % np.min(az))
 	print("Maximum azimuth: %.3f degrees" % np.max(az))
 	return az

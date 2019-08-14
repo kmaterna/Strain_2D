@@ -74,7 +74,7 @@ def compute(myVelfield, MyParams):
 			v10[j][i]=v1[1][0];
 			v01[j][i]=v1[0][1];
 			v11[j][i]=v1[1][1];
-			max_shear[j][i] = (e11 - e22)/2;
+			max_shear[j][i] = abs((e11 - e22)/2);
 			dilatation[j][i]= e11+e22; 
 
 	print("Success computing strain via Numpy ND_interpolator method.\n");

@@ -100,11 +100,11 @@ def compute_tape(thth, thph, phph):
 		v01.append(v[0][1])
 		v10.append(v[1][0])
 		v11.append(v[1][1])
-		max_shear.append(strain_tensor_toolbox.max_shear_strain(exx, exy, eyy))
+		max_shear.append(abs((-e11 + e22)/2))
 		dilatation.append(e11+e22)
 		I2nd.append(np.log10(np.abs(strain_tensor_toolbox.second_invariant(exx, exy, eyy))))
-		# I2nd.append(10*np.abs(strain_tensor_toolbox.second_invariant(exx, exy, eyy)))
 	return [I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation]
+
 
 # This function performs scipy nearest-neighbor interpolation on the data
 # it assumes Tape scripts were run on a finer grid (try npts = 250)
@@ -131,6 +131,61 @@ def nn_interp(x, y, vals, xmin, xmax, ymin, ymax, inc):
 
 	return newx, newy, newvals
 
+
+# not working yet: decimates incorrectly!
+def write_tape_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
+	positive_file=open("Results/Results_Tape/"+"positive_eigs.txt",'w');
+	negative_file=open("Results/Results_Tape/"+"negative_eigs.txt",'w');
+	
+
+	w1 = nn_interp(xdata, ydata, w1, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
+	w2 = nn_interp(xdata, ydata, w2, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
+	v00 = nn_interp(xdata, ydata, v00, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
+	v01 = nn_interp(xdata, ydata, v01, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
+	v10 = nn_interp(xdata, ydata, v10, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
+	xdata, ydata, v11 = nn_interp(xdata, ydata, v11, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)
+
+		
+	eigs_dec=12;
+
+	do_not_print_value=200;
+	overmax_scale=200;
+
+	for j in range(len(ydata)):
+		for k in range(len(xdata)):
+			if np.mod(j,eigs_dec)==0 and np.mod(k,eigs_dec)==0:
+				if w1[j][k]>0:
+					scale=w1[j][k];
+					if abs(scale)>do_not_print_value:
+						scale=overmax_scale;
+					positive_file.write("%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], v00[j][k]*scale, v10[j][k]*scale) );
+					positive_file.write("%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v00[j][k]*scale, -v10[j][k]*scale) );
+				if w1[j][k]<0:
+					scale=w1[j][k];
+					if abs(scale)>do_not_print_value:
+						scale=overmax_scale;					
+					negative_file.write("%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], v00[j][k]*scale, v10[j][k]*scale) );
+					negative_file.write("%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v00[j][k]*scale, -v10[j][k]*scale) );
+				if w2[j][k]>0:
+					scale=w2[j][k];
+					if abs(scale)>do_not_print_value:
+						scale=overmax_scale;
+					positive_file.write("%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], v01[j][k]*scale, v11[j][k]*scale) );
+					positive_file.write("%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v01[j][k]*scale, -v11[j][k]*scale) );
+				if w2[j][k]<0:
+					scale=w2[j][k];
+					if abs(scale)>do_not_print_value:
+						scale=overmax_scale;
+					negative_file.write("%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], v01[j][k]*scale, v11[j][k]*scale) );
+					negative_file.write("%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v01[j][k]*scale, -v11[j][k]*scale) );
+	positive_file.close();
+	negative_file.close();
+
+
+	return;
+
+
+
 # outputs a netcdf to the desired results directory to be used in GMT
 def output_tape(lon, lat, vals, outdir, file):
 	netcdf_functions.produce_output_netcdf(lon, lat, vals, 'per yr', outdir+file);
@@ -146,4 +201,3 @@ def output_delaunay(xdata, ydata, vals, outdir, indexfile, outfile):
 	netcdf_functions.produce_output_netcdf(xdata, ydata, vals, 'per year', outdir+outfile);
 	print("Success fitting triangulated data to the required grid!");
 	return;
-

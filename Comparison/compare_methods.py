@@ -64,8 +64,21 @@ def check_coregistration(v1, v2, v3, v4, v5):
 	return
 
 # gridwise, calculates means and standard deviations, and returns them as arrays with dimension latitude by longitude
-def grid_avg_std(x, y, vals1, vals2, vals3, vals4, vals5):
+def grid_means(x, y, vals1, vals2, vals3, vals4, vals5):
 	mean_vals = np.nan * np.ones([len(y), len(x)])
+	for j in range(len(y)):
+		for i in range(len(x)):
+			val1 = vals1[j][i]
+			val2 = vals2[j][i]
+			val3 = vals3[j][i]
+			val4 = vals4[j][i]
+			val5 = vals5[j][i]
+			mean_val = np.nanmean([val1, val2, val3, val4, val5])
+			if mean_val != float("-inf"):
+				mean_vals[j][i] = mean_val
+	return mean_vals
+
+def grid_sds(x, y, vals1, vals2, vals3, vals4, vals5):
 	sd_vals = np.nan * np.ones([len(y), len(x)])
 	for j in range(len(y)):
 		for i in range(len(x)):
@@ -74,12 +87,36 @@ def grid_avg_std(x, y, vals1, vals2, vals3, vals4, vals5):
 			val3 = vals3[j][i]
 			val4 = vals4[j][i]
 			val5 = vals5[j][i]
-			mean_val = np.nanmean([val1, val3, val4])
-			sd_val = np.nanstd([val1, val3, val4])
-			if mean_val != float("-inf"):
-				mean_vals[j][i] = mean_val
+			sd_val = np.nanstd([val1, val2, val3, val4, val5])
 			sd_vals[j][i] = sd_val
-	return mean_vals, sd_vals
+	return sd_vals
+
+def grid_means_log(x, y, vals1, vals2, vals3, vals4, vals5):
+	mean_vals = np.nan * np.ones([len(y), len(x)])
+	for j in range(len(y)):
+		for i in range(len(x)):
+			val1 = 10**vals1[j][i]
+			val2 = 10**vals2[j][i]
+			val3 = 10**vals3[j][i]
+			val4 = 10**vals4[j][i]
+			val5 = 10**vals5[j][i]
+			mean_val = np.nanmean([val1, val2, val3, val4, val5])
+			if mean_val != float("-inf"):
+				mean_vals[j][i] = np.log10(mean_val)
+	return mean_vals
+
+def grid_sds_log(x, y, vals1, vals2, vals3, vals4, vals5):
+	sd_vals = np.nan * np.ones([len(y), len(x)])
+	for j in range(len(y)):
+		for i in range(len(x)):
+			val1 = 10**vals1[j][i]
+			val2 = 10**vals2[j][i]
+			val3 = 10**vals3[j][i]
+			val4 = 10**vals4[j][i]
+			val5 = 10**vals5[j][i]
+			sd_val = np.nanstd([val1, val2, val3, val4, val5])
+			sd_vals[j][i] = np.log10(sd_val)
+	return sd_vals
 
 def angle_means(x, y, vals1, vals2, vals3, vals4, vals5):
 	mean_vals = np.nan * np.ones([len(y), len(x)])

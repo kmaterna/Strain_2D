@@ -136,7 +136,7 @@ def make_output_grids_from_strain_out(infile):
 		v01[yindex][xindex]=v1[0][1];
 		v11[yindex][xindex]=v1[1][1];
 		dilatation[yindex][xindex]=e11+e22;
-		max_shear[yindex][xindex] = (e11 - e22)/2;
+		max_shear[yindex][xindex] = abs((e11 - e22)/2);
 
 
 	return [xaxis, yaxis, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation];

@@ -9,13 +9,13 @@ out_dila="mean_dilatation.ps"
 out_dila_pdf="mean_dilatation.pdf"
 out_shear="mean_max_shear.ps"
 out_shear_pdf="mean_max_shear.pdf"
-out_az="means_azimuth_test.ps"
-out_az_pdf="means_azimuth_test.pdf"
+out_az="means_azimuth.ps"
+out_az_pdf="means_azimuth.pdf"
 
 
 rm $out_strain_pdf
-# rm $out_dila_pdf
-# rm $out_shear_pdf
+rm $out_dila_pdf
+rm $out_shear_pdf
 rm $out_az_pdf
 
 # second invariant
@@ -25,37 +25,37 @@ gmt grdimage means_I2nd.nc -R$range -J$projection -BWeSN+t"Mean I2nd" -Bp1.0 -Cc
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"I2nd (log 10)":/:: -Ccpt1.cpt -K -O >> $out_strain
 
-gmt makecpt -T0/2.2/0.01 -Cpolar > cpt2.cpt
+gmt makecpt -T2/4/.1 -Cno_green > cpt2.cpt
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
 gmt grdimage deviations_I2nd.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
-gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_strain
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_strain
 
-# # dilatation
-# gmt makecpt -T-1/5/0.1 -Crainbow.cpt > cpt1.cpt
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2.5 -K -O >> $out_dila
-# gmt grdimage means_dila.nc -R$range -J$projection -BWeSN+t"Mean Dilatation" -Bp1.0 -Ccpt1.cpt -K > $out_dila
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_dila
-# gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"nanostrain":/:: -Ccpt1.cpt -K -O >> $out_dila
+# dilatation
+gmt makecpt -T-350/350/1 -Crainbow.cpt -Iz > cpt1.cpt
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2.5 -K -O >> $out_dila
+gmt grdimage means_dilatation.nc -R$range -J$projection -BWeSN+t"Mean Dilatation" -Bp1.0 -Ccpt1.cpt -K > $out_dila
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_dila
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B200:"nanostrain":/:: -Ccpt1.cpt -K -O >> $out_dila
 
-# gmt makecpt -T0/2.2/0.01 -Cpolar > cpt2.cpt
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_dila
-# gmt grdimage deviations_dila.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_dila
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_dila
-# gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_dila
+gmt makecpt -T0/160/0.01 -Cno_green > cpt2.cpt
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_dila
+gmt grdimage deviations_dilatation.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_dila
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_dila
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B20.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_dila
 
-# # max shear
-# gmt makecpt -T-1/5/0.1 -Crainbow.cpt > cpt1.cpt
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2.5 -K -O >> $out_shear
-# gmt grdimage means_max_shear.nc -R$range -J$projection -BWeSN+t"Mean Maximum Shear" -Bp1.0 -Ccpt1.cpt -K > $out_shear
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_shear
-# gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"nanostrain":/:: -Ccpt1.cpt -K -O >> $out_shear
+# max shear
+gmt makecpt -T-250/250/1.0 -Iz -Cpolar.cpt > cpt1.cpt
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -Y2.5 -K -O >> $out_shear
+gmt grdimage means_max_shear.nc -R$range -J$projection -BWeSN+t"Mean Maximum Shear" -Bp1.0 -Ccpt1.cpt -K > $out_shear
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_shear
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B100.0:"nanostrain":/:: -Ccpt1.cpt -K -O >> $out_shear
 
-# gmt makecpt -T0/2.2/0.01 -Cpolar > cpt2.cpt
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_shear
-# gmt grdimage deviations_max_shear.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_shear
-# gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_shear
-# gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_shear
+gmt makecpt -T0/100/0.1 -Cpolar > cpt2.cpt
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_shear
+gmt grdimage deviations_max_shear.nc -R$range -J$projection -BWeSN+t"Standard Deviations" -Bp1.0 -Ccpt2.cpt -X14 -K -O >> $out_shear
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_shear
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B10.0:"Deviations":/:: -Ccpt2.cpt -K -O >> $out_shear
 
 # max shortening azimuth
 gmt makecpt -T0/180/1 -D -Crainbow.cpt > cpt1.cpt
