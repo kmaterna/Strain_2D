@@ -21,6 +21,8 @@ import strain_tensor_toolbox
 
 def compute(myVelfield, MyParams):
 	print("Computing strain via Numpy Spline method.");
+	# for i in range(len(myVelfield.e)):
+		# print("%s %f" % (myVelfield.name[i], myVelfield.n[i]) );
 
 	interp_kind='quintic';
 	
@@ -42,6 +44,7 @@ def compute(myVelfield, MyParams):
 		for j in range(len(xarray)):
 			new_east[i][j]=f_east(xarray[j],yarray[i]);  # only want to give the functions one point at a time. 
 			new_north[i][j]=f_north(xarray[j],yarray[i]);
+			print(new_east[i][j]);
 
 	# Grid increments
 	lats = np.array([MyParams.map_range[2], MyParams.map_range[3]], dtype=float)

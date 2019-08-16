@@ -1,11 +1,11 @@
-Cascadia inter-ETS (secular) velocities by station in mm/year
-Seasonal amplitudes are given in mm
-a1 is an annual period sine wave, a2 is an annual cosine wave; s1 and s2 are the same but with semiannual (6month) periods
-Made by Noel Bartlow, July 23, 2018 
-For more info email nbartlow@berkeley.edu
-Do not share without permission
+# Cascadia inter-ETS (secular) velocities by station in mm/year
+# Seasonal amplitudes are given in mm
+# a1 is an annual period sine wave, a2 is an annual cosine wave; s1 and s2 are the same but with semiannual (6month) periods
+# Made by Noel Bartlow, July 23, 2018 
+# For more info email nbartlow@berkeley.edu
+# Do not share without permission
 
-Name 	 Ev 	 	 Nv 	 	 Uv 	 	 Ea1	 	 Na1	 	 Ua1	 	 Ea2	 	 Na2	 	 Ua2	 	 Es1	 	 Ns1	 	 Us1	 	 Es2	 	 Ns2	 	 Us2
+# Name 	  Ev 	 	  Nv 	 	 Uv 	 	 Ea1	 	 Na1	 	 Ua1	 	 Ea2	 	 Na2	 	 Ua2	 	 Es1	 	 Ns1	 	 Us1	 	 Es2	 	 Ns2	 	 Us2
 ALBH 	  12.0974 	  6.1463 	  -0.6900 	  -0.0688 	  -0.0373 	  -5.2843  	  -0.0431 	  -0.4085 	  -1.1863 	  -0.0061 	  -0.1099 	  1.0956 	  -0.0130 	  -0.0457 	  -0.8804
 BAMF 	  13.0124 	  8.8247 	  5.2053 	  0.5167 	  1.2305 	  -5.3938  	  0.8321 	  0.6572 	  -3.3229 	  -0.0279 	  0.1157 	  0.3361 	  -0.0068 	  -0.0444 	  0.4072
 BREW 	  2.0671 	  1.1335 	  -0.4095 	  -0.5029 	  0.3873 	  -5.9678  	  -0.0496 	  -0.1038 	  0.0032 	  -0.0548 	  -0.0126 	  0.9194 	  -0.0555 	  0.0466 	  -1.2443

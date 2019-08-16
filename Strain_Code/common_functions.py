@@ -24,6 +24,8 @@ def inputs(MyParams):
 		[myVelfield]=gps_input_functions.read_pbo_vel_file(MyParams.input_file);  # read the raw velfield from file. 
 	elif 'MAGNET' in MyParams.input_file or 'unr' in MyParams.input_file or 'midas' in MyParams.input_file:
 		[myVelfield]=gps_input_functions.read_unr_vel_file(MyParams.input_file);  # read the raw velfield from file. 
+	elif 'ETS' in MyParams.input_file:
+		[myVelfield]=gps_input_functions.read_ETS_vel_file(MyParams.input_file);
 	else:
 		print("Error! Cannot read %s " % MyParams.input_file);
 		sys.exit(1);

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+projection="M5.5i"
+range="-125/-121.2/37.3/42"
