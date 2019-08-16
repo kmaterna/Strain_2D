@@ -11,7 +11,7 @@ Params=collections.namedtuple("Params",['strain_method','input_file','map_range'
 
 # ----------------- CONFIGURE -------------------------
 def configure(strain_method):
-	input_file="Other_vels/Bartlow_interETSvels.txt";
+	input_file="Other_vels/Bartlow_ETSvels.txt";
 	map_range=[-125, -121, 37.0, 42.2]; # Northern California
 	map_range_string = str(map_range[0])+'/'+str(map_range[1])+'/'+str(map_range[2])+'/'+str(map_range[3]);
 	num_years=3.0;
@@ -31,7 +31,7 @@ def configure(strain_method):
 
 # A couple of options that change based on strain method. 
 # set ETS = 1 when using ETS, and ETS = 2 when using inter-ETS
-def get_tunable_options(strain_method, map_range, ETS=2):
+def get_tunable_options(strain_method, map_range, ETS=1):
 	if strain_method=="gpsgridder":
 		grid_inc   =0.04;
 		coord_box  =[map_range[0]-1, map_range[1]+3, map_range[2]-2, map_range[3]+2];

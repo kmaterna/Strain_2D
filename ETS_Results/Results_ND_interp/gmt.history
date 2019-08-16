@@ -1,0 +1,8 @@
+# GMT 5 Session common arguments shelf
+BEGIN GMT 5.4.5
+B	10:Vertical Vel (mm/yr):/::
+J	M
+JM	M5.5i
+R	-125/-121.2/39.5/42.2
+L	5
+END

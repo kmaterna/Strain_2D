@@ -140,6 +140,30 @@ def drive(component):
 		comp.output_nc(lons2, lats2, my_means, "means", "max_shear")
 		comp.output_nc(lons2, lats2, my_sds, "deviations", "max_shear")
 
+	elif component == "uplift":
+		print("Comparing %s across all methods" % component)
+
+		file1 = "Results/Results_Hammond/uplift.txt"
+		file2 = "Results/Results_Numpy_Spline/uplift.txt"
+		# file3 = "Results/Results_Visr/uplift.txt"
+		file4 = "Results/Results_ND_interp/uplift.txt"
+		# file5 = "Results/Results_Tape/uplift.txt"
+
+		lon1, lat1, val1 = comp.input_txt(file1)
+		lon2, lat2, val2 = comp.input_txt(file2)
+		# lon3, lat3, val3 = comp.input_txt(file3)
+		lon4, lat4, val4 = comp.input_txt(file4)
+		# lon5, lat5, val5 = comp.input_txt(file5)
+
+		my_means = comp.array_means(lon1, lat1, val1, val2, val4)
+
+		upfile=open("Results/Results_means/means_uplift.txt", 'w');
+		for i in range(len(lon1)):
+			upfile.write("%f %f %f \n" % (lon1[i], lat1[i], my_means[i]));
+		upfile.close();
+		print("Max uplift: %f mm/yr" % max(my_means))
+		print("Min uplift: %f mm/yr" % min(my_means))
+
 	else:
 		print("%s is not a recognized strain component" % component)
 

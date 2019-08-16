@@ -13,6 +13,19 @@ def input_netcdf(nc):
 	values = file.variables['z']
 	return lon, lat, values
 
+# inputs data from txt files
+def input_txt(file):
+	ifile = open(file, 'r');
+	x = []; y = []; val = [];
+	for line in ifile:
+		temp = line.split()
+		x.append(float(temp[0]))
+		y.append(float(temp[1]))
+		val.append(float(temp[2]))
+	ifile.close()
+
+	return x, y, val
+
 # uses uniform data points from net cdfs with different coord boxes, and confines it to a uniform coord box
 # all points must be coregistered even if boxes are different sizes
 # i.e. the starting values must be different by multiples of the incriment
@@ -161,6 +174,17 @@ def angle_sds(x, y, vals1, vals2, vals3, vals4, vals5):
 			# 	sd_vals[j][i] = sd
 			sd_vals[j][i] = sd
 	return sd_vals
+
+def array_means(x, y, vals1, vals2, vals4):
+	means = np.zeros(len(x))
+	for i in range(len(x)):
+		val1 = vals1[i]
+		val2 = vals2[i]
+		val4 = vals4[i]
+		mean = np.nanmean([val1, val2, val4])
+		if mean != float("-inf"):
+			means[i] = mean
+	return means
 
 # writes the uniform latitude, longitude, and whichever statistical values are desired.
 # outputs to result directory for means as a netcdf which can then be manipulated further with gmt.
