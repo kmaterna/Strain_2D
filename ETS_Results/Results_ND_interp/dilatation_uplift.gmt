@@ -1,0 +1,26 @@
+#!/bin/bash
+
+projection="M4.8i"
+range="-125.5/-120/39.5/46"
+
+outfile="dilatation_and_uplift.ps"
+outfile_pdf="dilatation_and_uplift.pdf"
+
+rm $outfile_pdf
+
+gmt makecpt -Iz -D -T-180/180/1 -Cpolar.cpt > cpt1.cpt
+gmt makecpt -D -T-10/10/0.1 -Cpolar.cpt > cpt2.cpt
+gmt grdimage dila.nc -R$range -J$projection -BWeSN+t"Dilatation" -Bp1.0 -Ccpt1.cpt -P -K > $outfile
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $outfile
+
+
+gmt psxy uplift.txt -R$range -J$projection -Sc0.1i -Wthin,black -Ccpt2 -K -O >> $outfile
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $outfile
+
+gmt psscale -DjTR+w4.5/0.5+o-1.1/9.5 -R$range -J$projection -B50:"Dilatation (nanostrain)":/:: -Ccpt1.cpt -K -O >> $outfile
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B10:"Vertical Vel (mm/yr)":/:: -Ccpt2.cpt -K -O >> $outfile
+
+gmt psconvert $outfile -Tf
+
+# rm cpt1.cpt
+# rm cpt2.cpt

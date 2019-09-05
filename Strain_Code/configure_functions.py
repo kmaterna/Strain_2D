@@ -11,7 +11,7 @@ Params=collections.namedtuple("Params",['strain_method','input_file','map_range'
 
 # ----------------- CONFIGURE -------------------------
 def configure(strain_method):
-	input_file="Example_data/midas.NA12.txt";
+	input_file="Other_vels/Bartlow_ETSvels.txt";
 	map_range=[-125, -121, 37.0, 42.2]; # Northern California
 	map_range_string = str(map_range[0])+'/'+str(map_range[1])+'/'+str(map_range[2])+'/'+str(map_range[3]);
 	num_years=3.0;
@@ -30,7 +30,8 @@ def configure(strain_method):
 
 
 # A couple of options that change based on strain method. 
-def get_tunable_options(strain_method, map_range, ETS=0):
+# set ETS = 1 when using ETS, and ETS = 2 when using inter-ETS
+def get_tunable_options(strain_method, map_range, ETS=1):
 	if strain_method=="gpsgridder":
 		grid_inc   =0.04;
 		coord_box  =[map_range[0]-1, map_range[1]+3, map_range[2]-2, map_range[3]+2];
@@ -38,7 +39,9 @@ def get_tunable_options(strain_method, map_range, ETS=0):
 		if ETS==0:
 			outdir = "Results/Results_GPSgridder/";
 		if ETS==1:
-			outdir="Results/ETS_Results/Results_GPSgridder/";
+			outdir="ETS_Results/Results_GPSgridder/";
+		if ETS==2:
+			outdir="interETS_Results/Results_GPSgridder/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/gpsgridder_gmt.gmt";
 
 	elif strain_method=="visr":
@@ -48,7 +51,9 @@ def get_tunable_options(strain_method, map_range, ETS=0):
 		if ETS==0:
 			outdir = "Results/Results_Visr/";
 		if ETS==1:
-			outdir="Results/ETS_Results/Results_Visr/";
+			outdir="ETS_Results/Results_Visr/";
+		if ETS==2:
+			outdir="interETS_Results/Results_Visr/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/visr_gmt.gmt";
 
 	elif strain_method=="delaunay":
@@ -58,7 +63,9 @@ def get_tunable_options(strain_method, map_range, ETS=0):
 		if ETS==0:
 			outdir = "Results/Results_Delaunay/";
 		if ETS==1:
-			outdir="Results/ETS_Results/Results_Delaunay/";
+			outdir="ETS_Results/Results_Delaunay/";
+		if ETS==2:
+			outdir="interETS_Results/Results_Visr/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/delaunay_gmt.gmt"
 
 	elif strain_method=="hammond":
@@ -68,7 +75,9 @@ def get_tunable_options(strain_method, map_range, ETS=0):
 		if ETS==0:
 			outdir = "Results/Results_Hammond/";
 		if ETS==1:
-			outdir="Results/ETS_Results/Results_Hammond/";
+			outdir="ETS_Results/Results_Hammond/";
+		if ETS==2:
+			outdir="interETS_Results/Results_Hammond/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/hammond_gmt.gmt"
 
 	elif strain_method=="spline":
@@ -78,7 +87,9 @@ def get_tunable_options(strain_method, map_range, ETS=0):
 		if ETS==0:
 			outdir = "Results/Results_Numpy_Spline/";
 		if ETS==1:
-			outdir="Results/ETS_Results/Results_Numpy_Spline/";
+			outdir="ETS_Results/Results_Numpy_Spline/";
+		if ETS==2:
+			outdir="interETS_Results/Results_Numpy_Spline/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/spline_gmt.gmt"
 
 	elif strain_method=="ND_interp":
@@ -88,7 +99,9 @@ def get_tunable_options(strain_method, map_range, ETS=0):
 		if ETS==0:
 			outdir = "Results/Results_ND_interp/";
 		if ETS==1:
-			outdir="Results/ETS_Results/Results_ND_interp/";
+			outdir="ETS_Results/Results_ND_interp/";
+		if ETS==2:
+			outdir="interETS_Results/Results_ND_interp/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/ND_interp_gmt.gmt"
 
 	elif strain_method=="tape":
@@ -98,7 +111,9 @@ def get_tunable_options(strain_method, map_range, ETS=0):
 		if ETS==0:
 			outdir = "Results/Results_Tape/";
 		if ETS==1:
-			outdir="Results/ETS_Results/Results_Tape/";
+			outdir="ETS_Results/Results_Tape/";
+		if ETS==2:
+			outdir="interETS_Results/Results_Tape/";
 		gmtfile    ="Strain_Code/GMT_mapping_codes/tape_gmt.gmt"
 
 	else:

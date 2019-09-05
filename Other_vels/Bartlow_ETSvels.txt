@@ -1,9 +1,9 @@
-Cascadia time-averaged ETS velocities by station in mm/year
-Made by Noel Bartlow, July 23, 2018 
-For more info email nbartlow@berkeley.edu
-Do not share without permission
+# Cascadia time-averaged ETS velocities by station in mm/year
+# Made by Noel Bartlow, July 23, 2018 
+# For more info email nbartlow@berkeley.edu
+# Do not share without permission
 
-Name 	 Ev 	 	 Nv 	 	 Uv
+# Name 	 Ev 	 	 Nv 	 	 Uv
 ALBH 	  -5.6854 	  -1.8898 	  1.6932
 BAMF 	  -3.4036 	  -2.3937 	  -2.9214
 BREW 	  -0.0636 	  -0.0488 	  -0.7517

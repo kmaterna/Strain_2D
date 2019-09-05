@@ -21,6 +21,8 @@ import strain_tensor_toolbox
 
 def compute(myVelfield, MyParams):
 	print("Computing strain via Numpy Spline method.");
+	# for i in range(len(myVelfield.e)):
+		# print("%s %f" % (myVelfield.name[i], myVelfield.n[i]) );
 
 	interp_kind='quintic';
 	
