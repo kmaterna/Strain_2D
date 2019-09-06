@@ -9,6 +9,7 @@
 
 import numpy as np 
 import math as m
+import sys
 
 def second_invariant(exx, exy, eyy):
 	e2nd = exx*eyy - exy*exy;
@@ -85,3 +86,38 @@ def max_shortening_azimuth_1d(e1, e2, v00, v01, v10, v11):
 	print("Minimum azimuth: %.3f degrees" % np.min(az))
 	print("Maximum azimuth: %.3f degrees" % np.max(az))
 	return az
+
+
+
+
+
+
+
+
+def compute_derived_quantities(e1, e2, v00, v01, v10, v11):
+	I2nd=np.zeros(np.shape(e1));
+	max_shear=np.zeros(np.shape(e1));
+	dilatation=np.zeros(np.shape(e1));
+	azimuth=np.zeros(np.shape(e1));
+
+	dshape=np.shape(e1);
+	if len(dshape)==1:
+		datalength=dshape[0]; 
+		print("Computing strain invariants for 1d dataset with length %d." % datalength);		
+		for i in range(datalength):
+			dilatation[i]=e1[i]+e2[i];
+			I2nd[i]=np.log10(np.abs(second_invariant(e1[i], 0, e2[i])));
+			max_shear[i]=abs((-e1[i] + e2[i])/2);
+			azimuth[i] = azimuth_math(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
+	elif len(dshape)==2:
+		print("Computing strain invariants for 2d dataset.");
+		for j in range(dshape[0]):
+			for i in range(dshape[1]):
+				I2nd[j][i] = np.log10(np.abs(second_invariant(e1[j][i], 0, e2[j][i])));
+				max_shear[j][i] = abs((e1[j][i] - e2[j][i])/2);
+				dilatation[j][i]= e1[j][i]+e2[j][i];
+				azimuth[j][i] = azimuth_math(e1[j][i], e2[j][i], v00[j][i], v01[j][i], v10[j][i], v11[j][i]);
+	return [I2nd, max_shear, dilatation, azimuth];
+
+
+

@@ -1,7 +1,7 @@
 import gps_input_functions as gpsin
 
-[myVelfield] = gpsin.read_pbo_vel_file("../../Example_data/NAM08_pbovelfile_feb2018.vel")
-# [myVelfield] = gpsin.blacklist("../Example_data/blacklist_stations.txt", myVelfield)
+[myVelfield] = gpsin.read_pbo_vel_file("../../Vel_Data/NAM08_pbovelfile_feb2018.vel")
+# [myVelfield] = gpsin.blacklist(myVelfield, "../../Vel_Data/blacklist_stations.txt")
 # [myVelfield] = gpsin.remove_duplicates(myVelfield)
 # [myVelfield] = gpsin.clean_velfield(myVelfield, 2, .95, [-125, -121, 37, 42])
 
@@ -12,4 +12,4 @@ def output_unr(velfield, outdir):
 	outfile.close();
 	return;
 
-output_unr(myVelfield, "../../Example_data/")
+output_unr(myVelfield, "../../Vel_Data/")

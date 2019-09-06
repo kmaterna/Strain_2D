@@ -1,44 +1,14 @@
-# The configure, input, and output steps for GPS Strain analysis. 
-# map_range=[-125, -121, 37.0, 42.2]; # Northern California
-# map_range=[-121, -115, 32, 36]; # Southern California
-# map_range=[-123, -118, 34, 38]; # Central California
-# map_range=[-125, -114, 32.0, 42.0]; # ALL California	
-# map_range=[-125, -110, 33.0, 48.2]; # Western US
+# The output manager for GPS Strain analysis. 
+# ----------------- OUTPUTS -------------------------
+
 
 
 import numpy as np 
 import subprocess, sys, os
-import collections
 import gps_input_functions
 import netcdf_functions
 import strain_tensor_toolbox
 
-
-Params=collections.namedtuple("Params",['strain_method','input_file','map_range','coord_box','coord_box_data','num_years','max_sigma','grid_inc','outdir','gmtfile']);
-
-# ----------------- INPUTS -------------------------
-def inputs(MyParams):
-	# Purpose: generate input velocity field. 
-	print("Reading %s" % MyParams.input_file);
-	if 'PBO' in MyParams.input_file or 'pbo' in MyParams.input_file:
-		[myVelfield]=gps_input_functions.read_pbo_vel_file(MyParams.input_file);  # read the raw velfield from file. 
-	elif 'MAGNET' in MyParams.input_file or 'unr' in MyParams.input_file or 'midas' in MyParams.input_file:
-		[myVelfield]=gps_input_functions.read_unr_vel_file(MyParams.input_file);  # read the raw velfield from file. 
-	elif 'ETS' in MyParams.input_file:
-		[myVelfield]=gps_input_functions.read_ETS_vel_file(MyParams.input_file);
-	else:
-		print("Error! Cannot read %s " % MyParams.input_file);
-		sys.exit(1);
-	print("%d stations before applying coord_box." % (len(myVelfield.name)) );
-	[myVelfield]=gps_input_functions.clean_velfield(myVelfield, MyParams.num_years, MyParams.max_sigma, MyParams.coord_box_data);
-	[myVelfield]=gps_input_functions.remove_duplicates(myVelfield);
-	print("%d stations after selection criteria.\n" % (len(myVelfield.name)) );
-	return [myVelfield];
-
-
-
-
-# ----------------- OUTPUTS -------------------------
 
 def outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, myVelfield, MyParams):
 	print("Writing 2d outputs:");
@@ -61,13 +31,13 @@ def outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, d
 	print("Min rot: %f " % (np.amin(rot)));
 	write_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11, MyParams);
 	gmt_file=open(MyParams.outdir+"run_gmt.gmt", 'w');
-	gmt_file.write("../../"+MyParams.gmtfile+" "+MyParams.map_range+"\n");
+	gmt_file.write("../../../"+MyParams.gmtfile+" "+MyParams.map_range+"\n");
 	gmt_file.close();
 	upfile=open(MyParams.outdir+"uplift.txt", 'w');
 	for i in range(len(myVelfield.n)):
 		upfile.write("%f %f %f \n" % (myVelfield.elon[i], myVelfield.nlat[i], myVelfield.u[i]));
 	upfile.close();
-	print("../../"+MyParams.gmtfile+" "+MyParams.map_range);
+	print("../../../"+MyParams.gmtfile+" "+MyParams.map_range);
 	return;
 
 def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
@@ -119,9 +89,6 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
 	negative_file.close();
 
 	return;
-
-
-
 
 
 
@@ -183,7 +150,7 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 		write_single_eigenvector(positive_file, negative_file, e1[i], v00[i], v10[i], xcentroid[i], ycentroid[i]);
 		write_single_eigenvector(positive_file, negative_file, e2[i], v01[i], v11[i], xcentroid[i], ycentroid[i]);
 	
-	gmt_file.write("../../"+MyParams.gmtfile+" "+MyParams.map_range+"\n")
+	gmt_file.write("../../../"+MyParams.gmtfile+" "+MyParams.map_range+"\n")
 
 	print("Max I2: %f " % (max(I2nd)));
 	print("Max rot: %f " % (max(rot)));

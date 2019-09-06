@@ -3,7 +3,7 @@
 
 range=$1
 projection="M3.7i"
-out_strain=$2+"/delaunay_strain.ps"
+out_strain="delaunay_strain.ps"
 out_dila="delaunay_dilatation.ps"
 pdf_out_strain="delaunay_strain.pdf"
 out_max="delaunay_max_shear.ps"
@@ -38,7 +38,7 @@ gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B200:"Dilatation":/
 # gmt psvelo positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_dila
 # gmt psvelo negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_dila
 # Add the fault map (on land)
-gmt psxy ../../Example_data/Mapping_Resources/Quaternary.txt -R$range -J$projection -Wthin,gray34 -K -O >> $out_dila
+gmt psxy ../../../Vel_Data/Mapping_Resources/Quaternary.txt -R$range -J$projection -Wthin,gray34 -K -O >> $out_dila
 # gmt psvelo tempgps.txt -Se0.03/0.68/0 -A+e+pthick,white -Gwhite -R$range -J$projection -K -O >> $out_strain
 
 # Rotation
@@ -56,7 +56,8 @@ gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"Max Shear":/:
 
 # Azimuth
 gmt makecpt -T0/180/1 -D -Crainbow.cpt > mycpt.cpt
-gmt grdimage azimuth.nc -R$range -J$projection -BWeSN+t"Max Shortening Azimuth" -Bp1.0 -Cmycpt.cpt -P -K > $out_az
+# gmt grdimage azimuth.nc -R$range -J$projection -BWeSN+t"Max Shortening Azimuth" -Bp1.0 -Cmycpt.cpt -P -K > $out_az
+gmt psxy azimuth.txt -R$range -J$projection -BWeSN+t"Max Shortening Azimuth" -Bp1.0 -Cmycpt.cpt -P -Wblack -L -K > $out_az
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B15.0:"degrees from north":/:: -Cmycpt.cpt -K -O >> $out_az
 gmt psvelo positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_az
 gmt psvelo negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_az

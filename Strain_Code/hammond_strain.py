@@ -282,17 +282,13 @@ def compute(myVelfield, MyParams):
 	ycentroid=[x[1] for x in centroids];
 
 	# Initialize arrays.
-	I2nd=[];
 	rot=[];
-	max_shear=[];
 	e1=[]; # eigenvalues
 	e2=[];
 	v00=[];  # eigenvectors
 	v01=[];
 	v10=[];
 	v11=[];
-	dilatation=[]; # dilatation	= e1+e2
-	azimuth=[];
 
 	# for each triangle:
 	for i in range(trishape[0]):
@@ -332,25 +328,19 @@ def compute(myVelfield, MyParams):
 		eyy=e_thetatheta*1e6;
 
 		# # Compute a number of values based on tensor properties. 
-		I2nd_tri = np.log10(np.abs(strain_tensor_toolbox.second_invariant(exx, exy, eyy)));
-		I2nd.append(I2nd_tri);
 		rot.append(OMEGA*1000*1000);
 		[e11, e22, v] = strain_tensor_toolbox.eigenvector_eigenvalue(exx, exy, eyy);
-		az = strain_tensor_toolbox.azimuth_math(-e11, -e22, v[0][0], v[0][1], v[1][0], v[1][1])
 
 		e1.append(-e11);  # the convention of this code returns negative eigenvalues compared to my other codes. 
 		e2.append(-e22);
-		max_shear.append(abs((-e11 + e22)/2)); # the convention of this code returns negative eigenvalues compared to my other codes. 
 		v00.append(v[0][0]);
 		v10.append(v[1][0]);
 		v01.append(v[0][1]);
 		v11.append(v[1][1]);
-		dilatation.append(-e11+-e22);  # # the convention of this code returns negative eigenvalues compared to my other codes. 
-		azimuth.append(az)
 
 	print("Success computing strain via Hammond method.\n");
 
-	return [xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, azimuth];
+	return [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11];
 
 
 def print_all_values(e_phiphi,e_thetaphi,e_thetatheta,omega_r,U_theta,U_phi,s_omega_r,s_e_phiphi,s_e_thetaphi,s_e_thetatheta,s_U_theta,s_U_phi,chi2,OMEGA,THETA_p,PHI_p,s_OMEGA,s_THETA_p,s_PHI_p,r_PHITHETA,u_phi_p,u_theta_p):

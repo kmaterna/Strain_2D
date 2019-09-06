@@ -51,7 +51,8 @@ gmt psvelo negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J
 
 # Azimuth
 gmt makecpt -T0/180/1 -D -Crainbow.cpt > mycpt.cpt
-gmt grdimage azimuth.nc -R$range -J$projection -BWeSN+t"Max Shortening Azimuth" -Bp1.0 -Cmycpt.cpt -P -K > $out_az
+# gmt grdimage azimuth.nc -R$range -J$projection -BWeSN+t"Max Shortening Azimuth" -Bp1.0 -Cmycpt.cpt -P -K > $out_az
+gmt psxy azimuth.txt -R$range -J$projection -BWeSN+t"Max Shortening Azimuth" -Bp$border_int -Cmycpt.cpt -P -Wblack -L -K > $out_az
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B15.0:"degrees from north":/:: -Cmycpt.cpt -K -O >> $out_az
 gmt psvelo positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_az
 gmt psvelo negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_az
@@ -59,7 +60,8 @@ gmt pscoast -R$range -J$projection -Wthick,black -Sgrey -Df -K -O >> $out_az
 
 # max shear
 gmt makecpt -T0/250/1.0 -D -Crainbow.cpt > mycpt.cpt
-gmt grdimage max_shear.nc -R$range -J$projection -BWeSN+t"Max Shear" -Bp1.0 -Cmycpt.cpt -P -K > $out_max
+# gmt grdimage max_shear.nc -R$range -J$projection -BWeSN+t"Max Shear" -Bp1.0 -Cmycpt.cpt -P -K > $out_max
+gmt psxy max_shear.txt -R$range -J$projection -BWeSN+t"Max Shear" -Bp$border_int -Cmycpt.cpt -P -Wblack -L -K > $out_max
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_max
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B50.0:"Max Shear":/:: -Cmycpt.cpt -K -O >> $out_max
 

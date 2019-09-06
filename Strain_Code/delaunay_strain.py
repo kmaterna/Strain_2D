@@ -43,16 +43,13 @@ def compute(myVelfield, MyParams):
 
 
 	# Initialize arrays.
-	I2nd=[];
 	rot=[];
-	max_shear=[];
 	e1=[]; # eigenvalues
 	e2=[];
 	v00=[];  # eigenvectors
 	v01=[];
 	v10=[];
 	v11=[];
-	dilatation=[];
 
 
 	# for each triangle:
@@ -100,24 +97,20 @@ def compute(myVelfield, MyParams):
 		[exx, exy, eyy, rotation] = strain_tensor_toolbox.compute_strain_components_from_dx(dVEdE, dVNdE, dVEdN, dVNdN);
 
 		# # Compute a number of values based on tensor properties. 
-		I2nd_tri = np.log10(np.abs(strain_tensor_toolbox.second_invariant(exx, exy, eyy)));
-		I2nd.append(I2nd_tri);
 		[e11, e22, v] = strain_tensor_toolbox.eigenvector_eigenvalue(exx, exy, eyy);
 
 		e1.append(e11);
 		e2.append(e22);
 		rot.append(abs(rotation));
-		max_shear.append((e11 - e22)/2);
 		v00.append(v[0][0]);
 		v10.append(v[1][0]);
 		v01.append(v[0][1]);
 		v11.append(v[1][1]);
-		dilatation.append(e11+e22);
 
 	print("Success computing strain via delaunay method.\n");
 
 
-	return [xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation];
+	return [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11];
 
 
 

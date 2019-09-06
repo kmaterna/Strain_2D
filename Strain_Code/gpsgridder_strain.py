@@ -50,15 +50,12 @@ def compute(myVelfield, MyParams):
 	xdata=np.flipud(xdata); ydata=np.flipud(ydata); udata=np.flipud(udata); vdata=np.flipud(vdata);
 	[ydim, xdim] = np.shape(udata)
 	rot=np.zeros(np.shape(vdata));  # 2nd invariant of rotation rate tensor
-	I2nd=np.zeros(np.shape(vdata));  # 2nd invariant of strain rate tensor
-	max_shear=np.zeros(np.shape(vdata));  # max shear of strain rate tensor
 	e1=np.zeros(np.shape(vdata));  # maximum principal strain (array of float)
 	e2=np.zeros(np.shape(vdata));  # minimum principal strain (array of float)
 	v00=np.zeros(np.shape(vdata));  # more complicated: eigenvectors (array of matrix 2x2)
 	v01=np.zeros(np.shape(vdata));  # more complicated: eigenvectors (array of matrix 2x2)
 	v10=np.zeros(np.shape(vdata));  # more complicated: eigenvectors (array of matrix 2x2)
 	v11=np.zeros(np.shape(vdata));  # more complicated: eigenvectors (array of matrix 2x2)
-	dilatation=np.zeros(np.shape(vdata)); # dilatation
 
 	# the strain calculation
 	for j in range(ydim-1):
@@ -78,7 +75,6 @@ def compute(myVelfield, MyParams):
 			rot[j][i]=abs(rotation);
 
 			# Compute a number of values based on tensor properties. 
-			I2nd[j][i] = np.log10(np.abs(strain_tensor_toolbox.second_invariant(exx, exy, eyy)));
 			[e11, e22, v1] = strain_tensor_toolbox.eigenvector_eigenvalue(exx, exy, eyy);
 			e1[j][i]= e11;
 			e2[j][i]= e22;
@@ -86,12 +82,10 @@ def compute(myVelfield, MyParams):
 			v10[j][i]=v1[1][0];
 			v01[j][i]=v1[0][1];
 			v11[j][i]=v1[1][1];
-			max_shear[j][i] = (e11 - e22)/2;
-			dilatation[j][i] = e11+e22;
 
 	print("Success computing strain via gpsgridder method.\n");
 
-	return [xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation];
+	return [xdata, ydata, rot, e1, e2, v00, v01, v10, v11];
 
 
 

@@ -9,8 +9,8 @@ def output_ETS(velfield, outname):
 	return;
 
 
-[myVelfield] = gpsin.read_ETS_vel_file("../../Other_vels/Bartlow_ETSvels.txt")
+[myVelfield] = gpsin.read_ETS_vel_file("../../Vel_Data/Other_vels/Bartlow_ETSvels.txt")
 output_ETS(myVelfield, "ETS_velo.txt")
 
-# [myVelfield] = gpsin.read_ETS_vel_file("../../Other_vels/Bartlow_interETSvels.txt")
+# [myVelfield] = gpsin.read_ETS_vel_file("../../Vel_Data/Other_vels/Bartlow_interETSvels.txt")
 # output_ETS(myVelfield, "interETS_velo.txt")
