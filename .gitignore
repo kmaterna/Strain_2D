@@ -2,6 +2,7 @@
 *.ps 
 *.png
 *.pyc
+Comparison/*.pdf
 Results/*
 Strain_Code/tape/*
 Strain_Code/visr/*
