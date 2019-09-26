@@ -6,12 +6,12 @@ import sys
 import configure_functions
 import input_manager
 import output_manager
-import delaunay_strain
-import hammond_strain
-import gpsgridder_strain
-import visr_strain
-import spline_strain
-import ND_interp_strain
+import strain_delaunay
+import strain_hammond
+import strain_gpsgridder
+import strain_visr
+import strain_spline
+import strain_ND_interp
 import strain_tensor_toolbox
 
 
@@ -49,12 +49,12 @@ driver_dict={
 
 # Where does the compute method live? 
 compute_dict={
-	"delaunay":delaunay_strain.compute, 
-	"hammond":hammond_strain.compute,
-	"ND_interp":ND_interp_strain.compute,
-	"spline":spline_strain.compute,
-	"gpsgridder":gpsgridder_strain.compute,
-	"visr":visr_strain.compute };
+	"delaunay":strain_delaunay.compute, 
+	"hammond":strain_hammond.compute,
+	"ND_interp":strain_ND_interp.compute,
+	"spline":strain_spline.compute,
+	"gpsgridder":strain_gpsgridder.compute,
+	"visr":strain_visr.compute };
 
 
 def method_directory(strain_method):

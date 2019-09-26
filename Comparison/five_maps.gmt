@@ -15,7 +15,8 @@ strain6=../Results/midas/Results_tape
 gmt makecpt -T-1/5/0.5 -Crainbow.cpt > mycpt.cpt
 
 # Hammond
-gmt psxy $strain1/I2nd.txt -R$range -J$projection -BWesN+t"Hammond" -Bp$border_int -Cmycpt.cpt -Wblack -X2 -Y11 -L -K > $out_strain
+gmt psxy $strain1/I2nd.txt -R$range -J$projection -BWesN+t"Delaunay" -Bp$border_int -Cmycpt.cpt -Wblack -X2 -Y20 -P -K -L > $out_strain
+gmt grdimage $strain1/I2nd.nc -R$range -J$projection -Bp1.0 -Cmycpt.cpt -K -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
 gmt psvelo $strain1/positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_strain
 gmt psvelo $strain1/negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_strain
@@ -27,27 +28,29 @@ gmt psvelo $strain2/positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R
 gmt psvelo $strain2/negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_strain
 
 # Visr
-gmt grdimage $strain3/I2nd.nc -R$range -J$projection -BWesN+t"Visr" -Bp1.0 -Cmycpt.cpt -K -X8 -Y0 -O >> $out_strain
+gmt grdimage $strain3/I2nd.nc -R$range -J$projection -BWesN+t"Visr" -Bp1.0 -Cmycpt.cpt -K -X-8 -Y-9.5 -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
-gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"log(I2)":/:: -Cmycpt.cpt -K -O >> $out_strain
+# gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"log(I2)":/:: -Cmycpt.cpt -K -O >> $out_strain
 gmt psvelo $strain3/positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_strain
 gmt psvelo $strain3/negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_strain
 
 # Spline
-gmt grdimage $strain4/I2nd.nc -R$range -J$projection -BWesN+t"Spline" -Bp1.0 -Cmycpt.cpt -K -X-16 -Y-9.5 -O >> $out_strain
+gmt grdimage $strain4/I2nd.nc -R$range -J$projection -BWesN+t"Spline" -Bp1.0 -Cmycpt.cpt -K -X8 -Y0 -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
 gmt psvelo $strain4/positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_strain
 gmt psvelo $strain4/negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_strain
+gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B1.0:"log(I2)":/:: -Cmycpt.cpt -K -O >> $out_strain
+
 
 # GPSgridder
-gmt grdimage $strain5/I2nd.nc -R$range -J$projection -BWesN+t"GPSgridder" -Bp1.0 -Cmycpt.cpt -K -X8 -Y0 -O >> $out_strain
+gmt grdimage $strain5/I2nd.nc -R$range -J$projection -BWesN+t"GPSgridder" -Bp1.0 -Cmycpt.cpt -K -X-8 -Y-9.5 -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
 gmt psvelo $strain5/positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_strain
 gmt psvelo $strain5/negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_strain
 
 # Tape
-# gmt grdimage $strain6/I2nd.nc -R$range -J$projection -BWesN+t"Tape" -Bp1.0 -Cmycpt.cpt -K -X8 -Y0 -O >> $out_strain
-gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -BWesN+t"Tape" -Bp1.0 -K -O -X8 -Y0 >> $out_strain
+gmt grdimage $strain6/I2nd.nc -R$range -J$projection -BWesN+t"Tape" -Bp1.0 -Cmycpt.cpt -K -X8 -Y0 -O >> $out_strain
+gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -BWesN+t"Tape" -Bp1.0 -K -O >> $out_strain
 # gmt psvelo $strain6/positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_strain
 # gmt psvelo $strain6/negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_strain
 

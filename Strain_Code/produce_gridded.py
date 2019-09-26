@@ -3,7 +3,6 @@ import matplotlib.path
 import matplotlib.pyplot as plt
 import netcdf_functions
 import strain_tensor_toolbox
-import netCDF4
 import scipy.interpolate as interp
 
 # this function works with .txt files outputtd by the delaunay or hammond triangulation methods

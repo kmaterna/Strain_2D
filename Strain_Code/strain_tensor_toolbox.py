@@ -95,6 +95,8 @@ def max_shortening_azimuth_1d(e1, e2, v00, v01, v10, v11):
 
 
 def compute_derived_quantities(e1, e2, v00, v01, v10, v11):
+	# Given the basic components of the strain tensor, compute the rest of the derived quantities
+	# like 2nd invariant, azimuth of maximum strain, dilatation, etc. 
 	I2nd=np.zeros(np.shape(e1));
 	max_shear=np.zeros(np.shape(e1));
 	dilatation=np.zeros(np.shape(e1));
