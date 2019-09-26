@@ -33,5 +33,5 @@ The code is written in Python3, and requires GMT5.  It may require Matlab or a F
 
 Example Output: 
 
-![strain](https://github.com/kmaterna/2D_Strain/blob/master/Comparison/strain_array.png)
+![strain](https://github.com/kmaterna/2D_Strain/blob/master/Comparison/strain_array.pdf)
 

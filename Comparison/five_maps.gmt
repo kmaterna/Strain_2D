@@ -16,7 +16,7 @@ gmt makecpt -T-1/5/0.5 -Crainbow.cpt > mycpt.cpt
 
 # Hammond
 gmt psxy $strain1/I2nd.txt -R$range -J$projection -BWesN+t"Delaunay" -Bp$border_int -Cmycpt.cpt -Wblack -X2 -Y20 -P -K -L > $out_strain
-gmt grdimage $strain1/I2nd.nc -R$range -J$projection -Bp1.0 -Cmycpt.cpt -K -O >> $out_strain
+# gmt grdimage $strain1/I2nd.nc -R$range -J$projection -Bp1.0 -Cmycpt.cpt -K -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
 gmt psvelo $strain1/positive_eigs.txt -Se0.003/0.68/0 -A+e+pthick,blue -Gblue -R$range -J$projection -K -O >> $out_strain
 gmt psvelo $strain1/negative_eigs.txt -Se0.003/0.68/0 -A+b+pthick,black -Gred -R$range -J$projection -K -O >> $out_strain
