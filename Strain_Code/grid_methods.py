@@ -1,3 +1,5 @@
+# Methods for turning a 1D computation into a 2D computation
+
 import produce_gridded as pg
 import configure_functions as config
 import strain_tensor_toolbox

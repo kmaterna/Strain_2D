@@ -1,17 +1,26 @@
+# A set of code that reads multiple grid files and produces mean and variance
+# In grid form. 
+
 import numpy as np
-import netCDF4
 import netcdf_functions
+# import netCDF4
 
 # takes in netcdfs from each method of strain calculation, and produces netcdfs of the means and standard deviations
 
 # inputs data from netcdfs. netcdfs must have uniform grid size, and generally cover northern california
 # outputs an n-dim array of lons, and m-d array of lats, and an m by n array of values
-def input_netcdf(nc):
-	file = netCDF4.Dataset(nc, 'r', Format='NETCDF4')
-	lon = file.variables['x'][:]
-	lat = file.variables['y'][:]
-	values = file.variables['z']
-	return lon, lat, values
+# def input_netcdf(nc):
+# 	file = netCDF4.Dataset(nc, 'r', Format='NETCDF4')
+# 	lon = file.variables['x'][:]
+# 	lat = file.variables['y'][:]
+# 	values = file.variables['z']
+# 	return lon, lat, values
+
+def input_netcdf(nc):  # the older netcdf functions. 
+	[lon, lat, values] = netcdf_functions.read_grd_xyz(nc, "x", "y", "z");
+	return lon, lat, values;
+
+
 
 # inputs data from txt files
 def input_txt(file):
@@ -190,6 +199,13 @@ def array_means(x, y, vals1, vals2, vals4):
 # outputs to result directory for means as a netcdf which can then be manipulated further with gmt.
 # stat = "means" or "deviations"
 # component = "I2nd", "max_shear", "dilatation", "azimuth"
-def output_nc(lon, lat, vals, stat, component):
-	netcdf_functions.produce_output_netcdf(lon, lat, vals, 'per yr', "Results/Results_means/"+stat+"_"+component+".nc");
+def output_nc(lon, lat, vals, outdir, stat, component):
+	netcdf_functions.produce_output_netcdf(lon, lat, vals, 'per yr', outdir+stat+"_"+component+".nc");
 	return
+
+def output_txt(lon, lat, vals, outdir, stat, component):
+	upfile=open(outdir+stat+"_"+component_name+".txt", 'w');
+	for i in range(len(lon)):
+		upfile.write("%f %f %f \n" % (lon[i], lat[i], vals[i]));
+	return;
+
