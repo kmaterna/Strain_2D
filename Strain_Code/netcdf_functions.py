@@ -4,21 +4,24 @@ from subprocess import check_output
 
 
 def read_grd_z(filename, zname):
-	zdata0 = netcdf.netcdf_file(filename,'r').variables[zname][::-1];
+	zdata0 = netcdf.netcdf_file(filename,'r').variables[zname][::];
 	zdata  = zdata0.copy();	
 	return [zdata];
 
 def read_grd_xy(filename, xname, yname):
-	xdata0 = netcdf.netcdf_file(filename,'r').variables[xname][::-1];
-	ydata0 = netcdf.netcdf_file(filename,'r').variables[yname][::-1];
+	xdata0 = netcdf.netcdf_file(filename,'r').variables[xname][::];
+	ydata0 = netcdf.netcdf_file(filename,'r').variables[yname][::];
 	xdata=xdata0.copy();
 	ydata=ydata0.copy();
 	return [xdata, ydata]; 
 
 def read_grd_xyz(filename, xname, yname, zname):
-	xdata0 = netcdf.netcdf_file(filename,'r').variables[xname][::-1];
-	ydata0 = netcdf.netcdf_file(filename,'r').variables[yname][::-1];
-	zdata0 = netcdf.netcdf_file(filename,'r').variables[zname][::-1];
+	# xdata0 = netcdf.netcdf_file(filename,'r').variables[xname][::-1];
+	# ydata0 = netcdf.netcdf_file(filename,'r').variables[yname][::-1];
+	# zdata0 = netcdf.netcdf_file(filename,'r').variables[zname][::-1];
+	xdata0 = netcdf.netcdf_file(filename,'r').variables[xname][::];
+	ydata0 = netcdf.netcdf_file(filename,'r').variables[yname][::];
+	zdata0 = netcdf.netcdf_file(filename,'r').variables[zname][::];
 	zdata=zdata0.copy();	
 	xdata=xdata0.copy();
 	ydata=ydata0.copy();

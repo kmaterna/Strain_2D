@@ -14,7 +14,7 @@ def drive(component):
 	if component == "I2nd" or component =="dilatation" or component=="max_shear" or component=="azimuth":
 		# directories to netcdfs for each method
 		file1 = "Results/"+velfield+"/Results_hammond/"+component_name+".nc"
-		file2 = "Results/"+velfield+"/Results_spline/"+component_name+".nc"
+		file2 = "Results/"+velfield+"/Results_gpsgridder/"+component_name+".nc"
 		file3 = "Results/"+velfield+"/Results_visr/"+component_name+".nc"
 		file4 = "Results/"+velfield+"/Results_ND_interp/"+component_name+".nc"
 		file5 = "Results/"+velfield+"/Results_tape/"+component_name+".nc"
@@ -38,8 +38,20 @@ def drive(component):
 		lons5, lats5, val5 = comp.confine_to_grid(lon5, lat5, val5, -124.38, -121.2, 37.2, 42, 0.04)
 
 		comp.check_coregistration(val1, val2, val3, val4, val5);
-		my_means = comp.angle_means(lons2, lats2, val1, val2, val3, val4, val5)
-		my_sds = comp.angle_sds(lons2, lats2, val1, val2, val3, val4, val5)
+
+		if component=="azimuth":
+			my_means = comp.angle_means(lons2, lats2, val1, val2, val3, val4, val5)
+			my_sds = comp.angle_sds(lons2, lats2, val1, val2, val3, val4, val5)
+		if component=="I2nd":
+			my_means = comp.grid_means_log(lons2, lats2, val1, val2, val3, val4, val5)
+			my_sds = comp.grid_sds_log(lons2, lats2, val1, val2, val3, val4, val5)
+		if component=="dilatation":
+			my_means = comp.grid_means(lons2, lats2, val1, val2, val3, val4, val5)
+			my_sds = comp.grid_sds(lons2, lats2, val1, val2, val3, val4, val5)
+		if component=="max_shear":
+			my_means = comp.grid_means(lons2, lats2, val1, val2, val3, val4, val5)
+			my_sds = comp.grid_sds(lons2, lats2, val1, val2, val3, val4, val5)
+
 		comp.output_nc(lons2, lats2, my_means, outdir, "means", component_name)
 		comp.output_nc(lons2, lats2, my_sds, outdir, "deviations", component_name)
 
@@ -63,5 +75,13 @@ def drive(component):
 
 	else:
 		print("%s is not a recognized strain component" % component)
+
+
+	if component == "azimuth":
+		# A special code to mask out values of azimuth where the magnitude of strain is really low. 
+		comp.mask_by_value(outdir, "azimuth", "I2nd", 3);
+	if component == "dilatation":
+		# A special code to mask out values of azimuth where the magnitude of strain is really low. 
+		comp.mask_by_value(outdir, "dila", "dila", 15);
 
 	return;

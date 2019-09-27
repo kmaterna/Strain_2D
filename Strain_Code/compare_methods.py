@@ -195,6 +195,21 @@ def array_means(x, y, vals1, vals2, vals4):
 			means[i] = mean
 	return means
 
+def mask_by_value(outdir, grid1, grid2, cutoff_value):
+	# grid1 = usually azimuth deviations
+	# grid2 = usually I2nd
+	lon1, lat1, val1 = input_netcdf(outdir+"deviations_"+grid1+".nc");
+	lon2, lat2, val2 = input_netcdf(outdir+"means_"+grid2+".nc");
+	masked_vals=np.zeros(np.shape(val2));
+	for i in range(len(lon1)):
+		for j in range(len(lat1)):
+			if abs(val2[j][i])>cutoff_value:
+				masked_vals[j][i]=val1[j][i];
+			else:
+				masked_vals[j][i]=np.nan;
+	output_nc(lon1, lat1, masked_vals, outdir, "deviations",grid1);
+	return;
+
 # writes the uniform latitude, longitude, and whichever statistical values are desired.
 # outputs to result directory for means as a netcdf which can then be manipulated further with gmt.
 # stat = "means" or "deviations"
