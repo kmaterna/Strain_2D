@@ -4,13 +4,13 @@ from subprocess import check_output
 
 
 def read_grd_z(filename, zname):
-	zdata0 = netcdf.netcdf_file(filename,'r').variables[zname][::];
+	zdata0 = netcdf.netcdf_file(filename,'r').variables[zname][::-1];
 	zdata  = zdata0.copy();	
 	return [zdata];
 
 def read_grd_xy(filename, xname, yname):
-	xdata0 = netcdf.netcdf_file(filename,'r').variables[xname][::];
-	ydata0 = netcdf.netcdf_file(filename,'r').variables[yname][::];
+	xdata0 = netcdf.netcdf_file(filename,'r').variables[xname][::-1];
+	ydata0 = netcdf.netcdf_file(filename,'r').variables[yname][::-1];
 	xdata=xdata0.copy();
 	ydata=ydata0.copy();
 	return [xdata, ydata]; 

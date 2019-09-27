@@ -43,7 +43,7 @@ gmt psvelo tempgps.txt -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$proj
 
 
 # Dilatation
-gmt makecpt -Iz -D -T-350/350/1 -Crainbow.cpt > mycpt.cpt
+gmt makecpt -Iz -D -T-350/350/1 -Cpolar.cpt > mycpt.cpt
 # gmt makecpt -Iz -D -T-180/180/1 -Crainbow.cpt > mycpt.cpt
 gmt grdimage dila.nc -R$range -J$projection -BWeSN+t"Dilatation" -Bp1.0 -Cmycpt.cpt -P -K > $out_dila
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_dila

@@ -20,9 +20,11 @@ def configure(strain_method):
 	
 	input_file="Vel_Data/midas.NA12.txt";
 	# input_file="Vel_Data/Other_vels/Bartlow_ETSvels.txt";
+	# input_file="Vel_Data/Other_vels/Bartlow_interETSvels.txt";
 	# input_file="Vel_Data/NAM08_pbovelfile_feb2018.vel";
 
-	map_range=[-125, -121, 37.0, 42.2]; # Northern California
+	# map_range=[-125, -121, 37.0, 42.2]; # Northern California
+	map_range=[-126, -119, 39.0, 50.0]; # Cascadia
 	map_range_string = str(map_range[0])+'/'+str(map_range[1])+'/'+str(map_range[2])+'/'+str(map_range[3]);
 	num_years=3.0;
 	max_sigma=2.0;

@@ -4,8 +4,9 @@ import compare_methods as comp
 
 def drive(component):
 
-	velfield="midas"
+	velfield="Bartlow_ETSvels"
 	outdir="Results/"+velfield+"/Means/"
+
 	component_name=component;
 	if component=="dilatation":
 		component_name="dila";
