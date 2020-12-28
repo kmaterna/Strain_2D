@@ -2,13 +2,8 @@
 *.ps 
 *.png
 *.pyc
-Comparison/*.pdf
-Results/*
 Strain_Code/tape/*
 Strain_Code/visr/*
 Strain_Code/hammond/*.m
 Strain_Code/Early_Work/*
 Strain_Code/Huang
-Vel_Data/Mapping_Resources/*
-Vel_Data/Other_vels/*
-Literature/*

@@ -1,9 +1,0 @@
-# stations, conditions
-# example: 1LSU snow
-P340 landslides
-# lassen
-P665 snow
-P666 snow
-P664 snow
-P667 snow
-P668 snow

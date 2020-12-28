@@ -1,8 +1,0 @@
-# GMT 5 Session common arguments shelf
-BEGIN GMT 5.4.5
-B	WESN+tInter-ETS Velo Field
-J	M
-JM	M6i
-R	-125.5/-121/39/42
-L	2
-END
