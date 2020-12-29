@@ -51,6 +51,7 @@
 import numpy as np
 from scipy.spatial import Delaunay
 import strain_tensor_toolbox
+import output_manager
 
 
 def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):
@@ -258,9 +259,14 @@ def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):
             u_phi_p, u_theta_p];
 
 
-def compute(myVelfield, MyParams):
-    print("Computing strain via Delaunay method.");
-    z = np.array([myVelfield.elon, myVelfield.nlat]);
+def compute_with_delaunay_polygons(myVelfield):
+    elon = [x.elon for x in myVelfield];
+    nlat = [x.nlat for x in myVelfield];
+    e = [x.e for x in myVelfield];
+    n = [x.n for x in myVelfield];
+    se = [x.se for x in myVelfield];
+    sn = [x.sn for x in myVelfield];
+    z = np.array([elon, nlat]);
     z = z.T;
     tri = Delaunay(z);
 
@@ -290,24 +296,24 @@ def compute(myVelfield, MyParams):
     for i in range(trishape[0]):
         # Get the velocities of each vertex (VE1, VN1, VE2, VN2, VE3, VN3)
         # Get velocities for Vertex 1 (triangle_vertices[i,0,0] and triangle_vertices[i,0,1])
-        xindex1 = np.where(myVelfield.elon == triangle_vertices[i, 0, 0])
-        yindex1 = np.where(myVelfield.nlat == triangle_vertices[i, 0, 1])
+        xindex1 = np.where(elon == triangle_vertices[i, 0, 0])
+        yindex1 = np.where(nlat == triangle_vertices[i, 0, 1])
         index1 = int(np.intersect1d(xindex1, yindex1)[0]);
-        xindex2 = np.where(myVelfield.elon == triangle_vertices[i, 1, 0])
-        yindex2 = np.where(myVelfield.nlat == triangle_vertices[i, 1, 1])
+        xindex2 = np.where(elon == triangle_vertices[i, 1, 0])
+        yindex2 = np.where(nlat == triangle_vertices[i, 1, 1])
         index2 = int(np.intersect1d(xindex2, yindex2)[0]);
-        xindex3 = np.where(myVelfield.elon == triangle_vertices[i, 2, 0])
-        yindex3 = np.where(myVelfield.nlat == triangle_vertices[i, 2, 1])
+        xindex3 = np.where(elon == triangle_vertices[i, 2, 0])
+        yindex3 = np.where(nlat == triangle_vertices[i, 2, 1])
         index3 = int(np.intersect1d(xindex3, yindex3)[0]);
 
         phi = np.array([triangle_vertices[i, 0, 0], triangle_vertices[i, 1, 0], triangle_vertices[i, 2, 0]]);
         theta = np.array([triangle_vertices[i, 0, 1], triangle_vertices[i, 1, 1], triangle_vertices[i, 2, 1]]);
         theta = [i - 90 for i in theta];
-        u_phi = np.array([myVelfield.e[index1], myVelfield.e[index2], myVelfield.e[index3]]);
-        u_theta = np.array([myVelfield.n[index1], myVelfield.n[index2], myVelfield.n[index3]]);
+        u_phi = np.array([e[index1], e[index2], e[index3]]);
+        u_theta = np.array([n[index1], n[index2], n[index3]]);
         u_theta = np.array([-i for i in u_theta]);  # colatitude needs negative theta values.
-        s_phi = np.array([myVelfield.se[index1], myVelfield.se[index2], myVelfield.se[index3]]);
-        s_theta = np.array([myVelfield.sn[index1], myVelfield.sn[index2], myVelfield.sn[index3]]);
+        s_phi = np.array([se[index1], se[index2], se[index3]]);
+        s_theta = np.array([sn[index1], sn[index2], sn[index3]]);
 
         # HERE WE PLUG IN BILL'S CODE!
         weight = 1;
@@ -316,7 +322,9 @@ def compute(myVelfield, MyParams):
          s_e_thetatheta, s_U_theta, s_U_phi, chi2, OMEGA, THETA_p, PHI_p, s_OMEGA, s_THETA_p, s_PHI_p, r_PHITHETA,
          u_phi_p, u_theta_p] = strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel);
 
-        # print_all_values(e_phiphi,e_thetaphi,e_thetatheta,omega_r,U_theta,U_phi,s_omega_r,s_e_phiphi,s_e_thetaphi,s_e_thetatheta,s_U_theta,s_U_phi,chi2,OMEGA,THETA_p,PHI_p,s_OMEGA,s_THETA_p,s_PHI_p,r_PHITHETA,u_phi_p,u_theta_p);
+        # print_all_values(e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi, s_omega_r, s_e_phiphi,
+        #                  s_e_thetaphi, s_e_thetatheta, s_U_theta, s_U_phi, chi2, OMEGA, THETA_p, PHI_p, s_OMEGA,
+        #                  s_THETA_p, s_PHI_p, r_PHITHETA, u_phi_p, u_theta_p);
 
         # The components that are easily computed
         # Units: nanostrain per year.
@@ -365,6 +373,15 @@ def print_all_values(e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi
     print("r_PHITHETA is:   " + str(r_PHITHETA));
     print("u_phi_p is:      " + str(u_phi_p));
     print("u_theta_p is:    " + str(u_theta_p));
+    return;
+
+
+def compute(myVelfield, MyParams):
+    print("------------------------------\nComputing strain via Delaunay method.");
+    [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11] = compute_with_delaunay_polygons(myVelfield);
+    [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(e1, e2, v00, v01, v10, v11);
+    output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation,
+               azimuth, myVelfield, MyParams);
     return;
 
 

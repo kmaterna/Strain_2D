@@ -15,5 +15,5 @@ import internal_coordinator
 
 
 if __name__ == "__main__":
-    MyParams = configure_functions.config_parser(sys.argv);
+    MyParams = configure_functions.config_parser(args=sys.argv);
     internal_coordinator.strain_coordinator(MyParams);

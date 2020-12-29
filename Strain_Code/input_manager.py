@@ -6,6 +6,7 @@ import gps_io_functions
 
 # ----------------- INPUTS -------------------------
 def inputs(MyParams):
+    print("------------------------------");
     # Purpose: generate input velocity field.
     if 'PBO' in MyParams.input_file or 'pbo' in MyParams.input_file:
         [myVelfield] = gps_io_functions.read_pbo_vel_file(MyParams.input_file);
@@ -24,4 +25,4 @@ def inputs(MyParams):
                                                   max_horiz_sigma=MyParams.max_sigma, coord_box=MyParams.range_data);
     myVelfield = gps_vel_functions.remove_duplicates(myVelfield);
     print("%d stations after selection criteria.\n" % (len(myVelfield)));
-    return [myVelfield];
+    return myVelfield;

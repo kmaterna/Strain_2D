@@ -17,14 +17,14 @@ help_message = "  Welcome to a geodetic strain calculator.\n" \
                "  See repository source for an example config file.\n"
 
 
-def config_parser(argv, configfile=None):
+def config_parser(args=None, configfile=None):
     # The configfile can be passed as argv (if bash API) or passed as argument (if python API)
     if not configfile:
-        if len(argv) == 1:
+        if len(args) < 2:
             print(help_message);
             sys.exit(0);
         else:
-            configfile = argv[1];
+            configfile = args[1];
 
     config = configparser.ConfigParser()
     config.read(configfile)
@@ -42,7 +42,7 @@ def config_parser(argv, configfile=None):
     method_specific = {};   # will write later
 
     # Cleanup
-    output_dir = get_output_dir(output_dir, strain_method);
+    output_dir = make_output_dir(output_dir, strain_method);
     range_strain = get_float_range(range_strain);
     range_data = get_float_range(range_data);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
@@ -61,9 +61,9 @@ def config_parser(argv, configfile=None):
     return MyParams;
 
 
-def get_output_dir(outer_name, strain_method):
+def make_output_dir(outer_name, strain_method):
     # Making a nested output directory structure for each different method.
-    inner_name = outer_name + "/" + strain_method;
+    inner_name = outer_name + "/" + strain_method + "/";
     subprocess.call(['mkdir', '-p', outer_name], shell=False);
     subprocess.call(['mkdir', '-p', inner_name], shell=False);
     return inner_name;
