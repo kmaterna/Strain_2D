@@ -5,10 +5,9 @@
 
 
 import numpy as np 
-import subprocess, sys
-import netcdf_functions
+import subprocess
+from Tectonic_Utils.read_write import netcdf_read_write
 import strain_tensor_toolbox
-
 
 
 # ----------------- COMPUTE -------------------------
@@ -40,8 +39,8 @@ def compute(myVelfield, MyParams):
 	# Get ready to do strain calculation. 
 	file1=MyParams.outdir+"gps_u.nc";
 	file2=MyParams.outdir+"gps_v.nc";
-	[xdata, ydata, udata] = netcdf_functions.read_grd_xyz(file1,'lon','lat', 'z');
-	[vdata] = netcdf_functions.read_grd_z(file2,'z');
+	[xdata, ydata, udata] = netcdf_read_write.read_any_grd(file1);
+	[_, _, vdata] = netcdf_read_write.read_any_grd(file2);
 	xinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $8}\'',shell=True));  # the x-increment
 	yinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $9}\'',shell=True));  # the y-increment	
 	typical_lat=float(MyParams.map_range[2]);

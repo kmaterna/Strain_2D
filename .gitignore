@@ -2,8 +2,10 @@
 *.ps 
 *.png
 *.pyc
+contrib/*
 Strain_Code/tape/*
 Strain_Code/visr/*
 Strain_Code/hammond/*.m
 Strain_Code/Early_Work/*
 Strain_Code/Huang
+.idea/*
