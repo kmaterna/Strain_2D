@@ -52,6 +52,7 @@ import numpy as np
 from scipy.spatial import Delaunay
 import strain_tensor_toolbox
 import output_manager
+import produce_gridded
 
 
 def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):
@@ -368,13 +369,12 @@ def compute(myVelfield, MyParams):
     print("------------------------------\nComputing strain via Delaunay method on a sphere.");
     [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = compute_with_delaunay_polygons(myVelfield);
 
-    # Here we will output convenient things on polygons, since it's intuitive for the user.
-    [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
-    output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, exx, exy, eyy, dilatation,
-               azimuth, myVelfield, MyParams);
+    # Here we output convenient things on polygons, since it's intuitive for the user.
+    output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy, myVelfield, MyParams);
 
-    # Here we will convert polygon2grd
-    return [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy];
+    # Here we convert polygon2grd
+    lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.drive_delaunay(MyParams);
+    return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 if __name__ == "__main__":

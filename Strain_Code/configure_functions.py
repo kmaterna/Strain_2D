@@ -28,7 +28,6 @@ def config_parser(args=None, configfile=None):
             configfile = args[1];
 
     MyParams = parse_config_file_into_Params(configfile);
-
     make_output_dir(MyParams.outdir);
     subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
 
@@ -66,6 +65,7 @@ def parse_config_file_into_Params(configfile):
     output_dir = output_dir + '/' + strain_method + '/'
     range_strain = get_float_range(range_strain);
     range_data = get_float_range(range_data);
+    inc = get_float_inc(inc);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
                       range_data=range_data, num_years=num_years, max_sigma=max_sigma, inc=inc, outdir=output_dir,
                       blacklist_file=blacklist_file, method_specific=method_specific);
@@ -74,21 +74,25 @@ def parse_config_file_into_Params(configfile):
 
 
 def make_output_dir(outer_name):
-    # Making a nested output directory structure for each different method.
-    # inner_name = outer_name + "/" + strain_method + "/";
     subprocess.call(['mkdir', '-p', outer_name], shell=False);
-    # subprocess.call(['mkdir', '-p', inner_name], shell=False);
-    # return inner_name;
     return;
 
 
 def get_float_range(string_range):
-    # string range: format "[-125/-121/32/35]"
+    # string range: format "-125/-121/32/35"
     # float range: array of floats
-    number_strings = string_range[1:-1].split('/')
+    number_strings = string_range.split('/')
     float_range = [float(number_strings[0]), float(number_strings[1]),
                    float(number_strings[2]), float(number_strings[3])];
     return float_range;
+
+
+def get_float_inc(string_inc):
+    # string_inc: like '0.04/0.04'
+    # float_inc: array of floats
+    number_incs = string_inc.split('/')
+    float_inc = [float(number_incs[0]), float(number_incs[1])];
+    return float_inc;
 
 
 def sanity_check_inputs(MyParams):

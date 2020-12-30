@@ -9,8 +9,8 @@ num_years = 0
 max_sigma = 10
 
 [strain]
-range_strain = [-121/-115/32/36]
+range_strain = -121/-115/32/36
 range_data   = 
-inc          = 0.04
+inc          = 0.04/0.04
 
 [method-specific]

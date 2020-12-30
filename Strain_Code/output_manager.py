@@ -7,18 +7,22 @@ import strain_tensor_toolbox
 import gps_io_functions
 
 
-def outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, myVelfield, MyParams):
+def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     print("------------------------------\nWriting 2d outputs:");
     gps_io_functions.write_humanread_vel_file(myVelfield, MyParams.outdir+"tempgps.txt");
-    azimuth = strain_tensor_toolbox.max_shortening_azimuth(e1, e2, v00, v01, v10, v11)
+    [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
+    [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
+    netcdf_read_write.produce_output_netcdf(xdata, ydata, exx, 'microstrain', MyParams.outdir + 'exx.nc');
+    netcdf_read_write.produce_output_netcdf(xdata, ydata, exy, 'microstrain', MyParams.outdir + 'exy.nc');
+    netcdf_read_write.produce_output_netcdf(xdata, ydata, eyy, 'microstrain', MyParams.outdir + 'eyy.nc');
     netcdf_read_write.produce_output_netcdf(xdata, ydata, azimuth, 'degrees', MyParams.outdir + 'azimuth.nc');
     netcdf_read_write.produce_output_netcdf(xdata, ydata, I2nd, 'per yr', MyParams.outdir + 'I2nd.nc');
     netcdf_read_write.produce_output_netcdf(xdata, ydata, rot, 'per yr', MyParams.outdir + 'rot.nc');
     netcdf_read_write.produce_output_netcdf(xdata, ydata, dilatation, 'per yr', MyParams.outdir + 'dila.nc');
     netcdf_read_write.produce_output_netcdf(xdata, ydata, max_shear, 'per yr', MyParams.outdir + 'max_shear.nc');
     print("Max I2: %f " % (np.amax(I2nd)));
-    print("Max rot: %f " % (np.amax(rot)));
-    print("Min rot: %f " % (np.amin(rot)));
+    print("Max rot: %f " % (np.nanmax(rot)));
+    print("Min rot: %f " % (np.nanmin(rot)));
     write_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11, MyParams);
     return;
 
@@ -30,6 +34,8 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
     if MyParams.strain_method == 'visr':
         eigs_dec = 8;
     elif MyParams.strain_method == 'gpsgridder':
+        eigs_dec = 12;
+    elif MyParams.strain_method == 'delaunay' or MyParams.strain_method == 'delaunay_flat':
         eigs_dec = 12;
     else:
         raise Exception("Error! strain method not recognized for eigenvector plotting.");
@@ -77,18 +83,21 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
     return;
 
 
-def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, exx, exy, eyy, dilatation,
-               azimuth, myVelfield, MyParams):
+def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVelfield, MyParams):
     print("------------------------------\nWriting 1d outputs:");
-    write_multisegment_file(polygon_vertices, rot, MyParams.outdir+"rotation.txt");
-    write_multisegment_file(polygon_vertices, I2nd, MyParams.outdir+"I2nd.txt");
-    write_multisegment_file(polygon_vertices, dilatation, MyParams.outdir+"Dilatation.txt");
-    write_multisegment_file(polygon_vertices, max_shear, MyParams.outdir+"max_shear.txt");
-    write_multisegment_file(polygon_vertices, azimuth, MyParams.outdir+"azimuth.txt");
+    [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
+    write_multisegment_file(polygon_vertices, rot, MyParams.outdir+"rot_polygons.txt");
+    write_multisegment_file(polygon_vertices, I2nd, MyParams.outdir+"I2nd_polygons.txt");
+    write_multisegment_file(polygon_vertices, dilatation, MyParams.outdir+"Dilatation_polygons.txt");
+    write_multisegment_file(polygon_vertices, max_shear, MyParams.outdir+"max_shear_polygons.txt");
+    write_multisegment_file(polygon_vertices, azimuth, MyParams.outdir+"azimuth_polygons.txt");
+    write_multisegment_file(polygon_vertices, exx, MyParams.outdir + "exx_polygons.txt");
+    write_multisegment_file(polygon_vertices, exy, MyParams.outdir + "exy_polygons.txt");
+    write_multisegment_file(polygon_vertices, eyy, MyParams.outdir + "eyy_polygons.txt");
     gps_io_functions.write_humanread_vel_file(myVelfield, MyParams.outdir+"tempgps.txt");
 
-    positive_file = open(MyParams.outdir + "positive_eigs.txt", 'w');
-    negative_file = open(MyParams.outdir + "negative_eigs.txt", 'w');
+    positive_file = open(MyParams.outdir + "positive_eigs_polygons.txt", 'w');
+    negative_file = open(MyParams.outdir + "negative_eigs_polygons.txt", 'w');
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
     for i in range(len(I2nd)):
         # Write the eigenvectors and eigenvalues

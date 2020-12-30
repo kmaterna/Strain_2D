@@ -17,12 +17,17 @@ def second_invariant(exx, exy, eyy):
 
 
 def eigenvector_eigenvalue(exx, exy, eyy):
+    if np.isnan(np.sum([exx, exy, eyy])):
+        v = [[np.nan, np.nan], [np.nan, np.nan]];
+        return [0, 0, v];
     T = np.array([[exx, exy], [exy, eyy]]);  # the tensor
     w, v = np.linalg.eig(T);  # The eigenvectors and eigenvalues (principal strains) of the strain rate tensor
     return [w[0], w[1], v];
 
 
 def max_shear_strain(exx, exy, eyy):
+    if np.isnan(np.sum([exx, exy, eyy])):
+        return 0;
     T = np.array([[exx, exy], [exy, eyy]]);  # the tensor
     w, v = np.linalg.eig(T);  # The eigenvectors and eigenvalues (principal strains) of the strain rate tensor
     # w = eigenvalues
@@ -56,15 +61,22 @@ def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
 
 
 def max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
-    az = np.zeros(e1.shape)
-    for i in range(len(e1)):
-        for j in range(len(e1[0])):
-            az[i][j] = azimuth_math(e1[i][j], e2[i][j], v00[i][j], v01[i][j], v10[i][j], v11[i][j]);
-            if az[i][j] > 179.999:
-                print("OOPSSSSS %d %d" % (i, j))
-    print("Minimum azimuth: %.3f degrees" % np.min(az))
-    print("Maximum azimuth: %.3f degrees" % np.max(az))
-    return az
+    dshape = np.shape(e1);
+    az = np.zeros(dshape);
+    if len(dshape) == 1:
+        for i in range(len(e1)):
+            az[i] = azimuth_math(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
+            if az[i] > 180:
+                print("Found an azimuth over 180 degrees. Please fix this.  %d " % i)
+    if len(dshape) == 2:
+        for i in range(len(e1)):
+            for j in range(len(e1[0])):
+                az[i][j] = azimuth_math(e1[i][j], e2[i][j], v00[i][j], v01[i][j], v10[i][j], v11[i][j]);
+                if az[i][j] > 179.999:
+                    print("Found an azimuth over 180 degrees. Please fix this.  %d " % i, j)
+    print("Minimum azimuth: %.3f degrees" % np.nanmin(az))
+    print("Maximum azimuth: %.3f degrees" % np.nanmax(az))
+    return az;
 
 
 def azimuth_math(e1, e2, v00, v01, v10, v11):
@@ -81,18 +93,6 @@ def azimuth_math(e1, e2, v00, v01, v10, v11):
     return theta
 
 
-# only used for tape
-def max_shortening_azimuth_1d(e1, e2, v00, v01, v10, v11):
-    az = np.zeros(len(e1))
-    for i in range(len(e1)):
-        az[i] = azimuth_math(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
-        if az[i] > 180:
-            print("OOPSSSSS %d " % i)
-    print("Minimum azimuth: %.3f degrees" % np.min(az))
-    print("Maximum azimuth: %.3f degrees" % np.max(az))
-    return az
-
-
 def compute_eigenvectors(exx, exy, eyy):
     # exx, eyy can be 1d arrays or 2D arrays
     e1 = np.zeros(np.shape(exx));
@@ -105,8 +105,8 @@ def compute_eigenvectors(exx, exy, eyy):
     if len(dshape) == 1:
         for i in range(len(exx)):
             [e11, e22, v] = eigenvector_eigenvalue(exx[i], exy[i], eyy[i]);
-            e1[i] = -e11;  # the convention of this code returns negative eigenvalues compared to my other codes.
-            e2[i] = -e22;
+            e1[i] = e11;  # the convention of this code returns negative eigenvalues compared to my other codes.
+            e2[i] = e22;
             v00[i] = v[0][0];
             v10[i] = v[1][0];
             v01[i] = v[0][1];
@@ -115,8 +115,8 @@ def compute_eigenvectors(exx, exy, eyy):
         for j in range(dshape[0]):
             for i in range(dshape[1]):
                 [e11, e22, v] = eigenvector_eigenvalue(exx[j][i], exy[j][i], eyy[j][i]);
-                e1[j][i] = -e11;
-                e2[j][i] = -e22;
+                e1[j][i] = e11;
+                e2[j][i] = e22;
                 v00[j][i] = v[0][0];
                 v01[j][i] = v[0][1];
                 v10[j][i] = v[1][0];
