@@ -1,7 +1,7 @@
 """
 Driver program for strain calculation
 Options:
-1. Delaunay (on sphere)
+1. Delaunay (on sphere, or delaunay_flat)
 2. gpsgridder
 3. visr
 4. tape

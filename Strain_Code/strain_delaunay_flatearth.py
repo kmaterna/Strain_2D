@@ -16,77 +16,30 @@ import numpy as np
 from scipy.spatial import Delaunay
 from numpy.linalg import inv, det
 import strain_tensor_toolbox
-import collections
-import datetime as dt
 import output_manager
-
-Velfield = collections.namedtuple("Velfield",['name','nlat','elon','n','e','u','sn','se','su','first_epoch','last_epoch']);
-
-
-def read_pbo_vel_file(infile):
-# Old format
-	ifile=open(infile,'r');
-	name=[]; nlat=[]; elon=[]; n=[]; e=[]; u=[]; sn=[]; se=[]; su=[]; first_epoch=[]; last_epoch=[];
-	for line in ifile:
-		temp=line.split();
-		name.append('zzzz');
-		nlat.append(float(temp[1]));
-		elon_temp=float(temp[0]);
-		if elon_temp>180:
-			elon_temp=elon_temp-360.0;
-		elon.append(elon_temp);
-		n.append(float(temp[3]));
-		e.append(float(temp[2]));
-		u.append(0);
-		sn.append(float(temp[4]));
-		se.append(float(temp[5]));
-		su.append(0);
-		first_epoch.append(dt.datetime.strptime("20190202"[0:8],'%Y%m%d'));
-		last_epoch.append(dt.datetime.strptime("20300101",'%Y%m%d'));
-	ifile.close();
-	myVelfield = Velfield(name=name, nlat=nlat, elon=elon, n=n, e=e, u=u, sn=sn, se=sn, su=su, first_epoch=first_epoch, last_epoch=last_epoch);
-	return [myVelfield];
-
-
-def output_oldstyle(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation,
-				   azimuth, myVelfield, MyParams):
-	print("------------------------------\nWriting 1d outputs:");
-	output_manager.write_multisegment_file(polygon_vertices, rot, MyParams.outdir + "rotation.txt");
-	output_manager.write_multisegment_file(polygon_vertices, I2nd, MyParams.outdir + "I2nd.txt");
-	output_manager.write_multisegment_file(polygon_vertices, dilatation, MyParams.outdir + "Dilatation.txt");
-	output_manager.write_multisegment_file(polygon_vertices, max_shear, MyParams.outdir + "max_shear.txt");
-	output_manager.write_multisegment_file(polygon_vertices, azimuth, MyParams.outdir + "azimuth.txt");
-	# gps_io_functions.write_humanread_vel_file(myVelfield, MyParams.outdir + "tempgps.txt");
-
-	positive_file = open(MyParams.outdir + "positive_eigs.txt", 'w');
-	negative_file = open(MyParams.outdir + "negative_eigs.txt", 'w');
-	for i in range(len(I2nd)):
-		# Write the eigenvectors and eigenvalues
-		output_manager.write_single_eigenvector(positive_file, negative_file, e1[i], v00[i], v10[i], xcentroid[i], ycentroid[i]);
-		output_manager.write_single_eigenvector(positive_file, negative_file, e2[i], v01[i], v11[i], xcentroid[i], ycentroid[i]);
-	positive_file.close();
-	negative_file.close();
-
-	print("Max I2: %f " % (max(I2nd)));
-	print("Max rot: %f " % (max(rot)));
-	print("Min rot: %f " % (min(rot)));
-	return;
-
-
-def compute_test(Inputs, MyParams):
-	[myVelfield] = read_pbo_vel_file(MyParams.input_file);
-	[xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11] = compute(myVelfield, MyParams);
-	[I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(e1, e2, v00, v01, v10, v11);
-	output_oldstyle(xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, azimuth, myVelfield, MyParams);
-	return [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11];
 
 
 # ----------------- COMPUTE -------------------------
+def compute(myVelfield, myParams):
+	print("------------------------------\nComputing strain via Delaunay method on a flat earth.");
+	[xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11] = compute_with_delaunay_polygons(myVelfield);
 
-def compute(myVelfield, MyParams):
+	# Here we will output convenient things on polygons, since it's intuitive for the user.
+	[I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(e1, e2, v00, v01, v10, v11);
+	output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, azimuth, myVelfield, myParams);
+	return [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11];
+
+
+def compute_with_delaunay_polygons(myVelfield):
 
 	print("Computing strain via delaunay method.");
-	z = np.array([myVelfield.elon,myVelfield.nlat]);
+	elon = [x.elon for x in myVelfield];
+	nlat = [x.nlat for x in myVelfield];
+	e = [x.e for x in myVelfield];
+	n = [x.n for x in myVelfield];
+	se = [x.se for x in myVelfield];
+	sn = [x.sn for x in myVelfield];
+	z = np.array([elon, nlat]);
 	z = z.T;
 	tri=Delaunay(z);
 
@@ -118,19 +71,19 @@ def compute(myVelfield, MyParams):
 
 		# Get the velocities of each vertex (VE1, VN1, VE2, VN2, VE3, VN3)
 		# Get velocities for Vertex 1 (triangle_vertices[i,0,0] and triangle_vertices[i,0,1])
-		xindex1 = np.where(myVelfield.elon==triangle_vertices[i,0,0])
-		yindex1 = np.where(myVelfield.nlat==triangle_vertices[i,0,1])
+		xindex1 = np.where(elon==triangle_vertices[i,0,0])
+		yindex1 = np.where(nlat==triangle_vertices[i,0,1])
 		index1=np.intersect1d(xindex1,yindex1);
-		xindex2 = np.where(myVelfield.elon==triangle_vertices[i,1,0])
-		yindex2 = np.where(myVelfield.nlat==triangle_vertices[i,1,1])
+		xindex2 = np.where(elon==triangle_vertices[i,1,0])
+		yindex2 = np.where(nlat==triangle_vertices[i,1,1])
 		index2=np.intersect1d(xindex2,yindex2);
-		xindex3 = np.where(myVelfield.elon==triangle_vertices[i,2,0])
-		yindex3 = np.where(myVelfield.nlat==triangle_vertices[i,2,1])
+		xindex3 = np.where(elon==triangle_vertices[i,2,0])
+		yindex3 = np.where(nlat==triangle_vertices[i,2,1])
 		index3=np.intersect1d(xindex3,yindex3);
 
-		VE1=myVelfield.e[index1[0]]; VN1=myVelfield.n[index1[0]];
-		VE2=myVelfield.e[index2[0]]; VN2=myVelfield.n[index2[0]];
-		VE3=myVelfield.e[index3[0]]; VN3=myVelfield.n[index3[0]];
+		VE1=e[index1[0]]; VN1=n[index1[0]];
+		VE2=e[index2[0]]; VN2=n[index2[0]];
+		VE3=e[index3[0]]; VN3=n[index3[0]];
 		obs_vel = np.array([[VE1],[VN1],[VE2],[VN2],[VE3],[VN3]]);
 
 		# Get the distance between centroid and vertex (in km)

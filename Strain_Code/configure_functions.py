@@ -1,4 +1,4 @@
-import subprocess, sys
+import subprocess, sys, os
 import collections
 import configparser
 
@@ -27,6 +27,9 @@ def config_parser(args=None, configfile=None):
         else:
             configfile = args[1];
 
+    if not os.path.isfile(configfile):
+        print("config file =  %s" % configfile);
+        raise Exception("Error! config file was not found.");
     config = configparser.ConfigParser()
     config.read(configfile)
     strain_method = config.get('general', 'method');
