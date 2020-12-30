@@ -7,6 +7,7 @@ Params = collections.namedtuple("Params", ['strain_method',
                                            'num_years', 'max_sigma', 'inc', 'outdir', 'blacklist_file',
                                            'method_specific']);
 available_methods = ['delaunay',
+                     'delaunay_flat',
                      'visr',
                      'gps_gridder',
                      'tape',

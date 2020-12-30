@@ -8,13 +8,8 @@ import gps_io_functions
 
 
 def outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, myVelfield, MyParams):
-    print("Writing 2d outputs:");
-    outfile = open(MyParams.outdir + "tempgps.txt", 'w');
-    for i in range(len(myVelfield.n)):
-        outfile.write("%f %f %f %f %f %f 0.0\n" % (
-            myVelfield.elon[i], myVelfield.nlat[i], myVelfield.e[i], myVelfield.n[i], myVelfield.se[i],
-            myVelfield.sn[i]));
-    outfile.close();
+    print("------------------------------\nWriting 2d outputs:");
+    gps_io_functions.write_humanread_vel_file(myVelfield, MyParams.outdir+"tempgps.txt");
     azimuth = strain_tensor_toolbox.max_shortening_azimuth(e1, e2, v00, v01, v10, v11)
     netcdf_read_write.produce_output_netcdf(xdata, ydata, azimuth, 'degrees', MyParams.outdir + 'azimuth.nc');
     netcdf_read_write.produce_output_netcdf(xdata, ydata, I2nd, 'per yr', MyParams.outdir + 'I2nd.nc');
@@ -25,14 +20,6 @@ def outputs_2d(xdata, ydata, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, d
     print("Max rot: %f " % (np.amax(rot)));
     print("Min rot: %f " % (np.amin(rot)));
     write_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11, MyParams);
-    gmt_file = open(MyParams.outdir + "run_gmt.gmt", 'w');
-    gmt_file.write("../../../" + MyParams.gmtfile + " " + MyParams.map_range + "\n");
-    gmt_file.close();
-    upfile = open(MyParams.outdir + "uplift.txt", 'w');
-    for i in range(len(myVelfield.n)):
-        upfile.write("%f %f %f \n" % (myVelfield.elon[i], myVelfield.nlat[i], myVelfield.u[i]));
-    upfile.close();
-    print("../../../" + MyParams.gmtfile + " " + MyParams.map_range);
     return;
 
 
@@ -44,12 +31,8 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
         eigs_dec = 8;
     elif MyParams.strain_method == 'gpsgridder':
         eigs_dec = 12;
-    elif MyParams.strain_method == 'spline':
-        eigs_dec = 8;
-    elif MyParams.strain_method == 'ND_interp':
-        eigs_dec = 12;
     else:
-        print("Error! strain method not recognized for eigenvector plotting.");
+        raise Exception("Error! strain method not recognized for eigenvector plotting.");
 
     do_not_print_value = 200;
     overmax_scale = 200;
@@ -91,7 +74,6 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
                         "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v01[j][k] * scale, -v11[j][k] * scale));
     positive_file.close();
     negative_file.close();
-
     return;
 
 
