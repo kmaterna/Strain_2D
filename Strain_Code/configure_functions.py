@@ -27,9 +27,26 @@ def config_parser(args=None, configfile=None):
         else:
             configfile = args[1];
 
+    MyParams = parse_config_file_into_Params(configfile);
+
+    make_output_dir(MyParams.outdir);
+    subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
+
+    print("\n------------------------------");
+    print("Hello! We are...");
+    print("   Computing strain using : %s " % MyParams.strain_method);
+    print("   Input data from        : %s" % MyParams.input_file);
+    print("   Calculation range      : %s" % MyParams.range_strain);
+    print("   Putting the outputs    : %s \n" % MyParams.outdir);
+    return MyParams;
+
+
+def parse_config_file_into_Params(configfile):
+    # Dedicated file to building a valid Params structure from the configfile
     if not os.path.isfile(configfile):
         print("config file =  %s" % configfile);
         raise Exception("Error! config file was not found.");
+
     config = configparser.ConfigParser()
     config.read(configfile)
     strain_method = config.get('general', 'method');
@@ -46,31 +63,23 @@ def config_parser(args=None, configfile=None):
     method_specific = {};   # will write later
 
     # Cleanup
-    output_dir = make_output_dir(output_dir, strain_method);
+    output_dir = output_dir + '/' + strain_method + '/'
     range_strain = get_float_range(range_strain);
     range_data = get_float_range(range_data);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
                       range_data=range_data, num_years=num_years, max_sigma=max_sigma, inc=inc, outdir=output_dir,
                       blacklist_file=blacklist_file, method_specific=method_specific);
     sanity_check_inputs(MyParams)
-    subprocess.call(['cp', configfile, output_dir], shell=False);
-
-    print("\n------------------------------");
-    print("Hello! We are...");
-    print("   Computing strain using : %s " % strain_method);
-    print("   Input data from        : %s" % input_file);
-    print("   Calculation range      : %s" % range_strain);
-    print("   Putting the outputs    : %s \n" % output_dir);
-
     return MyParams;
 
 
-def make_output_dir(outer_name, strain_method):
+def make_output_dir(outer_name):
     # Making a nested output directory structure for each different method.
-    inner_name = outer_name + "/" + strain_method + "/";
+    # inner_name = outer_name + "/" + strain_method + "/";
     subprocess.call(['mkdir', '-p', outer_name], shell=False);
-    subprocess.call(['mkdir', '-p', inner_name], shell=False);
-    return inner_name;
+    # subprocess.call(['mkdir', '-p', inner_name], shell=False);
+    # return inner_name;
+    return;
 
 
 def get_float_range(string_range):
@@ -83,8 +92,9 @@ def get_float_range(string_range):
 
 
 def sanity_check_inputs(MyParams):
-    # For ptions that change based on strain method,
+    # For options that change based on strain method,
     # Check that the right ones exist.
+    # Specific logic here.
     if MyParams.strain_method not in available_methods:
         raise Exception("%s is not a known strain method. Exiting.\n" % MyParams.strain_method);
     if MyParams.strain_method == "gps_gridder":

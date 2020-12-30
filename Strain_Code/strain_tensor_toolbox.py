@@ -93,15 +93,49 @@ def max_shortening_azimuth_1d(e1, e2, v00, v01, v10, v11):
     return az
 
 
-def compute_derived_quantities(e1, e2, v00, v01, v10, v11):
+def compute_eigenvectors(exx, exy, eyy):
+    # exx, eyy can be 1d arrays or 2D arrays
+    e1 = np.zeros(np.shape(exx));
+    e2 = np.zeros(np.shape(exx));  # eigenvalues
+    v00 = np.zeros(np.shape(exx));
+    v01 = np.zeros(np.shape(exx));
+    v10 = np.zeros(np.shape(exx));
+    v11 = np.zeros(np.shape(exx));  # eigenvectors
+    dshape = np.shape(exx);
+    if len(dshape) == 1:
+        for i in range(len(exx)):
+            [e11, e22, v] = eigenvector_eigenvalue(exx[i], exy[i], eyy[i]);
+            e1[i] = -e11;  # the convention of this code returns negative eigenvalues compared to my other codes.
+            e2[i] = -e22;
+            v00[i] = v[0][0];
+            v10[i] = v[1][0];
+            v01[i] = v[0][1];
+            v11[i] = v[1][1];
+    elif len(dshape) == 2:
+        for j in range(dshape[0]):
+            for i in range(dshape[1]):
+                [e11, e22, v] = eigenvector_eigenvalue(exx[j][i], exy[j][i], eyy[j][i]);
+                e1[j][i] = -e11;
+                e2[j][i] = -e22;
+                v00[j][i] = v[0][0];
+                v01[j][i] = v[0][1];
+                v10[j][i] = v[1][0];
+                v11[j][i] = v[1][1];
+    return [e1, e2, v00, v01, v10, v11];
+
+
+def compute_derived_quantities(exx, exy, eyy):
     # Given the basic components of the strain tensor, compute the rest of the derived quantities
     # like 2nd invariant, azimuth of maximum strain, dilatation, etc.
-    I2nd = np.zeros(np.shape(e1));
-    max_shear = np.zeros(np.shape(e1));
-    dilatation = np.zeros(np.shape(e1));
-    azimuth = np.zeros(np.shape(e1));
+    # exx, eyy can be 1d arrays or 2D arrays
 
-    dshape = np.shape(e1);
+    I2nd = np.zeros(np.shape(exx));
+    max_shear = np.zeros(np.shape(exx));
+    dilatation = np.zeros(np.shape(exx));
+    azimuth = np.zeros(np.shape(exx));
+    [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy);
+
+    dshape = np.shape(exx);
     if len(dshape) == 1:
         datalength = dshape[0];
         print("Computing strain invariants for 1d dataset with length %d." % datalength);

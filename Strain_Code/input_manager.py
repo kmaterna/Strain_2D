@@ -27,4 +27,7 @@ def inputs(MyParams):
     print("%d stations after selection criteria.\n" % (len(myVelfield)));
     if len(myVelfield) == 0:
         raise Exception("Error! Velocity field has no velocities.");
+    for item in myVelfield:
+        if item.se == 0 or item.sn == 0 or item.su == 0:
+            raise Exception("Error! Velocity uncertainty cannot be zero.");
     return myVelfield;

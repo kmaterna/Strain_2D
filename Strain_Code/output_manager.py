@@ -77,7 +77,7 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
     return;
 
 
-def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation,
+def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, exx, exy, eyy, dilatation,
                azimuth, myVelfield, MyParams):
     print("------------------------------\nWriting 1d outputs:");
     write_multisegment_file(polygon_vertices, rot, MyParams.outdir+"rotation.txt");
@@ -89,6 +89,7 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, I2nd, max_shear, rot, e1,
 
     positive_file = open(MyParams.outdir + "positive_eigs.txt", 'w');
     negative_file = open(MyParams.outdir + "negative_eigs.txt", 'w');
+    [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
     for i in range(len(I2nd)):
         # Write the eigenvectors and eigenvalues
         write_single_eigenvector(positive_file, negative_file, e1[i], v00[i], v10[i], xcentroid[i], ycentroid[i]);

@@ -72,7 +72,7 @@ def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):
     colin = 0;
     dc = [90 - i for i in theta];
     Gc = np.column_stack((np.ones([len(phi), 1]), phi));  # make a 2d array
-    mc = np.linalg.lstsq(Gc, dc)[0];
+    mc = np.linalg.lstsq(Gc, dc, rcond=None)[0];
     resc = np.dot(Gc, mc) - dc;  # residuals
     if max(abs(resc)) < 1e-5:
         colin = 1;
@@ -201,7 +201,7 @@ def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):
         s_e_thetatheta = np.sqrt(covm[5, 5]);
 
     N = len(d);
-    first_term = np.linalg.lstsq(covd.T, (d - np.dot(G, m)).T)[0].T;
+    first_term = np.linalg.lstsq(covd.T, (d - np.dot(G, m)).T, rcond=None)[0].T;
     if paramsel == 1 or paramsel == 2:
         chi2 = (np.dot(first_term, (d - np.dot(G, m)))) / (N);  # N-3 but a divide by zero happened
     else:
@@ -285,12 +285,7 @@ def compute_with_delaunay_polygons(myVelfield):
 
     # Initialize arrays.
     rot = [];
-    e1 = [];  # eigenvalues
-    e2 = [];
-    v00 = [];  # eigenvectors
-    v01 = [];
-    v10 = [];
-    v11 = [];
+    exx, exy, eyy = [], [], [];
 
     # for each triangle:
     for i in range(trishape[0]):
@@ -328,24 +323,17 @@ def compute_with_delaunay_polygons(myVelfield):
 
         # The components that are easily computed
         # Units: nanostrain per year.
-        exx = e_phiphi * 1e6;
-        exy = -e_thetaphi * 1e6;
-        eyy = e_thetatheta * 1e6;
+        # There might be a sign issue here compared to other codes.
+        exx.append(-e_phiphi * 1e6);
+        exy.append(e_thetaphi * 1e6);
+        eyy.append(-e_thetatheta * 1e6);
 
         # # Compute a number of values based on tensor properties.
         rot.append(OMEGA * 1000 * 1000);
-        [e11, e22, v] = strain_tensor_toolbox.eigenvector_eigenvalue(exx, exy, eyy);
-
-        e1.append(-e11);  # the convention of this code returns negative eigenvalues compared to my other codes.
-        e2.append(-e22);
-        v00.append(v[0][0]);
-        v10.append(v[1][0]);
-        v01.append(v[0][1]);
-        v11.append(v[1][1]);
 
     print("Success computing strain via Delaunay method.\n");
 
-    return [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11];
+    return [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy];
 
 
 def print_all_values(e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi, s_omega_r, s_e_phiphi, s_e_thetaphi,
@@ -378,13 +366,15 @@ def print_all_values(e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi
 
 def compute(myVelfield, MyParams):
     print("------------------------------\nComputing strain via Delaunay method on a sphere.");
-    [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11] = compute_with_delaunay_polygons(myVelfield);
+    [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = compute_with_delaunay_polygons(myVelfield);
 
     # Here we will output convenient things on polygons, since it's intuitive for the user.
-    [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(e1, e2, v00, v01, v10, v11);
-    output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation,
+    [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
+    output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, exx, exy, eyy, dilatation,
                azimuth, myVelfield, MyParams);
-    return [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11];
+
+    # Here we will convert polygon2grd
+    return [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy];
 
 
 if __name__ == "__main__":

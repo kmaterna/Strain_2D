@@ -27,8 +27,8 @@ compute_dict = {
 def strain_coordinator(MyParams):
     Inputs = input_manager.inputs(MyParams);
     # Here we will make a constant output format with 2d grids
-    [xcentroid, ycentroid, triangle_vertices, rot, e1, e2, v00, v01, v10, v11] = compute_dict[MyParams.strain_method](Inputs, MyParams);
+    [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = compute_dict[MyParams.strain_method](Inputs, MyParams);
     # For 2D grid outputs, eventually
-    # [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(e1, e2, v00, v01, v10, v11);
+    # [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     # output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation, azimuth, Inputs, MyParams);
     return;
