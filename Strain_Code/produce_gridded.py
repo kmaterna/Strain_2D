@@ -104,6 +104,30 @@ def find_in_triangles(triangles, values, lons, lats, grid):
     return val_arr
 
 
+def drive_tape(myParams):
+    # generic steps
+    indir = "../compearth/surfacevel2strain/matlab_output/"
+    print("Producing gridded dataset of: ")
+    x, y, tt, tp, pp = input_tape(indir, "cascadia_d02_q03_q06_b1_2D_s1_u1_strain.dat",
+                                  "cascadia_d02_q03_q06_b1_2D_s1_u1_Dtensor_6entries.dat");
+    [I2nd, max_shear, _, e1, e2, v00, v01, v10, v11, dilatation] = compute_tape(tt, tp, pp);
+    # second invariant
+    newx, newy, newI2nd = nn_interp(x, y, I2nd, myParams.coord_box, myParams.grid_inc);
+    output_tape(newx, newy, newI2nd, myParams.outdir, "I2nd.nc");
+    # dilatation
+    newx, newy, newdila = nn_interp(x, y, dilatation, myParams.coord_box, myParams.grid_inc);
+    output_tape(newx, newy, newdila, myParams.outdir, "dila.nc");
+    # max shear
+    newx, newy, newmax = nn_interp(x, y, max_shear, myParams.coord_box, myParams.grid_inc);
+    output_tape(newx, newy, newmax, myParams.outdir, "max_shear.nc");
+    # azimuth
+    azimuth = strain_tensor_toolbox.max_shortening_azimuth(e1, e2, v00, v01, v10, v11)
+    newx, newy, newaz = nn_interp(x, y, azimuth, myParams.coord_box, myParams.grid_inc);
+    netcdf_read_write.produce_output_netcdf(newx, newy, newaz, 'degrees', myParams.outdir+'azimuth.nc');
+    write_tape_eigenvectors(x, y, e1, e2, v00, v01, v10, v11)
+    return;
+
+
 # This function computes second invariant, max shear strain, etc from symmetric strain tensor components
 # (in spherical coords, from tape)
 def compute_tape(thth, thph, phph):
@@ -132,10 +156,11 @@ def compute_tape(thth, thph, phph):
 # This function performs scipy nearest-neighbor interpolation on the data
 # it assumes Tape scripts were run on a finer grid (try npts = 250)
 # the mins, maxes, and incriment should match that of other methods for easy comparison.
-def nn_interp(x, y, vals, xmin, xmax, ymin, ymax, inc):
-
-    newx = np.arange(xmin, xmax, inc)
-    newy = np.arange(ymin, ymax, inc)
+def nn_interp(x, y, vals, coord_box, inc):
+    xmin, xmax = coord_box[0], coord_box[1];
+    ymin, ymax = coord_box[2], coord_box[3];
+    newx = np.arange(xmin, xmax, inc[0])
+    newy = np.arange(ymin, ymax, inc[1])
     tempvals = []
 
     nn_interpolator = interp.NearestNDInterpolator((x, y), vals)
@@ -157,13 +182,15 @@ def nn_interp(x, y, vals, xmin, xmax, ymin, ymax, inc):
 def write_tape_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
     positive_file = open("Results/Results_Tape/"+"positive_eigs.txt", 'w');
     negative_file = open("Results/Results_Tape/"+"negative_eigs.txt", 'w');
+    coord_box = [min(xdata), max(xdata), min(ydata), max(ydata)];
+    inc = [0.02, 0.02]
 
-    w1 = nn_interp(xdata, ydata, w1, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
-    w2 = nn_interp(xdata, ydata, w2, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
-    v00 = nn_interp(xdata, ydata, v00, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
-    v01 = nn_interp(xdata, ydata, v01, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
-    v10 = nn_interp(xdata, ydata, v10, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)[2]
-    xdata, ydata, v11 = nn_interp(xdata, ydata, v11, min(xdata), max(xdata), min(ydata), max(ydata), 0.02)
+    w1 = nn_interp(xdata, ydata, w1, coord_box, inc)[2]
+    w2 = nn_interp(xdata, ydata, w2, coord_box, inc)[2]
+    v00 = nn_interp(xdata, ydata, v00, coord_box, inc)[2]
+    v01 = nn_interp(xdata, ydata, v01, coord_box, inc)[2]
+    v10 = nn_interp(xdata, ydata, v10, coord_box, inc)[2]
+    xdata, ydata, v11 = nn_interp(xdata, ydata, v11, coord_box, inc);
 
     eigs_dec = 12;
 

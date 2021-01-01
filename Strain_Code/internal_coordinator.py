@@ -19,7 +19,7 @@ import output_manager
 compute_dict = {
     "delaunay": strain_delaunay.compute,
     "delaunay_flat": strain_delaunay_flatearth.compute,
-    "gpsgridder": strain_gpsgridder.compute,
+    "gps_gridder": strain_gpsgridder.compute,
     "visr": strain_visr.compute };
 
 

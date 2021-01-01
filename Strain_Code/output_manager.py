@@ -33,7 +33,7 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
     negative_file = open(MyParams.outdir + "negative_eigs.txt", 'w');
     if MyParams.strain_method == 'visr':
         eigs_dec = 8;
-    elif MyParams.strain_method == 'gpsgridder':
+    elif MyParams.strain_method == 'gps_gridder':
         eigs_dec = 12;
     elif MyParams.strain_method == 'delaunay' or MyParams.strain_method == 'delaunay_flat':
         eigs_dec = 12;
@@ -145,4 +145,12 @@ def write_single_eigenvector(positive_file, negative_file, e, v0, v1, x, y):
     else:
         negative_file.write("%s %s %s %s 0 0 0\n" % (x, y, vx, vy));
         negative_file.write("%s %s %s %s 0 0 0\n" % (x, y, -vx, -vy));
+    return;
+
+
+def write_simple_gmt_format(myVelfield, outfile):
+    ofile = open(outfile, 'w');
+    for item in myVelfield:
+        ofile.write("%f %f %f %f %f %f 0.0\n" % (item.elon, item.nlat, item.e, item.n, item.se, item.sn));
+    ofile.close();
     return;

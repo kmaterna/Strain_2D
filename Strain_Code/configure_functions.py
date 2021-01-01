@@ -59,7 +59,12 @@ def parse_config_file_into_Params(configfile):
     inc = config.get('strain', 'inc');
     if range_data == '':
         range_data = range_strain;
-    method_specific = {};   # will write later
+
+    # Reading the method-specific stuff
+    specific_keys = [item for item in config["method-specific"].keys()];
+    method_specific = {};
+    for item in specific_keys:
+        method_specific[item] = config.get('method-specific', item);
 
     # Cleanup
     output_dir = output_dir + '/' + strain_method + '/'
@@ -87,6 +92,11 @@ def get_float_range(string_range):
     return float_range;
 
 
+def get_string_range(float_range):
+    string_range = str(float_range[0])+'/'+str(float_range[1])+'/'+str(float_range[2])+'/'+str(float_range[3]);
+    return string_range;
+
+
 def get_float_inc(string_inc):
     # string_inc: like '0.04/0.04'
     # float_inc: array of floats
@@ -95,15 +105,27 @@ def get_float_inc(string_inc):
     return float_inc;
 
 
+def get_string_inc(float_inc):
+    string_inc = str(float_inc[0])+'/'+str(float_inc[1]);
+    return string_inc;
+
+
 def sanity_check_inputs(MyParams):
     # For options that change based on strain method,
     # Check that the right ones exist.
     # Specific logic here.
     if MyParams.strain_method not in available_methods:
-        raise Exception("%s is not a known strain method. Exiting.\n" % MyParams.strain_method);
+        print("Available methods are:")
+        print(available_methods);
+        raise Exception("%s is not a known strain method. Please choose a known method. "
+                        "Exiting.\n" % MyParams.strain_method);
     if MyParams.strain_method == "gps_gridder":
-        if 'distance' not in MyParams.method_specific.keys():
-            raise Exception("\ngps_gridder requires distance buffer. Please add to method_specific config. Exiting.\n");
+        if 'poisson' not in MyParams.method_specific.keys():
+            raise Exception("\ngps_gridder requires poisson's ratio. Please add to method_specific config. Exiting.\n");
+        if 'fd' not in MyParams.method_specific.keys():
+            raise Exception("\ngps_gridder requires fudge factor fd. Please add to method_specific config. Exiting.\n");
+        if 'eigenvalue' not in MyParams.method_specific.keys():
+            raise Exception("\ngps_gridder requires eigenvalue. Please add to method_specific config. Exiting.\n");
     elif MyParams.strain_method == "visr":
         if 'distance' not in MyParams.method_specific.keys():
             raise Exception("\nvisr requires distance buffer. Please add to method_specific config. Exiting.\n");
