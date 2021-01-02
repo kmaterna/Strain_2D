@@ -13,4 +13,15 @@ range_strain = -121/-115/32/36
 range_data   = 
 inc          = 0.04/0.04
 
-[method-specific]
+[delaunay]
+
+[visr]
+distance_weighting = gaussian
+spatial_weighting = voronoi
+min_max_inc_smooth = 1/100/1
+executable = ../../../2D_Strain/contrib/visr/visr.exe
+
+[gps_gridder]
+poisson = 0.5
+fd = 0.01
+eigenvalue = 0.0005

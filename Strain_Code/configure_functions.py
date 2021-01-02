@@ -25,10 +25,13 @@ def config_parser(args=None, configfile=None):
             print(help_message);
             sys.exit(0);
         else:
+            if args[1] == '--help':
+                print(help_message);
+                sys.exit(0);
             configfile = args[1];
 
     MyParams = parse_config_file_into_Params(configfile);
-    make_output_dir(MyParams.outdir);
+    subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
     subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
 
     print("\n------------------------------");
@@ -61,10 +64,10 @@ def parse_config_file_into_Params(configfile):
         range_data = range_strain;
 
     # Reading the method-specific stuff
-    specific_keys = [item for item in config["method-specific"].keys()];
+    specific_keys = [item for item in config[strain_method].keys()];
     method_specific = {};
     for item in specific_keys:
-        method_specific[item] = config.get('method-specific', item);
+        method_specific[item] = config.get(strain_method, item);
 
     # Cleanup
     output_dir = output_dir + '/' + strain_method + '/'
@@ -76,11 +79,6 @@ def parse_config_file_into_Params(configfile):
                       blacklist_file=blacklist_file, method_specific=method_specific);
     sanity_check_inputs(MyParams)
     return MyParams;
-
-
-def make_output_dir(outer_name):
-    subprocess.call(['mkdir', '-p', outer_name], shell=False);
-    return;
 
 
 def get_float_range(string_range):
@@ -127,6 +125,12 @@ def sanity_check_inputs(MyParams):
         if 'eigenvalue' not in MyParams.method_specific.keys():
             raise Exception("\ngps_gridder requires eigenvalue. Please add to method_specific config. Exiting.\n");
     elif MyParams.strain_method == "visr":
-        if 'distance' not in MyParams.method_specific.keys():
-            raise Exception("\nvisr requires distance buffer. Please add to method_specific config. Exiting.\n");
+        if 'distance_weighting' not in MyParams.method_specific.keys():
+            raise Exception("\nvisr requires distance weighting. Please add to method_specific config. Exiting.\n");
+        if 'spatial_weighting' not in MyParams.method_specific.keys():
+            raise Exception("\nvisr requires spatial weighting. Please add to method_specific config. Exiting.\n");
+        if 'min_max_inc_smooth' not in MyParams.method_specific.keys():
+            raise Exception("\nvisr requires smoothing information. Please add to method_specific config. Exiting.\n");
+        if 'executable' not in MyParams.method_specific.keys():
+            raise Exception("\nvisr requires path to executable. Please add to method_specific config. Exiting.\n");
     return;
