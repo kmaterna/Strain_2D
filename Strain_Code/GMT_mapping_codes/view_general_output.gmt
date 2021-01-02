@@ -34,5 +34,4 @@ gmt psconvert $out_dila -Tf
 
 rm gmt.history
 rm mycpt.cpt
-rm tempgps.txt
 open $out_strain

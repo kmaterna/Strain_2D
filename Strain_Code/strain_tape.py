@@ -1,7 +1,4 @@
 import numpy as np
-import strain_tensor_toolbox
-import netCDF4
-import netcdf_functions
 import gps_input_functions
 import datetime as dt
 
@@ -18,7 +15,7 @@ def input_to_tape(filename):
 
 		lon = np.array(infile[0])
 		for i in range(len(lon)):
-			if lon[i] >=180:
+			if lon[i] >= 180:
 				lon[i] = lon[i] - 360
 
 		starts = []
@@ -46,7 +43,7 @@ def input_to_tape(filename):
 
 		lon = np.array(infile[0])
 		for i in range(len(lon)):
-			if lon[i] >=180:
+			if lon[i] >= 180:
 				lon[i] = lon[i] - 360
 		infile = np.vstack(lon, infile[1:])
 
@@ -54,7 +51,6 @@ def input_to_tape(filename):
 
 	else:
 		print("Cannot read file format")
-
 
 	outfile = np.vstack((infile, name_field))
 	outfile = np.transpose(outfile)

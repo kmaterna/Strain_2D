@@ -1,37 +1,56 @@
-This library contains several methods to compute geodetic strain from a GPS velocity field.  It is intended to be used as a means to compare various strain modeling techniques (see https://files.scec.org/s3fs-public/0930_Sandwell_UCERF_strain.pdf for an example showing the variety of strain modeling techniques). Several of the strain methods are borrowed from other authors, github repositories, and papers.  Credit should be given to the original authors accordingly.  
 
-Inside this toolbox, we will have strain methods from: 
+## 2D Strain Rate Calculators
+This library contains several methods to compute geodetic strain from a GPS velocity field.  It is intended to be used as a means to compare various strain modeling techniques on the same input data (see https://files.scec.org/s3fs-public/0930_Sandwell_UCERF_strain.pdf for an example showing the variability of strain modeling techniques). Several of the strain methods are borrowed from other authors, github repositories, and papers.  Credit should be given to the original authors accordingly.  
 
-1.  Delaunay Triangulation: the simplest method. The equations can be found in many papers, including Cai and Grafarend (2007), Journal of Geodynamics, 43, 214-238. 
+### Requirements:
+* Python3, numpy, scipy, matplotlib
+* GMT5
+* Tectonic_Utils - https://github.com/kmaterna/Tectonic_Utils
+* GNSS_Timeseries_Viewers - https://github.com/kmaterna/GNSS_TimeSeries_Viewers (for the moment)
+* Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
 
-2.  The "Hammond" method is a generalization of the Delaunay Triangulation for a spherical earth. This Python implementation is based on Savage et al., JGR October 2001, p.22,005, courtesy of Bill Hammond's initial matlab implementation. 
+To install this library, clone the repo and add the 2D_Strain/Strain_Code directory to your $PYTHONPATH. 
+ 
+ ### Usage: 
+The program is controlled using a config file (see example in test/testing_data/) that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. 
 
-3.  The "VISR" method is a fortran code for the interpolation scheme of Zheng-Kang Shen et al., Strain determination using spatially discrete geodetic data, Bull. Seismol. Soc. Am., 105(4), 2117-2127, doi: 10.1785/0120140247, 2015. http://scec.ess.ucla.edu/~zshen/visr/visr.html.  You can download the source code, which must be compiled and linked, for example by : 
-"gfortran -c voronoi_area_version.f90
-gfortran visr.f voronoi_area_version.o -o visr.exe"
+Input velocities must be in one of several formats (still under development). I typically use a format similar to the UNAVCO Plate Boundary Observatory velocity fields. 
+ 
+The main executable is strain_driver.py in the 2D_Strain/ directory. An example run-string would be: 
+```python [path-to-code]/strain_driver.py config.txt```
 
-4.  The "GPS gridder" method is based on a thin-sheet elastic interpolation scheme from Sandwell, D. T., and P. Wessel (2016), Interpolation of 2-D vector data using constraints from elasticity, GRL.  The implementation of the code is in GMT. 
-
-5.  The "Spline" method is based on Python's built-in interpolation. I have found that it doesn't always produce reasonable results.  
-
-6.  The "Tape" method is a wavelet-based matlab program. It is not implemented yet. 
-
-7.  The "nearest neighbor" method is not implemented yet. 
-
-8.  The "VDoHS" method is not ipmlemented yet. 
-
-9.  The "Gaussian Weighted Interpolation" method is not implemented yet. 
-
-10.  The "Kreemer" method is not implemented yet. 
+Output strain components and derived quantities (invariants, eigenvectors) are written as grd files or text files and plotted in GMT.  
 
 
-The program is controlled from the 2D_Strain/ directory by calling "python driver.py". The input and output parameters are controlled in common_io_functions.py.  Output strain components are written as text files and plotted in GMT.  
+### Contributing
+If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications. 
 
-Requirements and Versions: 
-You must add the 2D_Strain/Strain_Code/ directory to your python path. You must add the GMT directory to your bash path. 
-The code is written in Python3, and requires GMT5.  It may require Matlab or a Fortran compiler depending on the choice of strain technique.
+### Supported strain methods:  
 
-Example Output: 
+1.  <ins>delaunay_flat</ins>: Delaunay Triangulation, the simplest method. The equations can be found in many papers, including Cai and Grafarend (2007), Journal of Geodynamics, 43, 214-238. No parameters are required to use this method.  
 
-![strain](https://github.com/kmaterna/2D_Strain/blob/master/Comparison/for_front_page.png)
+2.  <ins>delaunay</ins>: a generalization of the Delaunay Triangulation for a spherical earth. This Python implementation is based on Savage et al., JGR October 2001, p.22,005, courtesy of Bill Hammond's matlab implementation. No parameters are required to use this method. 
+
+3.  <ins>visr</ins>: The "VISR" method is a fortran code for the interpolation scheme of Zheng-Kang Shen et al., Strain determination using spatially discrete geodetic data, Bull. Seismol. Soc. Am., 105(4), 2117-2127, doi: 10.1785/0120140247, 2015. http://scec.ess.ucla.edu/~zshen/visr/visr.html.  You can download the source code, which must be compiled and linked on your own system, for example by : 
+```gfortran -c voronoi_area_version.f90 ``` / ```gfortran visr.f voronoi_area_version.o -o visr.exe```.
+Four additional config parameters are required to use this method. 
+
+4.  <ins>gps_gridder</ins>: based on a thin-sheet elastic interpolation scheme from Sandwell, D. T., and P. Wessel (2016), Interpolation of 2-D vector data using constraints from elasticity, GRL.  The implementation of the code is in GMT. Three additional config parameters are required to use this method. 
+
+5. <ins>huang</ins>: the weighted nearest neighbor algorithm of Mong-Han Huang. Two additional config parameters are required to use this method.
+
+### Pending methods:
+1.  <ins>tape</ins>: a wavelet-based matlab program from Tape, Muse, Simons, Dong, Webb, "Multiscale estimation of GPS velocity fields," Geophysical Journal International, 2009 (https://github.com/carltape/compearth). It is not fully integrated yet.
+  
+### Not included methods:
+If you have another strain method that you'd be willing to contribute, I would love to work with you to include it!  More methods results in a more robust estimate of strain rate variability.
+I have not included the following techniques for the reasons given:
+
+1.  <ins>Spline</ins>: based on Python's built-in spline interpolation of the velocity field. I have found that it doesn't always produce reasonable results.
+2.  <ins>NDInterp</ins>: based on Numpy's linear interpolation of the velocity field. It turns out to be basically the same as Delaunay.  
+
+
+### Example Computations: 
+
+![strain](https://github.com/kmaterna/2D_Strain/blob/master/metrics/front_page_four_maps.png)
 
