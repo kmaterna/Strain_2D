@@ -243,14 +243,3 @@ def output_tape(lon, lat, vals, outdir, file):
     netcdf_read_write.produce_output_netcdf(lon, lat, vals, 'per yr', outdir+file);
     print("Success fitting wavelet-generated data to the required grid!");
     return;
-
-
-# outputs a netcdf to the desired results directory
-def output_delaunay(xdata, ydata, vals, outdir, indexfile, outfile):
-    valfile = open(outdir+indexfile, 'w');
-    for val in vals:
-        valfile.write(str(val)+'\n');
-    valfile.close();
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, vals, 'per year', outdir+outfile);
-    print("Success fitting triangulated data to the required grid!");
-    return;

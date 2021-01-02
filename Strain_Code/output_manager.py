@@ -37,6 +37,8 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
         eigs_dec = 12;
     elif MyParams.strain_method == 'delaunay' or MyParams.strain_method == 'delaunay_flat':
         eigs_dec = 12;
+    elif MyParams.strain_method == 'huang':
+        eigs_dec = 12;
     else:
         raise Exception("Error! strain method not recognized for eigenvector plotting.");
 

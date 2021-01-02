@@ -25,3 +25,7 @@ executable = ../../../2D_Strain/contrib/visr/visr.exe
 poisson = 0.5
 fd = 0.01
 eigenvalue = 0.0005
+
+[huang]
+EstimateRadiusKm = 70
+nstations = 13

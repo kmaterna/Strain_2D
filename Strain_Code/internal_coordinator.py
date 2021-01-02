@@ -13,6 +13,7 @@ import strain_delaunay
 import strain_delaunay_flatearth
 import strain_gpsgridder
 import strain_visr
+import strain_huang
 import output_manager
 
 
@@ -20,7 +21,8 @@ compute_dict = {
     "delaunay": strain_delaunay.compute,
     "delaunay_flat": strain_delaunay_flatearth.compute,
     "gps_gridder": strain_gpsgridder.compute,
-    "visr": strain_visr.compute };
+    "visr": strain_visr.compute,
+    "huang": strain_huang.compute };
 
 
 def strain_coordinator(MyParams):

@@ -133,4 +133,9 @@ def sanity_check_inputs(MyParams):
             raise Exception("\nvisr requires smoothing information. Please add to method_specific config. Exiting.\n");
         if 'executable' not in MyParams.method_specific.keys():
             raise Exception("\nvisr requires path to executable. Please add to method_specific config. Exiting.\n");
+    elif MyParams.strain_method == "huang":
+        if 'estimateradiuskm' not in MyParams.method_specific.keys():
+            raise Exception("\nmethod requires estimateradiuskm. Please add to method_specific config. Exiting.\n");
+        if 'nstations' not in MyParams.method_specific.keys():
+            raise Exception("\nmethod requires nstations. Please add to method_specific config. Exiting.\n");
     return;
