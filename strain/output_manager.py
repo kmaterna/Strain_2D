@@ -3,7 +3,7 @@
 
 import numpy as np
 from Tectonic_Utils.read_write import netcdf_read_write
-import strain_tensor_toolbox
+from Strain_2D.strain import strain_tensor_toolbox
 import gps_io_functions
 
 
@@ -31,18 +31,8 @@ def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
     # Need eigs_interval and outdir from MyParams.
     positive_file = open(MyParams.outdir + "positive_eigs.txt", 'w');
     negative_file = open(MyParams.outdir + "negative_eigs.txt", 'w');
-    # Might delete the decimation soon.
-    if MyParams.strain_method == 'visr':
-        eigs_dec = 12;
-    elif MyParams.strain_method == 'gps_gridder':
-        eigs_dec = 12;
-    elif MyParams.strain_method == 'delaunay' or MyParams.strain_method == 'delaunay_flat':
-        eigs_dec = 12;
-    elif MyParams.strain_method == 'huang':
-        eigs_dec = 12;
-    else:
-        raise Exception("Error! strain method not recognized for eigenvector plotting.");
-
+    
+    eigs_dec = 12;
     do_not_print_value = 200;
     overmax_scale = 200;
 

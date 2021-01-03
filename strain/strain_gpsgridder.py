@@ -7,9 +7,9 @@
 import numpy as np
 import subprocess
 from Tectonic_Utils.read_write import netcdf_read_write
-import strain_tensor_toolbox
-import output_manager
-import configure_functions
+from Strain_2D.strain import strain_tensor_toolbox
+from Strain_2D.strain import output_manager
+from Strain_2D.strain import configure_functions
 
 
 # ----------------- COMPUTE -------------------------

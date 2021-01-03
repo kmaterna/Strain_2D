@@ -9,14 +9,14 @@ This library contains several methods to compute geodetic strain from a GPS velo
 * GNSS_Timeseries_Viewers - https://github.com/kmaterna/GNSS_TimeSeries_Viewers (for the moment)
 * Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
 
-To install this library, clone the repo and add the 2D_Strain/Strain_Code directory to your $PYTHONPATH. 
+To install this library, clone the repo and add the parent directory that contains Strain_2D/ to your $PYTHONPATH. 
  
  ### Usage: 
 The program is controlled using a config file (see example in test/testing_data/) that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. 
 
 Input velocities must be in one of several formats (still under development). I typically use a format similar to the UNAVCO Plate Boundary Observatory velocity fields. 
  
-The main executable is strain_driver.py in the 2D_Strain/ directory. An example run-string would be: 
+The main executable is strain_driver.py in the Strain_2D/ directory. An example run-string would be: 
 ```python [path-to-code]/strain_driver.py config.txt```
 
 Output strain components and derived quantities (invariants, eigenvectors) are written as grd files or text files and plotted in GMT.  

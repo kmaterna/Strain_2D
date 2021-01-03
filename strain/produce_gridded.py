@@ -2,8 +2,8 @@
 
 import numpy as np
 import matplotlib.path
-import strain_tensor_toolbox
 import scipy.interpolate as interp
+from Strain_2D.strain import strain_tensor_toolbox
 from Tectonic_Utils.read_write import netcdf_read_write
 
 

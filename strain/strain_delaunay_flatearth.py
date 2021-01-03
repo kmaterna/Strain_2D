@@ -15,9 +15,9 @@ ftp://ftp.ingv.it/pub/salvatore.barba/RevEu/Cai_StrainBIFROST_2007.pdf
 import numpy as np
 from scipy.spatial import Delaunay
 from numpy.linalg import inv
-import strain_tensor_toolbox
-import output_manager
-import produce_gridded
+from Strain_2D.strain import strain_tensor_toolbox
+from Strain_2D.strain import output_manager
+from Strain_2D.strain import produce_gridded
 
 
 # ----------------- COMPUTE -------------------------

@@ -50,9 +50,8 @@
 
 import numpy as np
 from scipy.spatial import Delaunay
-import strain_tensor_toolbox
-import output_manager
-import produce_gridded
+from Strain_2D.strain import output_manager
+from Strain_2D.strain import produce_gridded
 
 
 def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):

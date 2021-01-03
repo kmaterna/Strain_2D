@@ -1,5 +1,5 @@
 import numpy as np
-import gps_input_functions
+import gps_io_functions
 import datetime as dt
 
 # This code was created to work with matlab scripts published on Github by Carl Tape under the name surfacevel2strain.
@@ -9,7 +9,7 @@ import datetime as dt
 # These columns are: lon, lat, ve, vn, vu, se, sn, su, ren, reu, rnu, start, finish, name
 def input_to_tape(filename):
 	if "unr" in filename or "UNR" in filename or "MIDAS" in filename or "midas" in filename:
-		[velfield] = gps_input_functions.read_unr_vel_file(filename)
+		[velfield] = gps_io_functions.read_unr_vel_file(filename)
 		infile = np.array((velfield[2], velfield[1], velfield[4], velfield[3], velfield[5], velfield[7], velfield[6], velfield[8]))
 		name_field = velfield[0]
 

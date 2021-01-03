@@ -10,8 +10,8 @@ Options:
 
 
 import sys
-import configure_functions
-import internal_coordinator
+from Strain_2D.strain import configure_functions
+from Strain_2D.strain import internal_coordinator
 
 
 if __name__ == "__main__":

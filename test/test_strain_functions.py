@@ -1,8 +1,8 @@
 import unittest
-import strain_tensor_toolbox
-import configure_functions
-import strain_delaunay_flatearth
-import strain_delaunay
+from Strain_2D.strain import strain_tensor_toolbox
+from Strain_2D.strain import configure_functions
+from Strain_2D.strain import strain_delaunay_flatearth
+from Strain_2D.strain import strain_delaunay
 import gps_io_functions
 
 

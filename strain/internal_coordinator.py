@@ -8,13 +8,13 @@ Options:
 5. huang
 """
 
-import input_manager
-import strain_delaunay
-import strain_delaunay_flatearth
-import strain_gpsgridder
-import strain_visr
-import strain_huang
-import output_manager
+from Strain_2D.strain import input_manager
+from Strain_2D.strain import strain_delaunay
+from Strain_2D.strain import strain_delaunay_flatearth
+from Strain_2D.strain import strain_gpsgridder
+from Strain_2D.strain import strain_visr
+from Strain_2D.strain import strain_huang
+from Strain_2D.strain import output_manager
 
 
 compute_dict = {
