@@ -17,7 +17,7 @@ def compute(myVelfield, MyParams):
     print("------------------------------\nComputing strain via gpsgridder method.");
     output_manager.write_simple_gmt_format(myVelfield, "tempgps.txt");
     command = "gmt gpsgridder tempgps.txt" + \
-              " -R"+configure_functions.get_string_range(MyParams.range_strain) + \
+              " -R"+configure_functions.get_string_range(MyParams.range_strain, x_buffer=0.02, y_buffer=0.02) + \
               " -I"+configure_functions.get_string_inc(MyParams.inc) + \
               " -S"+MyParams.method_specific['poisson'] + \
               " -Fd"+MyParams.method_specific['fd'] + \

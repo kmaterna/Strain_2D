@@ -8,6 +8,7 @@
 
 
 import numpy as np
+from Strain_2D.strain import produce_gridded
 import subprocess, sys, os
 
 
@@ -22,7 +23,8 @@ def compute(myVelfield, MyParams):
     call_fortran_compute(strain_config_file, MyParams.method_specific["executable"]);
 
     # We convert that text file into grids, which we will write as GMT grd files.
-    [xdata, ydata, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file);
+    [xdata, ydata, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file,
+                                                                           MyParams.range_strain, MyParams.inc);
     subprocess.call(['mv', strain_config_file, MyParams.outdir], shell=False);
     subprocess.call(['mv', strain_data_file, MyParams.outdir], shell=False);
     subprocess.call(['mv', strain_output_file, MyParams.outdir], shell=False);
@@ -98,7 +100,7 @@ def call_fortran_compute(config_file, executable):
     return;
 
 
-def make_output_grids_from_strain_out(infile):
+def make_output_grids_from_strain_out(infile, range_strain, inc):
     x, y = [], [];
     rotation, exx, exy, eyy = [], [], [], [];
     ifile = open(infile, 'r');
@@ -114,31 +116,35 @@ def make_output_grids_from_strain_out(infile):
             exy.append(float(temp[11]));
             eyy.append(float(temp[13]));
     ifile.close();
-    ax1 = set(x);
-    ax2 = set(y);
-    xlen, ylen = len(ax1), len(ax2);
-    xaxis = sorted(ax1);
-    yaxis = sorted(ax2);
 
-    if xlen == 0 and ylen == 0:
+    if len(set(x)) == 0 and len(set(y)) == 0:
         print("ERROR! No valid strains have been computed. Try again.")
         sys.exit(0);
 
+    lons, lats, zgrid = produce_gridded.make_grid(range_strain, inc);
+
     # Loop through x and y lists, find the index of coordinates in xaxis and yaxis sets, place them into 2d arrays.
-    rot_grd = np.zeros((ylen, xlen));
-    exx_grd = np.zeros((ylen, xlen));
-    exy_grd = np.zeros((ylen, xlen));
-    eyy_grd = np.zeros((ylen, xlen));
+    rot_grd = np.zeros(np.shape(zgrid));
+    exx_grd = np.zeros(np.shape(zgrid));
+    exy_grd = np.zeros(np.shape(zgrid));
+    eyy_grd = np.zeros(np.shape(zgrid));
+    lons = np.round(lons, 6);
+    lats = np.round(lats, 6);
+    x = np.round(x, 6);
+    y = np.round(y, 6);
 
     for i in range(len(x)):
-        xindex = xaxis.index(x[i]);
-        yindex = yaxis.index(y[i]);
+        xindex = np.where(lons == x[i])[0];
+        yindex = np.where(lats == y[i])[0];
+        xindex = xindex[0];
+        yindex = yindex[0];
         rot_grd[yindex][xindex] = rotation[i];
         exx_grd[yindex][xindex] = exx[i];
         exy_grd[yindex][xindex] = exy[i];
         eyy_grd[yindex][xindex] = eyy[i];
 
-    return [xaxis, yaxis, rot_grd, exx_grd, exy_grd, eyy_grd];
+    return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+
 
 def check_fortran_executable(path_to_executable):
     if os.path.isfile(path_to_executable):

@@ -137,8 +137,10 @@ def get_float_range(string_range):
     return float_range;
 
 
-def get_string_range(float_range):
-    string_range = str(float_range[0])+'/'+str(float_range[1])+'/'+str(float_range[2])+'/'+str(float_range[3]);
+def get_string_range(float_range, x_buffer=0, y_buffer=0):
+    # Buffer is for the possible interface between pixel-node-registered and gridline-node-registered files
+    string_range = str(float_range[0]-x_buffer)+'/'+str(float_range[1]+x_buffer)+'/'+\
+                   str(float_range[2]-y_buffer)+'/'+str(float_range[3]+y_buffer);
     return string_range;
 
 

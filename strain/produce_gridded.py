@@ -70,8 +70,8 @@ def make_grid(coordbox, inc):
     lonmax = coordbox[1]
     latmin = coordbox[2]
     latmax = coordbox[3]
-    lons = np.arange(lonmin, lonmax, inc[0])
-    lats = np.arange(latmin, latmax, inc[1])
+    lons = np.arange(lonmin, lonmax+0.00001, inc[0])
+    lats = np.arange(latmin, latmax+0.00001, inc[1])
     grid = np.zeros((len(lats), len(lons)));
     return lons, lats, grid
 

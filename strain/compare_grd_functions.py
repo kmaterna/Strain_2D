@@ -29,24 +29,31 @@ def check_shapes(strain_values_dict):
             print("   But shape of %s is %d by %d " % (method2, np.shape(v2)[0], np.shape(v2)[1] ) );
             print("   so not all value arrays are coregistered! \n")
             raise Exception("Error! Not all arrays are coregistered!  Cannot compare.")
-    print("All methods are coregistered!")
+    print("All methods are have the same shape!")
     return;
 
 
 def check_grids(MyParams, strain_values_dict):
+    range_strain = np.round(MyParams.range_strain, 6);
+    inc = np.round(MyParams.inc, 6);
     for method in strain_values_dict.keys():
-        if np.min(strain_values_dict[method][0]) != MyParams.range_strain[0]:
+        if np.round(np.min(strain_values_dict[method][0]), 6) != range_strain[0]:
             raise Exception("Strain %s doesn't match range_strain longitude" % method);
-        if np.max(strain_values_dict[method][0]) != MyParams.range_strain[1]:
+        if np.round(np.max(strain_values_dict[method][0]), 6) != range_strain[1]:
             raise Exception("Strain %s doesn't match range_strain longitude" % method);
-        if np.min(strain_values_dict[method][1]) != MyParams.range_strain[2]:
+        if np.round(np.min(strain_values_dict[method][1]), 6) != range_strain[2]:
             raise Exception("Strain %s doesn't match range_strain latitude" % method);
-        if np.max(strain_values_dict[method][1]) != MyParams.range_strain[3]:
+        if np.round(np.max(strain_values_dict[method][1]), 6) != range_strain[3]:
             raise Exception("Strain %s doesn't match range_strain latitude" % method);
-        if strain_values_dict[method][0][1] - strain_values_dict[method][0][0] != MyParams.inc[0]:
+        if np.round(strain_values_dict[method][0][1] - strain_values_dict[method][0][0], 6) != inc[0]:
+            print("Inc %s : %f " % (method, np.round(strain_values_dict[method][0][1] - strain_values_dict[method][0][0], 6)) );
+            print("Inc config: %f" % inc[0]);
             raise Exception("Increment %s doesn't match inc longitude" % method);
-        if strain_values_dict[method][1][1] - strain_values_dict[method][1][0] != MyParams.inc[1]:
+        if np.round(strain_values_dict[method][1][1] - strain_values_dict[method][1][0], 6) != inc[1]:
+            print("Inc %s : %f " % (method, np.round(strain_values_dict[method][1][1] - strain_values_dict[method][1][0], 6)) );
+            print("Inc config: %f" % inc[1]);
             raise Exception("Increment %s doesn't match inc latitude" % method);
+    print("All methods have the same range/increment!")
     return;
 
 
@@ -90,18 +97,27 @@ def grid_means_log(strain_values_dict):
     return mean_vals, sd_vals
 
 
-def angle_means(x, y, vals1, vals2, vals3, vals4, vals5):
+def angle_means(strain_values_dict):
+    # Implementing the angular mean formulas
+    first_key = list(strain_values_dict.keys())[0]
+    x = strain_values_dict[first_key][0];
+    y = strain_values_dict[first_key][1];
     mean_vals = np.nan * np.ones([len(y), len(x)])
+    sd_vals = np.nan * np.ones([len(y), len(x)])
+
     for j in range(len(y)):
         for i in range(len(x)):
-            val1 = 2*np.radians(90-vals1[j][i])
-            val2 = 2*np.radians(90-vals2[j][i])
-            val3 = 2*np.radians(90-vals3[j][i])
-            val4 = 2*np.radians(90-vals4[j][i])
-            val5 = 2*np.radians(90-vals5[j][i])
-            s = (sum((np.sin(val1), np.sin(val2), np.sin(val3), np.sin(val4), np.sin(val5))))/5
-            c = (sum((np.cos(val1), np.cos(val2), np.cos(val3), np.cos(val4), np.cos(val5))))/5
-            # R = (c**2 + s**2)**.5
+            sin_list = [];
+            cos_list = [];
+            for method in strain_values_dict.keys():
+                sin_list.append(np.sin(2*np.radians(90-strain_values_dict[method][2][j][i])));
+                cos_list.append(np.cos(2*np.radians(90-strain_values_dict[method][2][j][i])));
+            s = np.nanmean(sin_list);
+            c = np.nanmean(cos_list);
+            R = ((s**2 + c**2)**.5)
+            V = 1-R
+            sd = np.degrees((-2*np.log(R))**.5)/2
+            # sd = np.degrees((2*V)**.5)
             # t = np.arctan2(s, c)
             # strike = R*math.e**(math.i*t)
             strike = np.arctan2(s, c)/2
@@ -112,35 +128,16 @@ def angle_means(x, y, vals1, vals2, vals3, vals4, vals5):
                 theta = theta - 180
             if theta != float("-inf"):
                 mean_vals[j][i] = theta
-    return mean_vals
-
-
-def angle_sds(x, y, vals1, vals2, vals3, vals4, vals5):
-    sd_vals = np.nan * np.ones([len(y), len(x)])
-    for j in range(len(y)):
-        for i in range(len(x)):
-            val1 = 2*np.radians(90-vals1[j][i])
-            val2 = 2*np.radians(90-vals2[j][i])
-            val3 = 2*np.radians(90-vals3[j][i])
-            val4 = 2*np.radians(90-vals4[j][i])
-            val5 = 2*np.radians(90-vals5[j][i])
-            s = (sum((np.sin(val1), np.sin(val2), np.sin(val3), np.sin(val4), np.sin(val5))))/5
-            c = (sum((np.cos(val1), np.cos(val2), np.cos(val3), np.cos(val4), np.cos(val5))))/5
-            R = ((s**2 + c**2)**.5)
-            V = 1-R
-            # sd = np.degrees((2*V)**.5)
-            sd = np.degrees((-2*np.log(R))**.5)/2
-            # if sd != float("inf"):
-            # 	sd_vals[j][i] = sd
-            sd_vals[j][i] = sd
-    return sd_vals
+            if sd != float("inf"):
+                sd_vals[j][i] = sd
+    return mean_vals, sd_vals
 
 
 def mask_by_value(outdir, grid1, grid2, cutoff_value):
     # grid1 = usually azimuth deviations
     # grid2 = usually I2nd
-    lon1, lat1, val1 = netcdf_read_write.read_any_grd(outdir+"deviations_"+grid1+".nc");
-    lon2, lat2, val2 = netcdf_read_write.read_any_grd(outdir+"means_"+grid2+".nc");
+    lon1, lat1, val1 = netcdf_read_write.read_any_grd(outdir+"/deviations_"+grid1+".nc");
+    lon2, lat2, val2 = netcdf_read_write.read_any_grd(outdir+"/means_"+grid2+".nc");
     masked_vals = np.zeros(np.shape(val2));
     for i in range(len(lon1)):
         for j in range(len(lat1)):
@@ -148,5 +145,5 @@ def mask_by_value(outdir, grid1, grid2, cutoff_value):
                 masked_vals[j][i] = val1[j][i];
             else:
                 masked_vals[j][i] = np.nan;
-    netcdf_read_write.produce_output_netcdf(lon1, lat1, masked_vals, 'per yr', outdir+"deviations_"+grid1+".nc");
+    netcdf_read_write.produce_output_netcdf(lon1, lat1, masked_vals, 'per yr', outdir+"/deviations_"+grid1+".nc");
     return;

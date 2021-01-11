@@ -11,6 +11,6 @@ from Strain_2D.strain import compare_strain_grids
 if __name__ == "__main__":
     MyParams = configure_functions.comparison_config_parser(args=sys.argv);
     compare_strain_grids.drive(MyParams, "I2nd.nc");
-    # compare_strain_grids.drive("azimuth");
-    # compare_strain_grids.drive("dilatation");
-    # compare_strain_grids.drive("max_shear");
+    compare_strain_grids.drive(MyParams, "azimuth.nc");
+    compare_strain_grids.drive(MyParams, "dila.nc");
+    compare_strain_grids.drive(MyParams, "max_shear.nc");

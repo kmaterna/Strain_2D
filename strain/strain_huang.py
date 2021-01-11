@@ -10,8 +10,8 @@ def compute(myVelfield, MyParams):
     print("------------------------------\nComputing strain via Huang method.");
 
     # Set up grids for the computation
-    xlons = np.arange(MyParams.range_strain[0], MyParams.range_strain[1], MyParams.inc[0]);
-    ylats = np.arange(MyParams.range_strain[2], MyParams.range_strain[3], MyParams.inc[1]);
+    xlons = np.arange(MyParams.range_strain[0], MyParams.range_strain[1]+0.00001, MyParams.inc[0]);
+    ylats = np.arange(MyParams.range_strain[2], MyParams.range_strain[3]+0.00001, MyParams.inc[1]);
     gx = len(xlons);  # number of x - grid
     gy = len(ylats);  # number of y - grid
 
