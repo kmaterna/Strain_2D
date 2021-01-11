@@ -8,7 +8,7 @@
 
 
 import numpy as np
-import subprocess, sys
+import subprocess, sys, os
 
 
 def compute(myVelfield, MyParams):
@@ -18,6 +18,7 @@ def compute(myVelfield, MyParams):
     strain_output_file = 'strain_output.txt';  # can only be 20 characters long bc fortran!
     write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, MyParams);
     write_fortran_data_file(strain_data_file, myVelfield);
+    check_fortran_executable(MyParams.method_specific["executable"]);
     call_fortran_compute(strain_config_file, MyParams.method_specific["executable"]);
 
     # We convert that text file into grids, which we will write as GMT grd files.
@@ -138,3 +139,10 @@ def make_output_grids_from_strain_out(infile):
         eyy_grd[yindex][xindex] = eyy[i];
 
     return [xaxis, yaxis, rot_grd, exx_grd, exy_grd, eyy_grd];
+
+def check_fortran_executable(path_to_executable):
+    if os.path.isfile(path_to_executable):
+        print("VISR executable found at %s " % path_to_executable);
+    else:
+        raise("VISR executable not found on your system. Check config file for path.");
+    return;

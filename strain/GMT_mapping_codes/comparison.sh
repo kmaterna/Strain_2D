@@ -70,6 +70,8 @@ gmt grdimage $strain2"rot.nc" -R$range -J$projection -BweSn -Bp1.0 -Cmycpt.cpt -
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
 gmt psvelo $strain2"tempgps.txt" -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
 
-
+rm gmt.history
+rm gmt.conf
+rm mycpt.cpt
 
 open $out_strain
