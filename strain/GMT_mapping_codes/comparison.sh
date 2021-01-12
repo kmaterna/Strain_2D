@@ -4,7 +4,6 @@
 range=$1
 projection="M2.0i"
 out_strain="second_invariant.ps"
-out_dila="dilatation.ps"
 gmt set MAP_FRAME_TYPE plain
 gmt set FORMAT_GEO_MAP D
 

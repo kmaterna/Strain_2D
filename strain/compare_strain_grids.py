@@ -19,6 +19,8 @@ def drive(MyParams, filename):
         my_means, my_stds = comp.grid_means_log(strain_values_dict)
     elif filename == "dila.nc":
         my_means, my_stds = comp.grid_means_stds(strain_values_dict)
+    elif filename == "rot.nc":
+        my_means, my_stds = comp.grid_means_stds(strain_values_dict)
     elif filename == "max_shear.nc":
         my_means, my_stds = comp.grid_means_stds(strain_values_dict)
     else:
