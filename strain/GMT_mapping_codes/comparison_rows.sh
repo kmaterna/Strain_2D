@@ -44,22 +44,22 @@ gmt psvelo $strain2"negative_eigs.txt" -Se0.003/0.68/0 -A+b+pthick,black -Gred -
 
 
 # Rotation
-gmt makecpt -T0/300/10 -Cmagma.cpt -Do -G0.25/1.0 > mycpt.cpt
+gmt makecpt -T0/300/10 -Cmagma.cpt -Do -G0.30/1.0 > mycpt.cpt
 gmt grdimage $strain1"rot.nc" -R$range -J$projection -BWeSn -Bp1.0 -Cmycpt.cpt -X-18 -Y-8 -K -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
-gmt psvelo $strain1"tempgps.txt" -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
+awk '{print $1, $2, $3, $4, $6, $7, 0}' $strain1"tempgps.txt" | gmt psvelo -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
 
 gmt grdimage $strain4"rot.nc" -R$range -J$projection -BweSn -Bp1.0 -Cmycpt.cpt -X6 -Y0 -K -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
-gmt psvelo $strain4"tempgps.txt" -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
+awk '{print $1, $2, $3, $4, $6, $7, 0}' $strain4"tempgps.txt" | gmt psvelo -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
 
 gmt grdimage $strain3"rot.nc" -R$range -J$projection -BweSn -Bp1.0 -Cmycpt.cpt -X6 -Y0 -K -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
-gmt psvelo $strain3"tempgps.txt" -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
+awk '{print $1, $2, $3, $4, $6, $7, 0}' $strain3"tempgps.txt" | gmt psvelo -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
 
 gmt grdimage $strain2"rot.nc" -R$range -J$projection -BweSn -Bp1.0 -Cmycpt.cpt -X6 -Y0 -K -O >> $out_strain
 gmt pscoast -R$range -J$projection -Wthick,black -Df -Sgray -K -O >> $out_strain
-gmt psvelo $strain2"tempgps.txt" -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
+awk '{print $1, $2, $3, $4, $6, $7, 0}' $strain2"tempgps.txt" | gmt psvelo -Se0.03/0.68/0 -A+e+pthick,black -Gwhite -R$range -J$projection -K -O >> $out_strain
 gmt psscale -DjTR+w4.5/0.5+o-1.1/1.5 -R$range -J$projection -B50:"Rotation":/:: -Cmycpt.cpt -O >> $out_strain
 
 rm gmt.history
