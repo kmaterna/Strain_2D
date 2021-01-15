@@ -3,6 +3,7 @@ from Strain_2D.strain import strain_tensor_toolbox
 from Strain_2D.strain import configure_functions
 from Strain_2D.strain import strain_delaunay_flatearth
 from Strain_2D.strain import strain_delaunay
+from Strain_2D.strain import compare_grd_functions
 import gps_io_functions
 
 
@@ -56,6 +57,13 @@ class Tests(unittest.TestCase):
         self.assertLess(abs(exy1[0]-exy2[0]), abs(exy1[0]*0.05));  # less than 5% difference
         self.assertLess(abs(eyy1[0]-eyy2[0]), abs(eyy1[0]*0.05));  # less than 5% difference
         self.assertLess(abs(rot1[0]-rot2[0]), abs(rot1[0]*0.05));  # less than 5% difference
+        return;
+
+    def test_azimuth_math(self):
+        # Test angular math functions
+        azimuth_array = [0, 1, 179, 0];
+        theta, sd = compare_grd_functions.angle_mean_math(azimuth_array);
+        self.assertEqual(theta, 0);
         return;
 
 

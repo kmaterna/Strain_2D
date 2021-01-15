@@ -104,33 +104,41 @@ def angle_means(strain_values_dict):
     y = strain_values_dict[first_key][1];
     mean_vals = np.nan * np.ones([len(y), len(x)])
     sd_vals = np.nan * np.ones([len(y), len(x)])
-
     for j in range(len(y)):
         for i in range(len(x)):
-            sin_list = [];
-            cos_list = [];
+            azimuth_values = [];
             for method in strain_values_dict.keys():
-                sin_list.append(np.sin(2*np.radians(90-strain_values_dict[method][2][j][i])));
-                cos_list.append(np.cos(2*np.radians(90-strain_values_dict[method][2][j][i])));
-            s = np.nanmean(sin_list);
-            c = np.nanmean(cos_list);
-            R = ((s**2 + c**2)**.5)
-            V = 1-R
-            sd = np.degrees((-2*np.log(R))**.5)/2
-            # sd = np.degrees((2*V)**.5)
-            # t = np.arctan2(s, c)
-            # strike = R*math.e**(math.i*t)
-            strike = np.arctan2(s, c)/2
-            theta = 90 - np.degrees(strike)
-            if theta < 0:
-                theta = 180 + theta
-            elif theta > 180:
-                theta = theta - 180
+                azimuth_values.append(strain_values_dict[method][2][j][i]);
+            theta, sd = angle_mean_math(azimuth_values);
             if theta != float("-inf"):
                 mean_vals[j][i] = theta
             if sd != float("inf"):
                 sd_vals[j][i] = sd
     return mean_vals, sd_vals
+
+
+def angle_mean_math(azimuth_values):
+    # Angles in degrees
+    # separated out so we can unit-test this math
+    sin_list, cos_list = [], [];
+    for phi in azimuth_values:
+        sin_list.append(np.sin(2 * np.radians(90 - phi)));
+        cos_list.append(np.cos(2 * np.radians(90 - phi)));
+    s = np.nanmean(sin_list);
+    c = np.nanmean(cos_list);
+    R = ((s ** 2 + c ** 2) ** .5)
+    V = 1 - R
+    sd = np.degrees((-2 * np.log(R)) ** .5) / 2
+    # sd = np.degrees((2*V)**.5)
+    # t = np.arctan2(s, c)
+    # strike = R*math.e**(math.i*t)
+    strike = np.arctan2(s, c) / 2
+    theta = 90 - np.degrees(strike)
+    if theta < 0:
+        theta = 180 + theta
+    elif theta > 180:
+        theta = theta - 180
+    return theta, sd;
 
 
 def mask_by_value(outdir, grid1, grid2, cutoff_value):
