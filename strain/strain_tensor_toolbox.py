@@ -51,6 +51,7 @@ def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
     # Given a displacement tensor, compute the relevant parts of the strain and rotation tensors.
     # Also converts to nanostrain per year.
     # Rot is the off-diagonal element of the rotation tensor
+    # Rot has native units radians/year. Here we return radians per 1000 yrs (easier to interpret numbers)
     # http://www.engr.colostate.edu/~thompson/hPage/CourseMat/Tutorials/Solid_Mechanics/rotations.pdf
     exx = dudx * 1000;
     exy = (0.5 * (dvdx + dudy)) * 1000;

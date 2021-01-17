@@ -15,6 +15,8 @@ def inputs(MyParams):
         # [myVelfield] = gps_io_functions.read_unr_vel_file(MyParams.input_file, 'coord_file.txt');  # COME BACK LATER
     elif 'SCEC' in MyParams.input_file:
         [myVelfield] = gps_io_functions.read_gamit_velfile(MyParams.input_file);
+    elif 'synthetic' in MyParams.input_file:
+        [myVelfield] = gps_io_functions.read_humanread_vel_file(MyParams.input_file);
     else:
         raise Exception("Error! Cannot read %s " % MyParams.input_file);
 

@@ -49,6 +49,15 @@ I have not included the following techniques for the reasons given:
 1.  <ins>Spline</ins>: based on Python's built-in spline interpolation of the velocity field. I have found that it doesn't always produce reasonable results.
 2.  <ins>NDInterp</ins>: based on Numpy's linear interpolation of the velocity field. It turns out to be basically the same as Delaunay.  
 
+### Units and Sign Conventions
+This library uses the following units and sign conventions: 
+* station velocities: units of mm/yr in the internal format
+* strain rates (exx, etc): units of nanostrain / year (1e-9 / yr) 
+* Rotation: units of (1e-3 radians)/yr, or radians / Ka
+* Second invariant: units of (nanostrain/yr)^2. These are very unusual units. 
+* Dilatation: units of nanostrain / year. Positive means shortening and negative means extension.
+* Max Shear: units of nanostrain / year
+
 
 ### Example Computations: 
 
