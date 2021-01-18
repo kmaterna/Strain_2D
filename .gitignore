@@ -5,4 +5,5 @@
 contrib/*
 strain/Early_Work/*
 .idea/*
-
+.DS*
+*config*

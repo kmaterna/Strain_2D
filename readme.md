@@ -48,6 +48,7 @@ I have not included the following techniques for the reasons given:
 
 1.  <ins>Spline</ins>: based on Python's built-in spline interpolation of the velocity field. I have found that it doesn't always produce reasonable results.
 2.  <ins>NDInterp</ins>: based on Numpy's linear interpolation of the velocity field. It turns out to be basically the same as Delaunay.  
+3.  <ins>Least squares collocation/kriging</ins>: This method for velocity interpolation has been published by various names (El-Fiky et al., 1997; Kato et al., 1998; Wu et al., 2011; Shen et al. 1996 and 2015 are also variants of the method) but all of them are essentially equivalent to the geostatistical kriging method, where spatial covariance is used to determine optimal weights to apply to nearby stations to estimate a value at an unknown location. To compute the spatial covariance, at minimum a correlation length scale and maximum variance must be assumed. A pure geostatistical approach would be to estimate these directly from the data itself, but other approaches have been used, such as cross-validation. 
 
 ### Units and Sign Conventions
 This library uses the following units and sign conventions: 
@@ -61,5 +62,5 @@ This library uses the following units and sign conventions:
 
 ### Example Computations: 
 
-![strain](https://github.com/kmaterna/2D_Strain/blob/master/metrics/front_page_four_maps.png)
+![strain](https://github.com/kmaterna/2D_Strain/blob/master/sample_plots/front_page_four_maps.png)
 
