@@ -61,5 +61,5 @@ This library uses the following units and sign conventions:
 
 ### Example Computations: 
 
-![strain](https://github.com/kmaterna/2D_Strain/blob/master/metrics/front_page_four_maps.png)
+![strain](https://github.com/kmaterna/2D_Strain/blob/master/sample_plots/front_page_four_maps.png)
 
