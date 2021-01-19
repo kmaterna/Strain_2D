@@ -4,7 +4,7 @@ from Strain_2D.strain import configure_functions
 from Strain_2D.strain import strain_delaunay_flatearth
 from Strain_2D.strain import strain_delaunay
 from Strain_2D.strain import compare_grd_functions
-import gps_io_functions
+from Strain_2D.strain import velocity_io
 
 
 class Tests(unittest.TestCase):
@@ -34,18 +34,10 @@ class Tests(unittest.TestCase):
         return;
 
     def test_delaunay_signs(self):
-        station1 = gps_io_functions.Station_Vel(name="xxxx", elon=-123, nlat=39, e=0, n=0, u=0, se=1, sn=1, su=1,
-                                                first_epoch=0, last_epoch=0, refframe='', proccenter='', subnetwork='',
-                                                survey=0);
-        station2 = gps_io_functions.Station_Vel(name="yyyy", elon=-124, nlat=39, e=-1, n=2, u=0, se=1, sn=1, su=1,
-                                                first_epoch=0, last_epoch=0, refframe='', proccenter='', subnetwork='',
-                                                survey=0);
-        station3 = gps_io_functions.Station_Vel(name="zzzz", elon=-124, nlat=40, e=-3, n=4, u=0, se=1, sn=1, su=1,
-                                                first_epoch=0, last_epoch=0, refframe='', proccenter='', subnetwork='',
-                                                survey=0);
-        station4 = gps_io_functions.Station_Vel(name="wwww", elon=-123, nlat=40, e=0, n=0, u=0, se=1, sn=1, su=1,
-                                                first_epoch=0, last_epoch=0, refframe='', proccenter='', subnetwork='',
-                                                survey=0);
+        station1 = velocity_io.StationVel(name="xxxx", elon=-123, nlat=39, e=0, n=0, u=0, se=1, sn=1, su=1);
+        station2 = velocity_io.StationVel(name="yyyy", elon=-124, nlat=39, e=-1, n=2, u=0, se=1, sn=1, su=1);
+        station3 = velocity_io.StationVel(name="zzzz", elon=-124, nlat=40, e=-3, n=4, u=0, se=1, sn=1, su=1);
+        station4 = velocity_io.StationVel(name="wwww", elon=-123, nlat=40, e=0, n=0, u=0, se=1, sn=1, su=1);
         myVelfield = [station1, station2, station3, station4];
         [_, _, _, rot1, exx1, exy1, eyy1] = strain_delaunay.compute_with_delaunay_polygons(myVelfield);
         [_, _, _, rot2, exx2, exy2, eyy2] = strain_delaunay_flatearth.compute_with_delaunay_polygons(myVelfield);
@@ -64,6 +56,13 @@ class Tests(unittest.TestCase):
         azimuth_array = [0, 1, 179, 0];
         theta, sd = compare_grd_functions.angle_mean_math(azimuth_array);
         self.assertEqual(theta, 0);
+        return;
+
+    def test_readvels(self):
+        # Test reading velocity files
+        datafile = "test/testing_data/NorCal_stationvels.txt"
+        myVelfield = velocity_io.read_stationvels(datafile);
+        self.assertGreater(len(myVelfield), 5);
         return;
 
 

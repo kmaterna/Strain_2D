@@ -1,19 +1,16 @@
 [general]
 method     = delaunay
 output_dir = output
-
-[inputs]
-vel_file  = ../DATA/SCEC_gnss_vels/SCEC_CGM_v2.0.001.vel
-blacklist = ../DATA/blacklist.txt
-num_years = 0
-max_sigma = 10
+input_vel_file  = ../DATA/NorCal_stationvels.txt
 
 [strain]
-range_strain = -121/-115/32/36
+range_strain = -125/-120/38/42
 range_data   = 
 inc          = 0.04/0.04
 
 [delaunay]
+
+[delaunay_flat]
 
 [visr]
 distance_weighting = gaussian

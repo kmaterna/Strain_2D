@@ -2,10 +2,8 @@ import subprocess, sys, os
 import collections
 import configparser
 
-Params = collections.namedtuple("Params", ['strain_method',
-                                           'input_file', 'range_strain', 'range_data',
-                                           'num_years', 'max_sigma', 'inc', 'outdir', 'blacklist_file',
-                                           'method_specific']);
+Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range_strain', 'range_data',
+                                           'inc', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
 available_methods = ['delaunay',
@@ -16,7 +14,7 @@ available_methods = ['delaunay',
                      'huang'];
 
 help_message = "  Welcome to a geodetic strain calculator.\n" \
-               "  USAGE: strain_driver config.txt\n" \
+               "  USAGE: strain_driver.py config.txt\n" \
                "  See repository source for an example config file.\n"
 comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n" \
                      "  USAGE: compare_driver config.txt\n" \
@@ -79,10 +77,7 @@ def parse_config_file_into_Params(configfile):
     config.read(configfile)
     strain_method = config.get('general', 'method');
     output_dir = config.get('general', 'output_dir');
-    input_file = config.get('inputs', 'vel_file');
-    blacklist_file = config.get('inputs', 'blacklist') if config.has_option('inputs', 'blacklist') else '';
-    num_years = config.getfloat('inputs', 'num_years') if config.has_option('inputs', 'num_years') else 0;
-    max_sigma = config.getfloat('inputs', 'max_sigma') if config.has_option('inputs', 'max_sigma') else 100;
+    input_file = config.get('general', 'input_vel_file');
     range_strain = config.get('strain', 'range_strain');
     range_data = config.get('strain', 'range_data') if config.has_option('strain', 'range_data') else range_strain;
     inc = config.get('strain', 'inc');
@@ -101,8 +96,7 @@ def parse_config_file_into_Params(configfile):
     range_data = get_float_range(range_data);
     inc = get_float_inc(inc);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
-                      range_data=range_data, num_years=num_years, max_sigma=max_sigma, inc=inc, outdir=output_dir,
-                      blacklist_file=blacklist_file, method_specific=method_specific);
+                      range_data=range_data, inc=inc, outdir=output_dir, method_specific=method_specific);
     sanity_check_inputs(MyParams)
     return MyParams;
 
@@ -134,12 +128,16 @@ def get_float_range(string_range):
     number_strings = string_range.split('/')
     float_range = [float(number_strings[0]), float(number_strings[1]),
                    float(number_strings[2]), float(number_strings[3])];
+    if float_range[1] <= float_range[0]:
+        raise("Error! Given range is invalid", float_range);
+    if float_range[3] <= float_range[2]:
+        raise ("Error! Given range is invalid", float_range);
     return float_range;
 
 
 def get_string_range(float_range, x_buffer=0, y_buffer=0):
     # Buffer is for the possible interface between pixel-node-registered and gridline-node-registered files
-    string_range = str(float_range[0]-x_buffer)+'/'+str(float_range[1]+x_buffer)+'/'+\
+    string_range = str(float_range[0]-x_buffer)+'/'+str(float_range[1]+x_buffer)+'/' +\
                    str(float_range[2]-y_buffer)+'/'+str(float_range[3]+y_buffer);
     return string_range;
 

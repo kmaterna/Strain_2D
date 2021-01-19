@@ -4,12 +4,12 @@
 import numpy as np
 from Tectonic_Utils.read_write import netcdf_read_write
 from Strain_2D.strain import strain_tensor_toolbox
-import gps_io_functions
+from Strain_2D.strain import velocity_io
 
 
 def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     print("------------------------------\nWriting 2d outputs:");
-    gps_io_functions.write_humanread_vel_file(myVelfield, MyParams.outdir+"tempgps.txt");
+    velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
     netcdf_read_write.produce_output_netcdf(xdata, ydata, exx, 'microstrain', MyParams.outdir + 'exx.nc');
@@ -87,7 +87,7 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVel
     write_multisegment_file(polygon_vertices, exx, MyParams.outdir + "exx_polygons.txt");
     write_multisegment_file(polygon_vertices, exy, MyParams.outdir + "exy_polygons.txt");
     write_multisegment_file(polygon_vertices, eyy, MyParams.outdir + "eyy_polygons.txt");
-    gps_io_functions.write_humanread_vel_file(myVelfield, MyParams.outdir+"tempgps.txt");
+    velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
 
     positive_file = open(MyParams.outdir + "positive_eigs_polygons.txt", 'w');
     negative_file = open(MyParams.outdir + "negative_eigs_polygons.txt", 'w');

@@ -5,8 +5,7 @@ This library contains several methods to compute geodetic strain from a GPS velo
 ### Requirements:
 * Python3, numpy, scipy, matplotlib
 * GMT5
-* Tectonic_Utils - https://github.com/kmaterna/Tectonic_Utils
-* GNSS_Timeseries_Viewers - https://github.com/kmaterna/GNSS_TimeSeries_Viewers (for the moment)
+* Tectonic_Utils - https://github.com/kmaterna/Tectonic_Utils (can be installed by pip)
 * Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
 
 To install this library, clone the repo and add the parent directory that contains Strain_2D/ to your $PYTHONPATH. 
@@ -14,7 +13,10 @@ To install this library, clone the repo and add the parent directory that contai
  ### Usage: 
 The program is controlled using a config file (see example in test/testing_data/) that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. 
 
-Input velocities must be in one of several formats (still under development). I typically use a format similar to the UNAVCO Plate Boundary Observatory velocity fields. 
+Input velocities must be in a text file. They must be a space-separated table with format as follows: 
+```
+# lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)
+``` 
  
 The main executable is strain_driver.py in the Strain_2D/ directory. An example run-string would be: 
 ```python [path-to-code]/strain_driver.py config.txt```

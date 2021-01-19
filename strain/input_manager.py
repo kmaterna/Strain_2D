@@ -1,35 +1,27 @@
 # The input manager for GPS Strain analysis. 
 
-import gps_vel_functions
-import gps_io_functions
-
+from Strain_2D.strain import velocity_io
 
 # ----------------- INPUTS -------------------------
 def inputs(MyParams):
     print("------------------------------");
     # Purpose: generate input velocity field.
-    if 'PBO' in MyParams.input_file or 'pbo' in MyParams.input_file or 'cwu' in MyParams.input_file:
-        [myVelfield] = gps_io_functions.read_pbo_vel_file_format(MyParams.input_file);
-    elif 'MAGNET' in MyParams.input_file or 'unr' in MyParams.input_file or 'midas' in MyParams.input_file:
-        raise Exception("MAGNET files not yet supported.");
-        # [myVelfield] = gps_io_functions.read_unr_vel_file(MyParams.input_file, 'coord_file.txt');  # COME BACK LATER
-    elif 'SCEC' in MyParams.input_file:
-        [myVelfield] = gps_io_functions.read_gamit_velfile(MyParams.input_file);
-    elif 'synthetic' in MyParams.input_file:
-        [myVelfield] = gps_io_functions.read_humanread_vel_file(MyParams.input_file);
-    else:
-        raise Exception("Error! Cannot read %s " % MyParams.input_file);
-
-    print("%d stations before applying cleaning." % (len(myVelfield)));
-    blacklist = gps_io_functions.read_blacklist(MyParams.blacklist_file);
-    myVelfield = gps_vel_functions.remove_blacklist_vels(myVelfield, blacklist);
-    myVelfield = gps_vel_functions.clean_velfield(myVelfield, num_years=MyParams.num_years,
-                                                  max_horiz_sigma=MyParams.max_sigma, coord_box=MyParams.range_data);
-    myVelfield = gps_vel_functions.remove_duplicates(myVelfield);
-    print("%d stations after selection criteria.\n" % (len(myVelfield)));
+    myVelfield = velocity_io.read_stationvels(MyParams.input_file);
+    myVelfield = clean_velfield(myVelfield, coord_box=MyParams.range_data);
     if len(myVelfield) == 0:
         raise Exception("Error! Velocity field has no velocities.");
     for item in myVelfield:
         if item.se == 0 or item.sn == 0 or item.su == 0:
             raise Exception("Error! Velocity uncertainty cannot be zero.");
     return myVelfield;
+
+
+def clean_velfield(myVelfield, coord_box=(-180, 180, -90, 90)):
+    print("%d stations before applying cleaning." % (len(myVelfield)));
+    select_velfield = [];
+    for station_vel in myVelfield:
+        if coord_box[0] < station_vel.elon < coord_box[1] and coord_box[2] < station_vel.nlat < coord_box[3]:
+            # The station is within the box of interest.
+            select_velfield.append(station_vel);
+    print("%d stations after selection criteria.\n" % (len(select_velfield)));
+    return select_velfield;
