@@ -15,7 +15,7 @@ def compute(myVelfield, MyParams):
     gx = len(xlons);  # number of x - grid
     gy = len(ylats);  # number of y - grid
 
-    [elon, nlat, e, n, esig, nsig] = velfield_to_huang_format(myVelfield);
+    [elon, nlat, e, n, _, _] = velfield_to_huang_format(myVelfield);
 
     # set up a local coordinate reference
     refx = np.min(elon);

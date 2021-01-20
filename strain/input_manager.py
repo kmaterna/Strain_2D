@@ -21,7 +21,6 @@ def clean_velfield(myVelfield, coord_box=(-180, 180, -90, 90)):
     select_velfield = [];
     for station_vel in myVelfield:
         if coord_box[0] < station_vel.elon < coord_box[1] and coord_box[2] < station_vel.nlat < coord_box[3]:
-            # The station is within the box of interest.
             select_velfield.append(station_vel);
     print("%d stations after selection criteria.\n" % (len(select_velfield)));
     return select_velfield;

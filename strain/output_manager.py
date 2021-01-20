@@ -2,9 +2,11 @@
 # ----------------- OUTPUTS -------------------------
 
 import numpy as np
+import os, subprocess
 from Tectonic_Utils.read_write import netcdf_read_write
 from Strain_2D.strain import strain_tensor_toolbox
 from Strain_2D.strain import velocity_io
+from Strain_2D.strain import configure_functions
 
 
 def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
@@ -24,6 +26,10 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     print("Max rot: %f " % (np.nanmax(rot)));
     print("Min rot: %f " % (np.nanmin(rot)));
     write_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11, MyParams);
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    range_string = configure_functions.get_string_range(MyParams.range_data);
+    os.chdir(MyParams.outdir)
+    subprocess.call([dir_path+'/GMT_mapping_codes/view_general_output.gmt', range_string], shell=False);
     return;
 
 
@@ -102,6 +108,14 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVel
     print("Max I2: %f " % (max(I2nd)));
     print("Max rot: %f " % (max(rot)));
     print("Min rot: %f " % (min(rot)));
+
+    # Plot the polygons as additional output (more intuitive)
+    curr_directory = os.getcwd();
+    dir_path = os.path.dirname(os.path.realpath(__file__));
+    range_string = configure_functions.get_string_range(MyParams.range_data);
+    os.chdir(MyParams.outdir);
+    subprocess.call([dir_path + '/GMT_mapping_codes/delaunay_gmt.gmt', range_string], shell=False);
+    os.chdir(curr_directory);
     return;
 
 
