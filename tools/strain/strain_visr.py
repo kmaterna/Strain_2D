@@ -8,7 +8,7 @@
 
 
 import numpy as np
-from Strain_2D.strain import produce_gridded
+from strain import produce_gridded
 import subprocess, sys, os
 
 

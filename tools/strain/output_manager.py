@@ -4,9 +4,7 @@
 import numpy as np
 import os, subprocess
 from Tectonic_Utils.read_write import netcdf_read_write
-from Strain_2D.strain import strain_tensor_toolbox
-from Strain_2D.strain import velocity_io
-from Strain_2D.strain import configure_functions
+from strain import strain_tensor_toolbox, velocity_io, configure_functions
 
 
 def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
