@@ -1,0 +1,18 @@
+# create environment : conda env create -f requirements.yml
+# update dependencies: conda env update -f requirements.yml
+# remove environment : conda env remove -n 2D_Strain 
+# enter  environment : conda activate 2D_Strain
+# exit   environment : conda deactivate
+name: 2D_Strain
+channels:
+ - conda-forge
+ - anaconda
+ - defaults
+dependencies:
+ - python>=3
+ - matplotlib
+ - numpy
+ - scipy
+ - xarray
+ - gmt
+ - pygmt
