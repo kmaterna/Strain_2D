@@ -51,6 +51,145 @@
 import numpy as np
 from scipy.spatial import Delaunay
 from strain import output_manager, produce_gridded
+from strain.strain_2d import Strain_2d
+
+
+class delaunay(Strain_2d):
+    ''' Delaunay class for 2d strain rate '''
+    def compute(self, myVelfield, MyParams):
+        print(
+            "------------------------------\n"
+            "Computing strain via Delaunay method on a sphere."
+        );
+        [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = \
+            compute_with_delaunay_polygons(myVelfield);
+    
+        # Here we output convenient things on polygons, since it's intuitive for the user.
+        output_manager.outputs_1d(
+            xcentroid, 
+            ycentroid, 
+            triangle_vertices, 
+            rot, 
+            exx, 
+            exy, 
+            eyy, 
+            myVelfield, 
+            MyParams
+        );
+    
+        # Here we convert polygon2grd
+        lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = \
+            produce_gridded.drive_delaunay(MyParams);
+
+        print("Success computing strain via Delaunay method.\n");
+
+        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+
+
+def compute_with_delaunay_polygons(myVelfield):
+    elon = [x.elon for x in myVelfield];
+    nlat = [x.nlat for x in myVelfield];
+    e = [x.e for x in myVelfield];
+    n = [x.n for x in myVelfield];
+    se = [x.se for x in myVelfield];
+    sn = [x.sn for x in myVelfield];
+    z = np.array([elon, nlat]);
+    z = z.T;
+    tri = Delaunay(z);
+
+    triangle_vertices = z[tri.simplices];
+    trishape = np.shape(triangle_vertices);  # 516 x 3 x 2, for example
+    print("Number of triangle elements: %d" % (trishape[0]));
+
+    # We are going to solve for the velocity gradient tensor at the centroid of each triangle.
+    centroids = [];
+    for i in range(trishape[0]):
+        xcor_mean = np.mean(
+                [
+                    triangle_vertices[i, 0, 0], 
+                    triangle_vertices[i, 1, 0], 
+                    triangle_vertices[i, 2, 0]
+                ]
+            );
+        ycor_mean = np.mean(
+                [
+                    triangle_vertices[i, 0, 1], 
+                    triangle_vertices[i, 1, 1], 
+                    triangle_vertices[i, 2, 1]
+                ]
+            );
+        centroids.append([xcor_mean, ycor_mean]);
+    xcentroid = [x[0] for x in centroids];
+    ycentroid = [x[1] for x in centroids];
+
+    # Initialize arrays.
+    rot = [];
+    exx, exy, eyy = [], [], [];
+
+    # for each triangle:
+    for i in range(trishape[0]):
+        # Get the velocities of each vertex (VE1, VN1, VE2, VN2, VE3, VN3)
+        # Get velocities for Vertex 1 (triangle_vertices[i,0,0] and triangle_vertices[i,0,1])
+        xindex1 = np.where(elon == triangle_vertices[i, 0, 0])
+        yindex1 = np.where(nlat == triangle_vertices[i, 0, 1])
+        index1 = int(np.intersect1d(xindex1, yindex1)[0]);
+        xindex2 = np.where(elon == triangle_vertices[i, 1, 0])
+        yindex2 = np.where(nlat == triangle_vertices[i, 1, 1])
+        index2 = int(np.intersect1d(xindex2, yindex2)[0]);
+        xindex3 = np.where(elon == triangle_vertices[i, 2, 0])
+        yindex3 = np.where(nlat == triangle_vertices[i, 2, 1])
+        index3 = int(np.intersect1d(xindex3, yindex3)[0]);
+
+        phi = np.array(
+                [
+                    triangle_vertices[i, 0, 0], 
+                    triangle_vertices[i, 1, 0], 
+                    triangle_vertices[i, 2, 0]
+                ]
+            );
+        theta = np.array(
+                [
+                    triangle_vertices[i, 0, 1], 
+                    triangle_vertices[i, 1, 1], 
+                    triangle_vertices[i, 2, 1]
+                ]
+            );
+        theta = [i - 90 for i in theta];
+        u_phi = np.array([e[index1], e[index2], e[index3]]);
+        u_theta = np.array([n[index1], n[index2], n[index3]]);
+        u_theta = np.array([-i for i in u_theta]);  # colatitude needs negative theta values.
+        s_phi = np.array([se[index1], se[index2], se[index3]]);
+        s_theta = np.array([sn[index1], sn[index2], sn[index3]]);
+
+
+        # HERE WE PLUG IN BILL'S CODE!
+        weight = 1;
+        paramsel = 0;
+        [e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi, s_omega_r, \
+            s_e_phiphi, s_e_thetaphi, s_e_thetatheta, s_U_theta, s_U_phi, chi2, \ 
+            OMEGA, THETA_p, PHI_p, s_OMEGA, s_THETA_p, s_PHI_p, r_PHITHETA, u_phi_p, \
+            u_theta_p] = strain_sphere(
+                phi, 
+                theta, 
+                u_phi, 
+                u_theta, 
+                s_phi, 
+                s_theta, 
+                weight, 
+                paramsel
+            );
+
+        # The components that are easily computed
+        # Units: nanostrain per year.
+        # There might be a sign issue here compared to other codes.
+        exx.append(-e_phiphi * 1e6);
+        exy.append(e_thetaphi * 1e6);
+        eyy.append(-e_thetatheta * 1e6);
+
+        # # Compute a number of values based on tensor properties.
+        rot.append(OMEGA * 1000 * 1000);
+
+    return [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy];
 
 
 def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):
@@ -253,91 +392,56 @@ def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):
         s_PHI_p = np.nan;
         s_THETA_p = np.nan;
 
-    return [e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi, s_omega_r, s_e_phiphi, s_e_thetaphi,
-            s_e_thetatheta, s_U_theta, s_U_phi, chi2, OMEGA, THETA_p, PHI_p, s_OMEGA, s_THETA_p, s_PHI_p, r_PHITHETA,
-            u_phi_p, u_theta_p];
+    return [
+            e_phiphi, 
+            e_thetaphi, 
+            e_thetatheta, 
+            omega_r, 
+            U_theta, 
+            U_phi, 
+            s_omega_r, 
+            s_e_phiphi, 
+            s_e_thetaphi,
+            s_e_thetatheta, 
+            s_U_theta, 
+            s_U_phi, 
+            chi2, 
+            OMEGA, 
+            THETA_p, 
+            PHI_p, 
+            s_OMEGA, 
+            s_THETA_p, 
+            s_PHI_p, 
+            r_PHITHETA,
+            u_phi_p, 
+            u_theta_p
+        ];
 
 
-def compute_with_delaunay_polygons(myVelfield):
-    elon = [x.elon for x in myVelfield];
-    nlat = [x.nlat for x in myVelfield];
-    e = [x.e for x in myVelfield];
-    n = [x.n for x in myVelfield];
-    se = [x.se for x in myVelfield];
-    sn = [x.sn for x in myVelfield];
-    z = np.array([elon, nlat]);
-    z = z.T;
-    tri = Delaunay(z);
-
-    triangle_vertices = z[tri.simplices];
-    trishape = np.shape(triangle_vertices);  # 516 x 3 x 2, for example
-    print("Number of triangle elements: %d" % (trishape[0]));
-
-    # We are going to solve for the velocity gradient tensor at the centroid of each triangle.
-    centroids = [];
-    for i in range(trishape[0]):
-        xcor_mean = np.mean([triangle_vertices[i, 0, 0], triangle_vertices[i, 1, 0], triangle_vertices[i, 2, 0]]);
-        ycor_mean = np.mean([triangle_vertices[i, 0, 1], triangle_vertices[i, 1, 1], triangle_vertices[i, 2, 1]]);
-        centroids.append([xcor_mean, ycor_mean]);
-    xcentroid = [x[0] for x in centroids];
-    ycentroid = [x[1] for x in centroids];
-
-    # Initialize arrays.
-    rot = [];
-    exx, exy, eyy = [], [], [];
-
-    # for each triangle:
-    for i in range(trishape[0]):
-        # Get the velocities of each vertex (VE1, VN1, VE2, VN2, VE3, VN3)
-        # Get velocities for Vertex 1 (triangle_vertices[i,0,0] and triangle_vertices[i,0,1])
-        xindex1 = np.where(elon == triangle_vertices[i, 0, 0])
-        yindex1 = np.where(nlat == triangle_vertices[i, 0, 1])
-        index1 = int(np.intersect1d(xindex1, yindex1)[0]);
-        xindex2 = np.where(elon == triangle_vertices[i, 1, 0])
-        yindex2 = np.where(nlat == triangle_vertices[i, 1, 1])
-        index2 = int(np.intersect1d(xindex2, yindex2)[0]);
-        xindex3 = np.where(elon == triangle_vertices[i, 2, 0])
-        yindex3 = np.where(nlat == triangle_vertices[i, 2, 1])
-        index3 = int(np.intersect1d(xindex3, yindex3)[0]);
-
-        phi = np.array([triangle_vertices[i, 0, 0], triangle_vertices[i, 1, 0], triangle_vertices[i, 2, 0]]);
-        theta = np.array([triangle_vertices[i, 0, 1], triangle_vertices[i, 1, 1], triangle_vertices[i, 2, 1]]);
-        theta = [i - 90 for i in theta];
-        u_phi = np.array([e[index1], e[index2], e[index3]]);
-        u_theta = np.array([n[index1], n[index2], n[index3]]);
-        u_theta = np.array([-i for i in u_theta]);  # colatitude needs negative theta values.
-        s_phi = np.array([se[index1], se[index2], se[index3]]);
-        s_theta = np.array([sn[index1], sn[index2], sn[index3]]);
-
-        # HERE WE PLUG IN BILL'S CODE!
-        weight = 1;
-        paramsel = 0;
-        [e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi, s_omega_r, s_e_phiphi, s_e_thetaphi,
-         s_e_thetatheta, s_U_theta, s_U_phi, chi2, OMEGA, THETA_p, PHI_p, s_OMEGA, s_THETA_p, s_PHI_p, r_PHITHETA,
-         u_phi_p, u_theta_p] = strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel);
-
-        # print_all_values(e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi, s_omega_r, s_e_phiphi,
-        #                  s_e_thetaphi, s_e_thetatheta, s_U_theta, s_U_phi, chi2, OMEGA, THETA_p, PHI_p, s_OMEGA,
-        #                  s_THETA_p, s_PHI_p, r_PHITHETA, u_phi_p, u_theta_p);
-
-        # The components that are easily computed
-        # Units: nanostrain per year.
-        # There might be a sign issue here compared to other codes.
-        exx.append(-e_phiphi * 1e6);
-        exy.append(e_thetaphi * 1e6);
-        eyy.append(-e_thetatheta * 1e6);
-
-        # # Compute a number of values based on tensor properties.
-        rot.append(OMEGA * 1000 * 1000);
-
-    print("Success computing strain via Delaunay method.\n");
-
-    return [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy];
-
-
-def print_all_values(e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi, s_omega_r, s_e_phiphi, s_e_thetaphi,
-                     s_e_thetatheta, s_U_theta, s_U_phi, chi2, OMEGA, THETA_p, PHI_p, s_OMEGA, s_THETA_p, s_PHI_p,
-                     r_PHITHETA, u_phi_p, u_theta_p):
+def print_all_values(
+        e_phiphi, 
+        e_thetaphi, 
+        e_thetatheta,
+        omega_r, 
+        U_theta, 
+        U_phi, 
+        s_omega_r, 
+        s_e_phiphi, 
+        s_e_thetaphi,
+        s_e_thetatheta, 
+        s_U_theta, 
+        s_U_phi, 
+        chi2, 
+        OMEGA, 
+        THETA_p, 
+        PHI_p, 
+        s_OMEGA, 
+        s_THETA_p, 
+        s_PHI_p,
+        r_PHITHETA, 
+        u_phi_p, 
+        u_theta_p
+    ):
     print("e_phiphi is:     " + str(e_phiphi));
     print("e_thetaphi is:   " + str(e_thetaphi));
     print("e_thetatheta is: " + str(e_thetatheta));
@@ -360,19 +464,6 @@ def print_all_values(e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi
     print("r_PHITHETA is:   " + str(r_PHITHETA));
     print("u_phi_p is:      " + str(u_phi_p));
     print("u_theta_p is:    " + str(u_theta_p));
-    return;
-
-
-def compute(myVelfield, MyParams):
-    print("------------------------------\nComputing strain via Delaunay method on a sphere.");
-    [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = compute_with_delaunay_polygons(myVelfield);
-
-    # Here we output convenient things on polygons, since it's intuitive for the user.
-    output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy, myVelfield, MyParams);
-
-    # Here we convert polygon2grd
-    lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.drive_delaunay(MyParams);
-    return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 if __name__ == "__main__":
