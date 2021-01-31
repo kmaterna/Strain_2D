@@ -68,7 +68,7 @@ def comparison_config_parser(args=None, configfile=None):
 
 
 def parse_config_file_into_Params(configfile):
-    # Dedicated function to building a valid Params structure from the configfile
+    ''' Dedicated function to building a valid Params structure from the configfile '''
     if not os.path.isfile(configfile):
         print("config file =  %s" % configfile);
         raise Exception("Error! config file was not found.");
@@ -77,7 +77,7 @@ def parse_config_file_into_Params(configfile):
     config.read(configfile)
     strain_method = config.get('general', 'method');
     output_dir = config.get('general', 'output_dir');
-    input_file = config.get('general', 'input_vel_file');
+    input_file = config.get('inputs', 'vel_file');
     range_strain = config.get('strain', 'range_strain');
     range_data = config.get('strain', 'range_data') if config.has_option('strain', 'range_data') else range_strain;
     inc = config.get('strain', 'inc');
@@ -129,9 +129,9 @@ def get_float_range(string_range):
     float_range = [float(number_strings[0]), float(number_strings[1]),
                    float(number_strings[2]), float(number_strings[3])];
     if float_range[1] <= float_range[0]:
-        raise("Error! Given range is invalid", float_range);
+        raise ValueError("Error! Given range is invalid", float_range);
     if float_range[3] <= float_range[2]:
-        raise ("Error! Given range is invalid", float_range);
+        raise ValueError("Error! Given range is invalid", float_range);
     return float_range;
 
 
@@ -162,27 +162,27 @@ def sanity_check_inputs(MyParams):
     if MyParams.strain_method not in available_methods:
         print("Available methods are:")
         print(available_methods);
-        raise Exception("%s is not a known strain method. Please choose a known method. "
+        raise ValueError("%s is not a known strain method. Please choose a known method. "
                         "Exiting.\n" % MyParams.strain_method);
     if MyParams.strain_method == "gps_gridder":
         if 'poisson' not in MyParams.method_specific.keys():
-            raise Exception("\ngps_gridder requires poisson's ratio. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\ngps_gridder requires poisson's ratio. Please add to method_specific config. Exiting.\n");
         if 'fd' not in MyParams.method_specific.keys():
-            raise Exception("\ngps_gridder requires fudge factor fd. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\ngps_gridder requires fudge factor fd. Please add to method_specific config. Exiting.\n");
         if 'eigenvalue' not in MyParams.method_specific.keys():
-            raise Exception("\ngps_gridder requires eigenvalue. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\ngps_gridder requires eigenvalue. Please add to method_specific config. Exiting.\n");
     elif MyParams.strain_method == "visr":
         if 'distance_weighting' not in MyParams.method_specific.keys():
-            raise Exception("\nvisr requires distance weighting. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\nvisr requires distance weighting. Please add to method_specific config. Exiting.\n");
         if 'spatial_weighting' not in MyParams.method_specific.keys():
-            raise Exception("\nvisr requires spatial weighting. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\nvisr requires spatial weighting. Please add to method_specific config. Exiting.\n");
         if 'min_max_inc_smooth' not in MyParams.method_specific.keys():
-            raise Exception("\nvisr requires smoothing information. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\nvisr requires smoothing information. Please add to method_specific config. Exiting.\n");
         if 'executable' not in MyParams.method_specific.keys():
-            raise Exception("\nvisr requires path to executable. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\nvisr requires path to executable. Please add to method_specific config. Exiting.\n");
     elif MyParams.strain_method == "huang":
         if 'estimateradiuskm' not in MyParams.method_specific.keys():
-            raise Exception("\nmethod requires estimateradiuskm. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\nmethod requires estimateradiuskm. Please add to method_specific config. Exiting.\n");
         if 'nstations' not in MyParams.method_specific.keys():
-            raise Exception("\nmethod requires nstations. Please add to method_specific config. Exiting.\n");
+            raise ValueError("\nmethod requires nstations. Please add to method_specific config. Exiting.\n");
     return;
