@@ -112,7 +112,6 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVel
     dir_path = os.path.dirname(os.path.realpath(__file__));
     range_string = configure_functions.get_string_range(MyParams.range_data);
     os.chdir(MyParams.outdir);
-    import pdb; pdb.set_trace()
     subprocess.call([dir_path + '/GMT_mapping_codes/delaunay_gmt.gmt', range_string], shell=False);
     os.chdir(curr_directory);
     return;

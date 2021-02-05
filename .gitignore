@@ -6,4 +6,10 @@
 contrib/*
 strain/Early_Work/*
 .idea/*
+build
+config*
+dist
+tools/*.egg*
+*.swp
+.DS*
 

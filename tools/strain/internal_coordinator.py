@@ -7,31 +7,23 @@ Options:
 4. tape
 5. huang
 """
+import importlib
 
-from strain import (
-    input_manager, 
-    strain_delaunay, 
-    strain_delaunay_flatearth, 
-    strain_gpsgridder,
-    strain_visr,
-    strain_huang,
-    output_manager,
-)
+from strain import input_manager, output_manager
 
 
-compute_dict = {
-        "delaunay": strain_delaunay.compute,
-        "delaunay_flat": strain_delaunay_flatearth.compute,
-        "gps_gridder": strain_gpsgridder.compute,
-        "visr": strain_visr.compute,
-        "huang": strain_huang.compute 
-    };
+def model(model_name):
+    ''' Return an instance of the model model_name '''
+    module_name = 'strain.models.strain_' + model_name.lower()
+    model_module = importlib.import_module(module_name)
+    obj = getattr(model_module, model_name.delaunay().replace('-', ''))
+    return module_name, obj
 
 
 def strain_coordinator(MyParams):
-    Inputs = input_manager.inputs(MyParams);
-    strain_fun = compute_dict[MyParams.strain_method]
-    [lons, lats, rot, exx, exy, eyy] = strain_fun(Inputs, MyParams);
+    velField = input_manager.inputs(MyParams);
+    model_name, strain_fun = model(MyParams.strain_method)
+    [lons, lats, rot, exx, exy, eyy] = strain_fun(velField, MyParams);
     output_manager.outputs_2d(
             lons, 
             lats, 

@@ -77,7 +77,7 @@ def parse_config_file_into_Params(configfile):
     config.read(configfile)
     strain_method = config.get('general', 'method');
     output_dir = config.get('general', 'output_dir');
-    input_file = config.get('inputs', 'vel_file');
+    input_file = config.get('general', 'input_vel_file');
     range_strain = config.get('strain', 'range_strain');
     range_data = config.get('strain', 'range_data') if config.has_option('strain', 'range_data') else range_strain;
     inc = config.get('strain', 'inc');
