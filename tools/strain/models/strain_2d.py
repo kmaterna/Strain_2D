@@ -4,9 +4,11 @@ class Strain_2d(ABC):
     '''
     Implement a generic 2D strain rate method
     '''
-    def __init__(self, method='delaunay'):
+    def __init__(self):
         # Initialize general parameters
-        self._Name = method
+        self._Name = None
+        self._velfield = None
+        self._params = None
 
     def __str__(self):
         # print method

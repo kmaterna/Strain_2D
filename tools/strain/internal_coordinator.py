@@ -16,14 +16,14 @@ def model(model_name):
     ''' Return an instance of the model model_name '''
     module_name = 'strain.models.strain_' + model_name.lower()
     model_module = importlib.import_module(module_name)
-    obj = getattr(model_module, model_name.delaunay().replace('-', ''))
-    return module_name, obj
+    obj = getattr(model_module, model_name)
+    return module_name, obj()
 
 
 def strain_coordinator(MyParams):
     velField = input_manager.inputs(MyParams);
-    model_name, strain_fun = model(MyParams.strain_method)
-    [lons, lats, rot, exx, exy, eyy] = strain_fun(velField, MyParams);
+    model_name, strain_model = model(MyParams.strain_method)
+    [lons, lats, rot, exx, exy, eyy] = strain_model.compute(velField, MyParams);
     output_manager.outputs_2d(
             lons, 
             lats, 

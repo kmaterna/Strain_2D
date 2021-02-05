@@ -51,11 +51,15 @@
 import numpy as np
 from scipy.spatial import Delaunay
 from strain import output_manager, produce_gridded
-from strain.strain_2d import Strain_2d
+from strain.models.strain_2d import Strain_2d
 
 
 class delaunay(Strain_2d):
     ''' Delaunay class for 2d strain rate '''
+    def __init__(self):
+        Strain_2d.__init__(self)
+        self._Name = 'delaunay'
+
     def compute(self, myVelfield, MyParams):
         print(
             "------------------------------\n"
@@ -166,7 +170,7 @@ def compute_with_delaunay_polygons(myVelfield):
         weight = 1;
         paramsel = 0;
         [e_phiphi, e_thetaphi, e_thetatheta, omega_r, U_theta, U_phi, s_omega_r, \
-            s_e_phiphi, s_e_thetaphi, s_e_thetatheta, s_U_theta, s_U_phi, chi2, \ 
+            s_e_phiphi, s_e_thetaphi, s_e_thetatheta, s_U_theta, s_U_phi, chi2, \
             OMEGA, THETA_p, PHI_p, s_OMEGA, s_THETA_p, s_PHI_p, r_PHITHETA, u_phi_p, \
             u_theta_p] = strain_sphere(
                 phi, 
