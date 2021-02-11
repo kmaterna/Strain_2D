@@ -49,7 +49,7 @@ def write_stationvels(myVelfield, output_file):
 
 
 def read_horiz_vels(filename):
-    # A simple format for 2D data, no error ellipses
+    # An even simpler format for 2D data, no error ellipses
     print("reading file %s " % filename);
     myVelfield = [];
     ifile = open(filename, 'r');
@@ -74,6 +74,7 @@ def read_horiz_vels(filename):
 
 
 def write_simple_gmt_format(myVelfield, outfile):
+    # Write function for the even simpler format
     ofile = open(outfile, 'w');
     for item in myVelfield:
         ofile.write("%f %f %f %f %f %f 0.0\n" % (item.elon, item.nlat, item.e, item.n, item.se, item.sn));
