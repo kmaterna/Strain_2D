@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Author: David Bekaert, Jeremy Maurer, and Piyush Agram
-# Copyright 2019, by the California Institute of Technology. ALL RIGHTS
-# RESERVED. United States Government Sponsorship acknowledged.
+# Author: Kathryn Materna, Jeremy Maurer
+# Copyright 2021. ALL RIGHTS RESERVED.
+# United States Government Sponsorship acknowledged.
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-import glob
 import os
 import re
-
-import numpy as np
-from setuptools import Extension, find_packages, setup
+from setuptools import find_packages, setup
 
 # Parameter defs
 CWD = os.getcwd()
@@ -26,9 +23,9 @@ def get_version():
 
 
 setup(
-    name='2D_Strain',
+    name='Strain_2D',
     version=get_version(),
-    description='This is the 2D_Strain package',
+    description='This is the Strain_2d package',
     package_dir={
         'tools': 'tools',
         '': 'tools'

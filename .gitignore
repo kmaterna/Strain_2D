@@ -4,7 +4,7 @@
 *.png
 *.pyc
 contrib/*
-strain/Early_Work/*
+Early_Work/*
 .idea/*
 build
 config*

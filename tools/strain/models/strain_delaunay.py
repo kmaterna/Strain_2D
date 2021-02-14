@@ -50,14 +50,14 @@
 
 import numpy as np
 from scipy.spatial import Delaunay
-from strain import output_manager, produce_gridded
-from strain.models.strain_2d import Strain_2d
+from .. import output_manager, produce_gridded
+from . import strain_2d
 
 
-class delaunay(Strain_2d):
-    ''' Delaunay class for 2d strain rate '''
+class delaunay(strain_2d.Strain_2d):
+    """ Delaunay class for 2d strain rate """
     def __init__(self):
-        Strain_2d.__init__(self)
+        strain_2d.Strain_2d.__init__(self)
         self._Name = 'delaunay'
 
     def compute(self, myVelfield, MyParams):
@@ -69,17 +69,7 @@ class delaunay(Strain_2d):
             compute_with_delaunay_polygons(myVelfield);
     
         # Here we output convenient things on polygons, since it's intuitive for the user.
-        output_manager.outputs_1d(
-            xcentroid, 
-            ycentroid, 
-            triangle_vertices, 
-            rot, 
-            exx, 
-            exy, 
-            eyy, 
-            myVelfield, 
-            MyParams
-        );
+        output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy, myVelfield, MyParams);
     
         # Here we convert polygon2grd
         lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = \

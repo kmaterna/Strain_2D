@@ -6,13 +6,6 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'inc', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
-available_methods = ['delaunay',
-                     'delaunay_flat',
-                     'visr',
-                     'gps_gridder',
-                     'tape',
-                     'huang'];
-
 help_message = "  Welcome to a geodetic strain calculator.\n" \
                "  USAGE: strain_driver.py config.txt\n" \
                "  See repository source for an example config file.\n"
@@ -21,17 +14,17 @@ comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n" \
                      "  See repository source for an example config file.\n"
 
 
-def strain_config_parser(args=None, configfile=None):
+def strain_config_parser(cmdargs=None, configfile=None):
     # The configfile can be passed as argv (if bash API) or passed as argument (if python API)
     if not configfile:
-        if len(args) < 2:
+        if len(cmdargs) < 2:
             print(help_message);
             sys.exit(0);
         else:
-            if args[1] == '--help':
+            if cmdargs[1] == '--help':
                 print(help_message);
                 sys.exit(0);
-            configfile = args[1];
+            configfile = cmdargs[1];
 
     MyParams = parse_config_file_into_Params(configfile);
     subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
@@ -159,11 +152,6 @@ def sanity_check_inputs(MyParams):
     # For options that change based on strain method,
     # Check that the right ones exist.
     # Specific logic here.
-    if MyParams.strain_method not in available_methods:
-        print("Available methods are:")
-        print(available_methods);
-        raise ValueError("%s is not a known strain method. Please choose a known method. "
-                        "Exiting.\n" % MyParams.strain_method);
     if MyParams.strain_method == "gps_gridder":
         if 'poisson' not in MyParams.method_specific.keys():
             raise ValueError("\ngps_gridder requires poisson's ratio. Please add to method_specific config. Exiting.\n");

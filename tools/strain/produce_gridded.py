@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.path
 import scipy.interpolate as interp
-from strain import strain_tensor_toolbox
+from . import strain_tensor_toolbox
 from Tectonic_Utils.read_write import netcdf_read_write
 
 

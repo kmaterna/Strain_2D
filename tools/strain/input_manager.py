@@ -1,6 +1,6 @@
 # The input manager for GPS Strain analysis. 
 
-from strain import velocity_io
+from . import velocity_io
 
 # ----------------- INPUTS -------------------------
 def inputs(MyParams):
