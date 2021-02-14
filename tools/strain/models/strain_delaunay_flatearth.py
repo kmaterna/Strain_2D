@@ -15,22 +15,35 @@ ftp://ftp.ingv.it/pub/salvatore.barba/RevEu/Cai_StrainBIFROST_2007.pdf
 import numpy as np
 from scipy.spatial import Delaunay
 from numpy.linalg import inv
-from strain import strain_tensor_toolbox, output_manager, produce_gridded
+from .. import strain_tensor_toolbox, output_manager, produce_gridded
+from . import strain_2d
+
+
+class delaunay_flat(strain_2d.Strain_2d):
+    """ Delaunay class for 2d strain rate """
+    def __init__(self, MyParams):
+        strain_2d.Strain_2d.__init__(self)
+        self._Name = 'delaunay_flat'
+        self._grid_inc = MyParams.inc
+        self._strain_range = MyParams.range_strain
+        self._data_range = MyParams.range_data
+
+    def compute(self, myVelfield):
+        print("------------------------------\nComputing strain via Delaunay on flat earth, and converting to a grid.");
+
+        [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = compute_with_delaunay_polygons(myVelfield);
+
+        lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.tri2grid(self._grid_inc, self._strain_range,
+                                                                                  triangle_vertices, rot, exx, exy, eyy);
+
+        # Here we output convenient things on polygons, since it's intuitive for the user.
+        # output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy, myVelfield, MyParams);
+
+        print("Success computing strain via Delaunay method.\n");
+        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 # ----------------- COMPUTE -------------------------
-def compute(myVelfield, myParams):
-    print("------------------------------\nComputing strain via Delaunay method on a flat earth.");
-    [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = compute_with_delaunay_polygons(myVelfield);
-
-    # Here we output convenient things on polygons, since it's intuitive for the user.
-    output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy, myVelfield, myParams);
-
-    # Here we convert polygon2grd
-    lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.drive_delaunay(myParams);
-    return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
-
-
 def compute_with_delaunay_polygons(myVelfield):
     print("Computing strain via delaunay method.");
     elon = [x.elon for x in myVelfield];

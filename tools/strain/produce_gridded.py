@@ -7,58 +7,18 @@ from . import strain_tensor_toolbox
 from Tectonic_Utils.read_write import netcdf_read_write
 
 
-def drive_delaunay(myParams):
+def tri2grid(grid_inc, range_strain,  triangle_vertices, rot, exx, exy, eyy):
     # steps to bring delaunay 1-D quantities into the same 2-D form as the other methods
-    lons, lats, grid = make_grid(myParams.range_strain, myParams.inc);
-
-    print("Producing gridded dataset of: Exx")
-    triangles, values = input_multisegment_with_trivalues(myParams.outdir + "exx_polygons.txt");
-    exx_grd = find_in_triangles(triangles, values, lons, lats, grid);
-
+    lons, lats, grid = make_grid(range_strain, grid_inc);
+    print("Producing gridded dataset of Exx")
+    exx_grd = find_in_triangles(triangle_vertices, exx, lons, lats, grid);
     print("Producing gridded dataset of: Exy")
-    triangles, values = input_multisegment_with_trivalues(myParams.outdir + "exy_polygons.txt");
-    exy_grd = find_in_triangles(triangles, values, lons, lats, grid);
-
+    exy_grd = find_in_triangles(triangle_vertices, exy, lons, lats, grid);
     print("Producing gridded dataset of: Eyy")
-    triangles, values = input_multisegment_with_trivalues(myParams.outdir + "eyy_polygons.txt");
-    eyy_grd = find_in_triangles(triangles, values, lons, lats, grid);
-
+    eyy_grd = find_in_triangles(triangle_vertices, eyy, lons, lats, grid);
     print("Producing gridded dataset of: Rot")
-    triangles, values = input_multisegment_with_trivalues(myParams.outdir + "rot_polygons.txt");
-    rot_grd = find_in_triangles(triangles, values, lons, lats, grid);
-
+    rot_grd = find_in_triangles(triangle_vertices, rot, lons, lats, grid);
     return lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd;
-
-
-# this function works with .txt files from delaunay triangulation methods
-def input_multisegment_with_trivalues(filename):
-    triangles = []
-    values = []
-    with open(filename, 'r') as file:
-        for line in file:
-            if line[3] == 'Z':
-                values.append(float(line[4:-2]))
-            else:
-                string = line.split()
-                triangles.append(float(string[0]))
-                triangles.append(float(string[1]))
-    triangle_objects = make_triangles(triangles);
-    return triangle_objects, values
-
-
-# This code works with .dat files outputted by Carl Tape's matlab code, surfacevel2strain
-# First, run tape code, selecting to output gmt files.
-# this code inputs the "strain" .dat file and the "D tensor 6 entries" .dat
-# and outputs the coordinates and strain tensor components.
-def input_tape(indir, coordsfile, datafile):
-    incoords = np.loadtxt(indir+coordsfile, usecols=(0, 1), unpack=True)
-    lon = incoords[0]
-    lat = incoords[1]
-    infile = np.loadtxt(indir+datafile, skiprows=1, usecols=(3, 4, 5), unpack=True)
-    thth = infile[0]
-    thph = infile[1]
-    phph = infile[2]
-    return lon, lat, thth, thph, phph
 
 
 # makes grid for delaunay
@@ -74,21 +34,6 @@ def make_grid(coordbox, inc):
     lats = np.arange(latmin, latmax+0.00001, inc[1])
     grid = np.zeros((len(lats), len(lons)));
     return lons, lats, grid
-
-
-# gathers delaunay-triangulated points into coordinate triples representing the triangle vertices
-def make_triangles(triangles):
-    new_triangles = []
-    for i in range(0, len(triangles), 6):
-        triangle = np.empty([3, 2])
-        triangle[0][0] = triangles[i]
-        triangle[0][1] = triangles[i+1]
-        triangle[1][0] = triangles[i+2]
-        triangle[1][1] = triangles[i+3]
-        triangle[2][0] = triangles[i+4]
-        triangle[2][1] = triangles[i+5]
-        new_triangles.append(triangle)
-    return new_triangles
 
 
 # searches path created by triangle vertices for each gridpoint, then assigns that triangle's value to the gridpoint
@@ -126,6 +71,21 @@ def drive_tape(myParams):
     netcdf_read_write.produce_output_netcdf(newx, newy, newaz, 'degrees', myParams.outdir+'azimuth.nc');
     write_tape_eigenvectors(x, y, e1, e2, v00, v01, v10, v11)
     return;
+
+
+# This code works with .dat files outputted by Carl Tape's matlab code, surfacevel2strain
+# First, run tape code, selecting to output gmt files.
+# this code inputs the "strain" .dat file and the "D tensor 6 entries" .dat
+# and outputs the coordinates and strain tensor components.
+def input_tape(indir, coordsfile, datafile):
+    incoords = np.loadtxt(indir+coordsfile, usecols=(0, 1), unpack=True)
+    lon = incoords[0]
+    lat = incoords[1]
+    infile = np.loadtxt(indir+datafile, skiprows=1, usecols=(3, 4, 5), unpack=True)
+    thth = infile[0]
+    thph = infile[1]
+    phph = infile[2]
+    return lon, lat, thth, thph, phph
 
 
 # This function computes second invariant, max shear strain, etc from symmetric strain tensor components

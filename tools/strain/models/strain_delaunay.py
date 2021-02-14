@@ -56,27 +56,25 @@ from . import strain_2d
 
 class delaunay(strain_2d.Strain_2d):
     """ Delaunay class for 2d strain rate """
-    def __init__(self):
+    def __init__(self, MyParams):
         strain_2d.Strain_2d.__init__(self)
         self._Name = 'delaunay'
+        self._grid_inc = MyParams.inc
+        self._strain_range = MyParams.range_strain
+        self._data_range = MyParams.range_data
 
-    def compute(self, myVelfield, MyParams):
-        print(
-            "------------------------------\n"
-            "Computing strain via Delaunay method on a sphere."
-        );
-        [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = \
-            compute_with_delaunay_polygons(myVelfield);
-    
+    def compute(self, myVelfield):
+        print("------------------------------\nComputing strain via Delaunay on a sphere, and converting to a grid.");
+
+        [xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy] = compute_with_delaunay_polygons(myVelfield);
+
+        lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.tri2grid(self._grid_inc, self._strain_range,
+                                                                                  triangle_vertices, rot, exx, exy, eyy);
+
         # Here we output convenient things on polygons, since it's intuitive for the user.
-        output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy, myVelfield, MyParams);
-    
-        # Here we convert polygon2grd
-        lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = \
-            produce_gridded.drive_delaunay(MyParams);
+        # output_manager.outputs_1d(xcentroid, ycentroid, triangle_vertices, rot, exx, exy, eyy, myVelfield, MyParams);
 
         print("Success computing strain via Delaunay method.\n");
-
         return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 

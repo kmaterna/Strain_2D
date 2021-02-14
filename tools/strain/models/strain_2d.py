@@ -7,21 +7,14 @@ class Strain_2d(ABC):
     def __init__(self):
         # Initialize general parameters
         self._Name = None
-        self._velfield = None
-        self._params = None
-
-    def __str__(self):
-        # print method
-        raise NotImplementedError
+        self._grid_inc = None
+        self._strain_range = None
+        self._data_range = None
 
     def Method(self):
         return self._Name
 
-    def write(self):
-        # Write results to files
-        raise NotImplementedError
-
     @abstractmethod
-    def compute(self, myVelfield, MyParams):
+    def compute(self, myVelfield):
         # generic method to be implemented in each method
         pass

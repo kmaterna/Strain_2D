@@ -3,15 +3,43 @@
 
 import numpy as np
 from Tectonic_Utils.geodesy import utm_conversion
+from . import strain_2d
+
+#  Class with behavior of the general strain_2d model class.
+class huang(strain_2d.Strain_2d):
+    """ Huang class for 2d strain rate """
+    def __init__(self, MyParams):
+        strain_2d.Strain_2d.__init__(self)
+        self._Name = 'huang'
+        self._grid_inc = MyParams.inc
+        self._strain_range = MyParams.range_strain
+        self._data_range = MyParams.range_data
+        self._radiuskm, self._nstations = verify_inputs_huang(MyParams.method_specific);
+
+    def compute(self, myVelfield):
+        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_huang(myVelfield, self._strain_range,
+                                                                         self._grid_inc, self._radiuskm,
+                                                                         self._nstations);
+        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
-# ----------------- COMPUTE -------------------------
-def compute(myVelfield, MyParams):
+def verify_inputs_huang(method_specific_dict):
+    # Takes a dictionary and verifies that it contains the right parameters for Huang method
+    if 'estimateradiuskm' not in method_specific_dict.keys():
+        raise ValueError("\nHuang requires estimateradiuskm. Please add to method_specific config. Exiting.\n");
+    if 'nstations' not in method_specific_dict.keys():
+        raise ValueError("\nHuang requires nstations. Please add to method_specific config. Exiting.\n");
+    radiuskm = float(method_specific_dict["estimateradiuskm"]);
+    nstations = int(method_specific_dict["nstations"]);
+    return radiuskm, nstations;
+
+
+def compute_huang(myVelfield, range_strain, inc, radiuskm, nstations):
     print("------------------------------\nComputing strain via Huang method.");
 
     # Set up grids for the computation
-    xlons = np.arange(MyParams.range_strain[0], MyParams.range_strain[1]+0.00001, MyParams.inc[0]);
-    ylats = np.arange(MyParams.range_strain[2], MyParams.range_strain[3]+0.00001, MyParams.inc[1]);
+    ylats = np.arange(range_strain[2], range_strain[3]+0.00001, inc[1]);
+    xlons = np.arange(range_strain[0], range_strain[1]+0.00001, inc[0]);
     gx = len(xlons);  # number of x - grid
     gy = len(ylats);  # number of y - grid
 
@@ -24,8 +52,8 @@ def compute(myVelfield, MyParams):
     nlat = nlat - refy;
 
     # Setting calculation parameters
-    EstimateRadius = float(MyParams.method_specific["estimateradiuskm"]) * 1000;  # convert to meters
-    ns = int(MyParams.method_specific["nstations"]);  # number of selected stations
+    EstimateRadius = radiuskm * 1000;  # convert to meters
+    ns = nstations;  # number of selected stations
 
     # 2. The main loop, getting displacement gradients around stations
     # find at least 5 smallest distance stations
@@ -110,6 +138,8 @@ def compute(myVelfield, MyParams):
             exy[j, i] = sxy * 1e9;
             eyy[j, i] = syy * 1e9;
             rot[j, i] = omega * 1e9;
+
+    print("Success computing strain via Huang method.\n");
 
     return [xlons, ylats, rot, exx, exy, eyy];
 

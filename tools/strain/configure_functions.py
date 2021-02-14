@@ -61,7 +61,7 @@ def comparison_config_parser(args=None, configfile=None):
 
 
 def parse_config_file_into_Params(configfile):
-    ''' Dedicated function to building a valid Params structure from the configfile '''
+    """ Dedicated function to building a valid Params structure from the configfile """
     if not os.path.isfile(configfile):
         print("config file =  %s" % configfile);
         raise Exception("Error! config file was not found.");
