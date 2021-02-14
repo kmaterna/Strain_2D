@@ -90,7 +90,6 @@ def parse_config_file_into_Params(configfile):
     inc = get_float_inc(inc);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
                       range_data=range_data, inc=inc, outdir=output_dir, method_specific=method_specific);
-    sanity_check_inputs(MyParams)
     return MyParams;
 
 
@@ -146,31 +145,3 @@ def get_float_inc(string_inc):
 def get_string_inc(float_inc):
     string_inc = str(float_inc[0])+'/'+str(float_inc[1]);
     return string_inc;
-
-
-def sanity_check_inputs(MyParams):
-    # For options that change based on strain method,
-    # Check that the right ones exist.
-    # Specific logic here.
-    if MyParams.strain_method == "gps_gridder":
-        if 'poisson' not in MyParams.method_specific.keys():
-            raise ValueError("\ngps_gridder requires poisson's ratio. Please add to method_specific config. Exiting.\n");
-        if 'fd' not in MyParams.method_specific.keys():
-            raise ValueError("\ngps_gridder requires fudge factor fd. Please add to method_specific config. Exiting.\n");
-        if 'eigenvalue' not in MyParams.method_specific.keys():
-            raise ValueError("\ngps_gridder requires eigenvalue. Please add to method_specific config. Exiting.\n");
-    elif MyParams.strain_method == "visr":
-        if 'distance_weighting' not in MyParams.method_specific.keys():
-            raise ValueError("\nvisr requires distance weighting. Please add to method_specific config. Exiting.\n");
-        if 'spatial_weighting' not in MyParams.method_specific.keys():
-            raise ValueError("\nvisr requires spatial weighting. Please add to method_specific config. Exiting.\n");
-        if 'min_max_inc_smooth' not in MyParams.method_specific.keys():
-            raise ValueError("\nvisr requires smoothing information. Please add to method_specific config. Exiting.\n");
-        if 'executable' not in MyParams.method_specific.keys():
-            raise ValueError("\nvisr requires path to executable. Please add to method_specific config. Exiting.\n");
-    elif MyParams.strain_method == "huang":
-        if 'estimateradiuskm' not in MyParams.method_specific.keys():
-            raise ValueError("\nmethod requires estimateradiuskm. Please add to method_specific config. Exiting.\n");
-        if 'nstations' not in MyParams.method_specific.keys():
-            raise ValueError("\nmethod requires nstations. Please add to method_specific config. Exiting.\n");
-    return;

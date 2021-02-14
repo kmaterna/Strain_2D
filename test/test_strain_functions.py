@@ -1,10 +1,6 @@
 import unittest
-from Strain_2D.strain import strain_tensor_toolbox
-from Strain_2D.strain import configure_functions
-from Strain_2D.strain import strain_delaunay_flatearth
-from Strain_2D.strain import strain_delaunay
-from Strain_2D.strain import compare_grd_functions
-from Strain_2D.strain import velocity_io
+from tools.strain import strain_tensor_toolbox, configure_functions, compare_grd_functions, velocity_io
+from tools.strain.models import strain_delaunay_flat, strain_delaunay
 
 
 class Tests(unittest.TestCase):
@@ -40,7 +36,7 @@ class Tests(unittest.TestCase):
         station4 = velocity_io.StationVel(name="wwww", elon=-123, nlat=40, e=0, n=0, u=0, se=1, sn=1, su=1);
         myVelfield = [station1, station2, station3, station4];
         [_, _, _, rot1, exx1, exy1, eyy1] = strain_delaunay.compute_with_delaunay_polygons(myVelfield);
-        [_, _, _, rot2, exx2, exy2, eyy2] = strain_delaunay_flatearth.compute_with_delaunay_polygons(myVelfield);
+        [_, _, _, rot2, exx2, exy2, eyy2] = strain_delaunay_flat.compute_with_delaunay_polygons(myVelfield);
         print("delaunay-sphere vs delaunay-flat:")
         print('exx:', exx1, ' vs ', exx2)
         print('exy:', exy1, ' vs ', exy2)

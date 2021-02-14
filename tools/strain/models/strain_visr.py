@@ -8,31 +8,62 @@
 
 
 import numpy as np
-from strain import produce_gridded
+from .. import produce_gridded
+from . import strain_2d
 import subprocess, sys, os
 
 
-def compute(myVelfield, MyParams):
+class visr(strain_2d.Strain_2d):
+    """ Visr class for 2d strain rate, with general strain_2d behavior """
+    def __init__(self, params):
+        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data);
+        self._Name = 'visr';
+        self._tempdir = params.outdir;
+        self._distwgt, self._spatwgt, self._smoothincs, self._exec = verify_inputs_visr(params.method_specific);
+
+    def compute(self, myVelfield):
+        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(myVelfield, self._strain_range, self._grid_inc,
+                                                                        self._distwgt, self._spatwgt,
+                                                                        self._smoothincs, self._exec, self._tempdir);
+        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+
+
+def verify_inputs_visr(method_specific_dict):
+    if 'distance_weighting' not in method_specific_dict.keys():
+        raise ValueError("\nvisr requires distance weighting. Please add to method_specific config. Exiting.\n");
+    if 'spatial_weighting' not in method_specific_dict.keys():
+        raise ValueError("\nvisr requires spatial weighting. Please add to method_specific config. Exiting.\n");
+    if 'min_max_inc_smooth' not in method_specific_dict.keys():
+        raise ValueError("\nvisr requires smoothing information. Please add to method_specific config. Exiting.\n");
+    if 'executable' not in method_specific_dict.keys():
+        raise ValueError("\nvisr requires path to executable. Please add to method_specific config. Exiting.\n");
+    distance_weighting = method_specific_dict["distance_weighting"];
+    spatial_weighting = method_specific_dict["spatial_weighting"];
+    min_max_inc_smooth = method_specific_dict["min_max_inc_smooth"];
+    executable = method_specific_dict["executable"];
+    return distance_weighting, spatial_weighting, min_max_inc_smooth, executable;
+
+
+def compute_visr(myVelfield, strain_range, inc, distwgt, spatwgt, smoothincs, executable, tempdir):
     print("------------------------------\nComputing strain via Visr method.");
     strain_config_file = 'visr_strain.drv';
     strain_data_file = 'strain_input.txt';  # can only be 20 characters long bc fortran!
     strain_output_file = 'strain_output.txt';  # can only be 20 characters long bc fortran!
-    write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, MyParams);
+    write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, strain_range, inc, distwgt, spatwgt, smoothincs);
     write_fortran_data_file(strain_data_file, myVelfield);
-    check_fortran_executable(MyParams.method_specific["executable"]);
-    call_fortran_compute(strain_config_file, MyParams.method_specific["executable"]);
+    check_fortran_executable(executable);
+    call_fortran_compute(strain_config_file, executable);
 
     # We convert that text file into grids, which we will write as GMT grd files.
-    [xdata, ydata, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file,
-                                                                           MyParams.range_strain, MyParams.inc);
-    subprocess.call(['mv', strain_config_file, MyParams.outdir], shell=False);
-    subprocess.call(['mv', strain_data_file, MyParams.outdir], shell=False);
-    subprocess.call(['mv', strain_output_file, MyParams.outdir], shell=False);
+    [xdata, ydata, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file, strain_range, inc);
+    subprocess.call(['mv', strain_config_file, tempdir], shell=False);
+    subprocess.call(['mv', strain_data_file, tempdir], shell=False);
+    subprocess.call(['mv', strain_output_file, tempdir], shell=False);
     print("Success computing strain via Visr method.\n");
     return [xdata, ydata, rot, exx, exy, eyy];
 
 
-def write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, MyParams):
+def write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, range_strain, inc, distwgt, spatwgt, smoothincs):
     # The config file will have the following components.
     """
     visr/visr_drive_strain.drv contains:
@@ -49,18 +80,17 @@ def write_fortran_config_file(strain_config_file, strain_data_file, strain_outpu
     crp.dat                                    ! creep fault data file
     """
     # Begin by parsing params
-    if MyParams.method_specific["distance_weighting"] == 'quadratic':
+    if distwgt == 'quadratic':
         dist_code = '2';
     else:
         dist_code = '1';
-    if MyParams.method_specific["spatial_weighting"] == 'azimuth':
+    if spatwgt == 'azimuth':
         spac_code = '1';
     else:
         spac_code = '2';
-    temp = MyParams.method_specific["min_max_inc_smooth"];
-    min_smooth = temp.split('/')[0];
-    max_smooth = temp.split('/')[1];
-    inc_smooth = temp.split('/')[2];
+    min_smooth = smoothincs.split('/')[0];
+    max_smooth = smoothincs.split('/')[1];
+    inc_smooth = smoothincs.split('/')[2];
 
     # Write the fortran-readable config file.
     ofile = open(strain_config_file, 'w');
@@ -72,7 +102,7 @@ def write_fortran_config_file(strain_config_file, strain_data_file, strain_outpu
     ofile.write('2                                          ! weighting threshold Wt\n');
     ofile.write('0.05                                       ! uncertainty threshold for reset\n');
     ofile.write('3                                          ! function: 1=velocity compatibility checking; 2=velocity interpolation; 3=strain rate interpolation\n');
-    ofile.write(str(MyParams.range_strain[0])+' '+str(MyParams.range_strain[1])+' '+str(MyParams.range_strain[2])+' '+str(MyParams.range_strain[3])+' '+str(MyParams.inc[0])+' '+str(MyParams.inc[1])+'                ! Lon_min, Lon_max, Lat_min, Lat_max, dLon, dLat\n');
+    ofile.write(str(range_strain[0])+' '+str(range_strain[1])+' '+str(range_strain[2])+' '+str(range_strain[3])+' '+str(inc[0])+' '+str(inc[1])+'                ! Lon_min, Lon_max, Lat_min, Lat_max, dLon, dLat\n');
     ofile.write('0                                          ! number of creep faults\n');
     ofile.write('crp.dat                                    ! creep fault data file\n');
     ofile.close();
@@ -150,5 +180,5 @@ def check_fortran_executable(path_to_executable):
     if os.path.isfile(path_to_executable):
         print("VISR executable found at %s " % path_to_executable);
     else:
-        raise("VISR executable not found on your system. Check config file for path.");
+        raise FileNotFoundError("VISR executable not found on your system. Check config file for path.");
     return;

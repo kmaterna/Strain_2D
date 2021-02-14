@@ -17,9 +17,8 @@ def get_model(model_name):
 def strain_coordinator(MyParams):
     velField = input_manager.inputs(MyParams);
     module_name, strain_model = get_model(MyParams.strain_method);
-    constructed_object = strain_model(MyParams);   # calling the constructor, building the strain model
+    constructed_object = strain_model(MyParams);   # calling the constructor, building strain model from our params
     [lons, lats, rot, exx, exy, eyy] = constructed_object.compute(velField);  # computing strain
-    # constructed_object.outputs();  # outputs 2D : identical, inherited in all classes
     # constructed_object.outputs_special();
     output_manager.outputs_2d(lons, lats, rot, exx, exy, eyy, MyParams, velField);  # 2D grid output format
     return

@@ -56,12 +56,9 @@ from . import strain_2d
 
 class delaunay(strain_2d.Strain_2d):
     """ Delaunay class for 2d strain rate """
-    def __init__(self, MyParams):
-        strain_2d.Strain_2d.__init__(self)
+    def __init__(self, params):
+        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data)
         self._Name = 'delaunay'
-        self._grid_inc = MyParams.inc
-        self._strain_range = MyParams.range_strain
-        self._data_range = MyParams.range_data
 
     def compute(self, myVelfield):
         print("------------------------------\nComputing strain via Delaunay on a sphere, and converting to a grid.");

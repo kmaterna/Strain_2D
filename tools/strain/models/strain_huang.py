@@ -5,16 +5,13 @@ import numpy as np
 from Tectonic_Utils.geodesy import utm_conversion
 from . import strain_2d
 
-#  Class with behavior of the general strain_2d model class.
+
 class huang(strain_2d.Strain_2d):
-    """ Huang class for 2d strain rate """
-    def __init__(self, MyParams):
-        strain_2d.Strain_2d.__init__(self)
+    """ Huang class for 2d strain rate, with general strain_2d behavior """
+    def __init__(self, params):
+        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data);
         self._Name = 'huang'
-        self._grid_inc = MyParams.inc
-        self._strain_range = MyParams.range_strain
-        self._data_range = MyParams.range_data
-        self._radiuskm, self._nstations = verify_inputs_huang(MyParams.method_specific);
+        self._radiuskm, self._nstations = verify_inputs_huang(params.method_specific);
 
     def compute(self, myVelfield):
         [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_huang(myVelfield, self._strain_range,

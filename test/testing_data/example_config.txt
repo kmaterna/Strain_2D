@@ -18,7 +18,7 @@ spatial_weighting = voronoi
 min_max_inc_smooth = 1/100/1
 executable = ../../../2D_Strain/contrib/visr/visr.exe
 
-[gps_gridder]
+[gpsgridder]
 poisson = 0.5
 fd = 0.01
 eigenvalue = 0.0005
