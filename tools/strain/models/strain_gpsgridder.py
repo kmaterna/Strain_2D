@@ -7,13 +7,13 @@
 import numpy as np
 import subprocess
 from Tectonic_Utils.read_write import netcdf_read_write
-from strain import strain_tensor_toolbox, output_manager, configure_functions
+from .. import velocity_io, configure_functions, strain_tensor_toolbox
 
 
 # ----------------- COMPUTE -------------------------
 def compute(myVelfield, MyParams):
     print("------------------------------\nComputing strain via gpsgridder method.");
-    output_manager.write_simple_gmt_format(myVelfield, "tempgps.txt");
+    velocity_io.write_simple_gmt_format(myVelfield, "tempgps.txt");
     command = "gmt gpsgridder tempgps.txt" + \
               " -R"+configure_functions.get_string_range(MyParams.range_strain, x_buffer=0.02, y_buffer=0.02) + \
               " -I"+configure_functions.get_string_inc(MyParams.inc) + \
