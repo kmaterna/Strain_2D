@@ -1,6 +1,7 @@
 import subprocess, sys, os
 import collections
 import configparser
+from . import utilities
 
 Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range_strain', 'range_data',
                                            'inc', 'outdir', 'method_specific']);
@@ -85,9 +86,9 @@ def parse_config_file_into_Params(configfile):
 
     # Cleanup
     output_dir = output_dir + '/' + strain_method + '/'
-    range_strain = get_float_range(range_strain);
-    range_data = get_float_range(range_data);
-    inc = get_float_inc(inc);
+    range_strain = utilities.get_float_range(range_strain);
+    range_data = utilities.get_float_range(range_data);
+    inc = utilities.get_float_inc(inc);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
                       range_data=range_data, inc=inc, outdir=output_dir, method_specific=method_specific);
     return MyParams;
@@ -102,46 +103,13 @@ def parse_comparison_config_into_Params(configfile):
     config.read(configfile);
     output_dir = config.get('general', 'output_dir');
     range_strain = config.get('strain', 'range_strain');
-    range_strain = get_float_range(range_strain);
+    range_strain = utilities.get_float_range(range_strain);
     inc = config.get('strain', 'inc');
-    inc = get_float_inc(inc);
-    # Reading the methods
+    inc = utilities.get_float_inc(inc);
+    # Reading the methods and their associated strain data
     specific_keys = [item for item in config["inputs"].keys()];
     strain_dict = {};
     for item in specific_keys:
         strain_dict[item] = config.get("inputs", item);
     MyParams = Comps_Params(inc=inc, range_strain=range_strain, outdir=output_dir, strain_dict=strain_dict);
     return MyParams;
-
-
-def get_float_range(string_range):
-    # string range: format "-125/-121/32/35"
-    # float range: array of floats
-    number_strings = string_range.split('/')
-    float_range = [float(number_strings[0]), float(number_strings[1]),
-                   float(number_strings[2]), float(number_strings[3])];
-    if float_range[1] <= float_range[0]:
-        raise ValueError("Error! Given range is invalid", float_range);
-    if float_range[3] <= float_range[2]:
-        raise ValueError("Error! Given range is invalid", float_range);
-    return float_range;
-
-
-def get_string_range(float_range, x_buffer=0, y_buffer=0):
-    # Buffer is for the possible interface between pixel-node-registered and gridline-node-registered files
-    string_range = str(float_range[0]-x_buffer)+'/'+str(float_range[1]+x_buffer)+'/' +\
-                   str(float_range[2]-y_buffer)+'/'+str(float_range[3]+y_buffer);
-    return string_range;
-
-
-def get_float_inc(string_inc):
-    # string_inc: like '0.04/0.04'
-    # float_inc: array of floats
-    number_incs = string_inc.split('/')
-    float_inc = [float(number_incs[0]), float(number_incs[1])];
-    return float_inc;
-
-
-def get_string_inc(float_inc):
-    string_inc = str(float_inc[0])+'/'+str(float_inc[1]);
-    return string_inc;

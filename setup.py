@@ -27,13 +27,13 @@ setup(
     version=get_version(),
     description='This is the Strain_2d package',
     package_dir={
-        'tools': 'tools',
-        '': 'tools'
+        'Tools': 'Tools',
+        '': 'Tools'
     },
-    packages=['tools'] + find_packages('tools'),
+    packages=['Tools'] + find_packages('Tools'),
     scripts=[
-        'tools/bin/strain_driver.py',
-        'tools/bin/compare_driver.py',
+        'Tools/bin/strain_driver.py',
+        'Tools/bin/compare_driver.py',
     ],
     zip_safe=False,
 )

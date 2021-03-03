@@ -1,6 +1,6 @@
 import unittest
-from tools.strain import strain_tensor_toolbox, configure_functions, compare_grd_functions, velocity_io
-from tools.strain.models import strain_delaunay_flat, strain_delaunay
+from Tools.strain import strain_tensor_toolbox, configure_functions, velocity_io
+from Tools.strain.models import strain_delaunay_flat, strain_delaunay
 
 
 class Tests(unittest.TestCase):
@@ -50,7 +50,7 @@ class Tests(unittest.TestCase):
     def test_azimuth_math(self):
         # Test angular math functions
         azimuth_array = [0, 1, 179, 0];
-        theta, sd = compare_grd_functions.angle_mean_math(azimuth_array);
+        theta, sd = strain_tensor_toolbox.angle_mean_math(azimuth_array);
         self.assertEqual(theta, 0);
         return;
 

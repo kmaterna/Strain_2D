@@ -154,3 +154,27 @@ def compute_derived_quantities(exx, exy, eyy):
                 dilatation[j][i] = e1[j][i] + e2[j][i];
                 azimuth[j][i] = azimuth_math(e1[j][i], e2[j][i], v00[j][i], v01[j][i], v10[j][i], v11[j][i]);
     return [I2nd, max_shear, dilatation, azimuth];
+
+
+def angle_mean_math(azimuth_values):
+    # azimuth_values : a list of azimuths in degrees
+    # Returns : an average azimuth and standard deviation of azimuths, in degrees
+    sin_list, cos_list = [], [];
+    for phi in azimuth_values:
+        sin_list.append(np.sin(2 * np.radians(90 - phi)));
+        cos_list.append(np.cos(2 * np.radians(90 - phi)));
+    s = np.nanmean(sin_list);
+    c = np.nanmean(cos_list);
+    R = ((s ** 2 + c ** 2) ** .5)
+    sd = np.degrees((-2 * np.log(R)) ** .5) / 2
+    # V = 1 - R
+    # sd = np.degrees((2*V)**.5)
+    # t = np.arctan2(s, c)
+    # strike = R*math.e**(math.i*t)
+    strike = np.arctan2(s, c) / 2
+    theta = 90 - np.degrees(strike)
+    if theta < 0:
+        theta = 180 + theta
+    elif theta > 180:
+        theta = theta - 180
+    return theta, sd;

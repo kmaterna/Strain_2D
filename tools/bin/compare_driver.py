@@ -4,8 +4,8 @@ Configure which grids are being compared in the config file passed into this lib
 """
 
 import sys
-from strain import configure_functions
-from strain import compare_strain_grids
+from Strain_2D.Tools.strain import configure_functions
+from Strain_2D.Tools.strain import compare_strain_grids
 
 
 if __name__ == "__main__":

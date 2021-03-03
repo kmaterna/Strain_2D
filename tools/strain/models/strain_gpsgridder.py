@@ -6,6 +6,8 @@
 
 import numpy as np
 import subprocess
+
+import tools.strain.utilities
 from Tectonic_Utils.read_write import netcdf_read_write
 from .. import velocity_io, configure_functions, strain_tensor_toolbox
 from . import strain_2d
@@ -43,11 +45,11 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     print("------------------------------\nComputing strain via gpsgridder method.");
     velocity_io.write_simple_gmt_format(myVelfield, "tempgps.txt");
     command = "gmt gpsgridder tempgps.txt" + \
-              " -R"+configure_functions.get_string_range(range_strain, x_buffer=0.02, y_buffer=0.02) + \
-              " -I"+configure_functions.get_string_inc(inc) + \
-              " -S"+poisson + \
-              " -Fd"+fd + \
-              " -C"+eigenvalue + \
+              " -R" + tools.strain.utilities.get_string_range(range_strain, x_buffer=0.02, y_buffer=0.02) + \
+              " -I" + tools.strain.utilities.get_string_inc(inc) + \
+              " -S" + poisson + \
+              " -Fd" + fd + \
+              " -C" + eigenvalue + \
               " -Emisfitfile.txt -fg -r -Gnc_%s.nc";
     print(command);
     subprocess.call(command, shell=True);  # makes a netcdf grid file

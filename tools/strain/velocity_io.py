@@ -48,7 +48,7 @@ def write_stationvels(myVelfield, output_file):
     return;
 
 
-def read_horiz_vels(filename):
+def read_simple_gmt_format(filename):
     # An even simpler format for 2D data, no error ellipses
     print("reading file %s " % filename);
     myVelfield = [];
@@ -63,12 +63,7 @@ def read_horiz_vels(filename):
         lat = float(temp[1]);
         VE = float(temp[2]);
         VN = float(temp[3]);
-        VU = 0;
-        se = 0;
-        sn = 0;
-        su = 0;
-        mystation = StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=VU, se=se, sn=sn, su=su, name='');
-        myVelfield.append(mystation);
+        myVelfield.append(StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=0, se=0, sn=0, su=0, name=''));
     ifile.close();
     return myVelfield;
 
@@ -78,5 +73,18 @@ def write_simple_gmt_format(myVelfield, outfile):
     ofile = open(outfile, 'w');
     for item in myVelfield:
         ofile.write("%f %f %f %f %f %f 0.0\n" % (item.elon, item.nlat, item.e, item.n, item.se, item.sn));
+    ofile.close();
+    return;
+
+
+def write_multisegment_file(polygon_vertices, quantity, filename):
+    # Write a quantity for each polygon, in GMT-readable format
+    ofile = open(filename, 'w');
+    for i in range(len(quantity)):
+        # Write the value associated with the triangle
+        ofile.write("> -Z" + str(quantity[i]) + "\n");
+        ofile.write(str(polygon_vertices[i, 0, 0]) + " " + str(polygon_vertices[i, 0, 1]) + "\n");
+        ofile.write(str(polygon_vertices[i, 1, 0]) + " " + str(polygon_vertices[i, 1, 1]) + "\n");
+        ofile.write(str(polygon_vertices[i, 2, 0]) + " " + str(polygon_vertices[i, 2, 1]) + "\n");
     ofile.close();
     return;

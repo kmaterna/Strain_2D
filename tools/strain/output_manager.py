@@ -22,7 +22,8 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     print("Max I2: %f " % (np.amax(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.amin(rot), np.amax(rot)) );
 
-    [positive_eigs, negative_eigs] = get_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11);  # get grid eigenvectors for plotting
+    # get grid eigenvectors for plotting
+    [positive_eigs, negative_eigs] = get_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11);
     velocity_io.write_simple_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt');
     velocity_io.write_simple_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
 
@@ -46,14 +47,14 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVel
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
     [positive_eigs, negative_eigs] = get_list_eigenvectors(xcentroid, ycentroid, e1, e2, v00, v01, v10, v11);
 
-    write_multisegment_file(polygon_vertices, rot, MyParams.outdir+"rot_polygons.txt");
-    write_multisegment_file(polygon_vertices, I2nd, MyParams.outdir+"I2nd_polygons.txt");
-    write_multisegment_file(polygon_vertices, dilatation, MyParams.outdir+"Dilatation_polygons.txt");
-    write_multisegment_file(polygon_vertices, max_shear, MyParams.outdir+"max_shear_polygons.txt");
-    write_multisegment_file(polygon_vertices, azimuth, MyParams.outdir+"azimuth_polygons.txt");
-    write_multisegment_file(polygon_vertices, exx, MyParams.outdir + "exx_polygons.txt");
-    write_multisegment_file(polygon_vertices, exy, MyParams.outdir + "exy_polygons.txt");
-    write_multisegment_file(polygon_vertices, eyy, MyParams.outdir + "eyy_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, rot, MyParams.outdir + "rot_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, I2nd, MyParams.outdir + "I2nd_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, dilatation, MyParams.outdir + "Dilatation_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, max_shear, MyParams.outdir + "max_shear_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, azimuth, MyParams.outdir + "azimuth_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, exx, MyParams.outdir + "exx_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, exy, MyParams.outdir + "exy_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, eyy, MyParams.outdir + "eyy_polygons.txt");
     velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
 
     # Write the eigenvectors and eigenvalues
@@ -146,16 +147,3 @@ def get_list_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
             negative_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=-v01[i] * scale,
                                                         n=-v11[i] * scale, u=0, se=0, sn=0, su=0, name=0));
     return positive_eigs, negative_eigs;
-
-
-def write_multisegment_file(polygon_vertices, quantity, filename):
-    # Write a quantity for each polygon, in GMT-readable format
-    ofile = open(filename, 'w');
-    for i in range(len(quantity)):
-        # Write the value associated with the triangle
-        ofile.write("> -Z" + str(quantity[i]) + "\n");
-        ofile.write(str(polygon_vertices[i, 0, 0]) + " " + str(polygon_vertices[i, 0, 1]) + "\n");
-        ofile.write(str(polygon_vertices[i, 1, 0]) + " " + str(polygon_vertices[i, 1, 1]) + "\n");
-        ofile.write(str(polygon_vertices[i, 2, 0]) + " " + str(polygon_vertices[i, 2, 1]) + "\n");
-    ofile.close();
-    return;
