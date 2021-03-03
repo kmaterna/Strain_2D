@@ -1,4 +1,4 @@
-from . import utilities, strain_tensor_toolbox, velocity_io
+from . import utilities, strain_tensor_toolbox, velocity_io, pygmt_plots
 from Tectonic_Utils.read_write import netcdf_read_write
 import numpy as np
 
@@ -12,6 +12,7 @@ def drive(MyParams):
     compare_grid_means(MyParams, "dila.nc", simple_means_statistics);
     compare_grid_means(MyParams, "rot.nc", simple_means_statistics);
     compare_grid_means(MyParams, "azimuth.nc", angular_means_statistics, mask=[MyParams.outdir+'/means_I2nd.nc', 3]);
+    visualize_grid_means(MyParams);
     return;
 
 
@@ -30,6 +31,20 @@ def compare_grid_means(MyParams, filename, statistics_function, mask=None):
     netcdf_read_write.produce_output_netcdf(lons, lats, my_stds, 'per year', MyParams.outdir+"/deviations_"+filename);
     return;
 
+
+def visualize_grid_means(MyParams):
+    """ Make pygmt plots of the means of all quantities """
+    pygmt_plots.plot_I2nd(MyParams.outdir + "/means_I2nd.nc", MyParams.range_strain, MyParams.outdir, [], [],
+                          MyParams.outdir + "/means_I2nd.png");
+    pygmt_plots.plot_dilatation(MyParams.outdir + "/means_dila.nc", MyParams.range_strain, MyParams.outdir, [], [],
+                                MyParams.outdir + "/means_dila.png");
+    pygmt_plots.plot_maxshear(MyParams.outdir + "/means_max_shear.nc", MyParams.range_strain, MyParams.outdir, [], [],
+                              MyParams.outdir + "/means_max_shear.png");
+    pygmt_plots.plot_azimuth(MyParams.outdir + "/means_azimuth.nc", MyParams.range_strain, MyParams.outdir, [], [],
+                             MyParams.outdir + "/means_azimuth.png");
+    pygmt_plots.plot_rotation(MyParams.outdir + "/means_rot.nc", [], MyParams.range_strain, MyParams.outdir,
+                              MyParams.outdir + "/means_rot.png");
+    return;
 
 
 # --------- COMPUTE FUNCTION ----------- #

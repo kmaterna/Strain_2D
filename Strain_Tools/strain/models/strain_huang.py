@@ -9,7 +9,7 @@ from . import strain_2d
 class huang(strain_2d.Strain_2d):
     """ Huang class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
-        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data);
+        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
         self._Name = 'huang'
         self._radiuskm, self._nstations = verify_inputs_huang(params.method_specific);
 

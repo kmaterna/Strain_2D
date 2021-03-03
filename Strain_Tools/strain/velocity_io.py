@@ -99,18 +99,17 @@ def read_multiple_strain_files(MyParams, filename):
     Each dictionary key is a strain method
     Each dictionary value is a data structure: [lon, lat, value]
     lon : list of floats
-    lat: list of floats
-    value: 2D array of floats
+    lat : list of floats
+    value : 2D array of floats
     We also guarantee the mutual co-registration of the dictionary elements
     """
     strain_values_dict = {};
     for method in MyParams.strain_dict.keys():
         specific_filename = MyParams.strain_dict[method]+"/"+filename
+        assert(os.path.isfile(specific_filename)), FileNotFoundError("Cannot find file " + specific_filename);
         if os.path.isfile(specific_filename):
             [lon, lat, val] = netcdf_read_write.read_any_grd(specific_filename);
             strain_values_dict[method] = [lon, lat, val];
-        else:
-            raise Exception("Error! Can't find file %s " % specific_filename);
-    utilities.check_grids(MyParams, strain_values_dict);
-    utilities.check_shapes(strain_values_dict);
+    utilities.check_coregistered_grids(MyParams.range_strain, MyParams.inc, strain_values_dict);
+    utilities.check_coregistered_shapes(strain_values_dict);
     return strain_values_dict;

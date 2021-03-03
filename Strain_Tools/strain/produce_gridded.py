@@ -5,7 +5,7 @@ import matplotlib.path
 
 
 def tri2grid(grid_inc, range_strain,  triangle_vertices, rot, exx, exy, eyy):
-    # steps to bring delaunay 1-D quantities into the same 2-D form as the other methods
+    """steps to bring delaunay 1-D quantities into the same 2-D form as the other methods"""
     lons, lats, grid = make_grid(range_strain, grid_inc);
     print("Producing gridded dataset of Exx")
     exx_grd = find_in_triangles(triangle_vertices, exx, lons, lats, grid);
@@ -18,11 +18,12 @@ def tri2grid(grid_inc, range_strain,  triangle_vertices, rot, exx, exy, eyy):
     return lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd;
 
 
-# makes grid for delaunay
 def make_grid(coordbox, inc):
-    # coordbox is [float, float, float, float] [W, E, S, N]
-    # inc is a float
-    # return value is a 2d array of zeros
+    """
+    coordbox : [float, float, float, float] corresponding to [W, E, S, N]
+    inc : [float, float] corresponding to [xinc, yinc]
+    returns: 1d array of lons, 1d array of lats, 2d array of zeros
+    """
     lonmin = coordbox[0]
     lonmax = coordbox[1]
     latmin = coordbox[2]
@@ -33,8 +34,8 @@ def make_grid(coordbox, inc):
     return lons, lats, grid
 
 
-# searches path created by triangle vertices for each gridpoint, then assigns that triangle's value to the gridpoint
 def find_in_triangles(triangles, values, lons, lats, grid):
+    """searches triangle vertices for each gridpoint, then assigns that triangle's value to the gridpoint"""
     val_arr = np.nan*np.ones(np.shape(grid));
     for j in range(np.shape(grid)[0]):
         for k in range(np.shape(grid)[1]):
@@ -44,4 +45,3 @@ def find_in_triangles(triangles, values, lons, lats, grid):
                     val_arr[j][k] = values[i];
                     break;
     return val_arr
-

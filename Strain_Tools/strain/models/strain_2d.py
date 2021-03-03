@@ -18,12 +18,13 @@ class Strain_2d(ABC):
     compute(): required method that takes a velocity field and will eventually compute strain
     only provided as a template here
     """
-    def __init__(self, grid_inc, strain_range, data_range):
+    def __init__(self, grid_inc, strain_range, data_range, outdir):
         # Initialize general parameters
         self._Name = None
         self._grid_inc = grid_inc
         self._strain_range = strain_range
         self._data_range = data_range
+        self._outdir = outdir
 
     def Method(self):
         return self._Name

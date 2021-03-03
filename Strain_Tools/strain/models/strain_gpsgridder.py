@@ -6,25 +6,23 @@
 
 import numpy as np
 import subprocess
-
-import tools.strain.utilities
 from Tectonic_Utils.read_write import netcdf_read_write
-from .. import velocity_io, configure_functions, strain_tensor_toolbox
+from .. import velocity_io, strain_tensor_toolbox, utilities
 from . import strain_2d
 
 
 class gpsgridder(strain_2d.Strain_2d):
     """ gps_gridder class for 2d strain rate """
     def __init__(self, params):
-        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data);
+        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
         self._Name = 'gpsgridder'
         self._tempdir = params.outdir;
         self._poisson, self._fd, self._eigenvalue = verify_inputs_gpsgridder(params.method_specific);
 
     def compute(self, myVelfield):
         [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(myVelfield, self._strain_range,
-                                                                               self._grid_inc, self._poisson, self._fd,
-                                                                               self._eigenvalue, self._tempdir);
+                                                                              self._grid_inc, self._poisson, self._fd,
+                                                                              self._eigenvalue, self._tempdir);
         return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
@@ -45,8 +43,8 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     print("------------------------------\nComputing strain via gpsgridder method.");
     velocity_io.write_simple_gmt_format(myVelfield, "tempgps.txt");
     command = "gmt gpsgridder tempgps.txt" + \
-              " -R" + tools.strain.utilities.get_string_range(range_strain, x_buffer=0.02, y_buffer=0.02) + \
-              " -I" + tools.strain.utilities.get_string_inc(inc) + \
+              " -R" + utilities.get_string_range(range_strain, x_buffer=0.02, y_buffer=0.02) + \
+              " -I" + utilities.get_string_inc(inc) + \
               " -S" + poisson + \
               " -Fd" + fd + \
               " -C" + eigenvalue + \

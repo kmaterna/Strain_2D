@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""
-Driver program for empirical strain statistics.
-Configure which grids are being compared in the config file passed into this library.
-"""
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Driver program for empirical strain statistics on several strain computations.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import sys
 from Strain_2D.Strain_Tools.strain import configure_functions

@@ -4,8 +4,8 @@ from . import velocity_io
 
 # ----------------- INPUTS -------------------------
 def inputs(MyParams):
+    """ Purpose: generate input velocity field."""
     print("------------------------------");
-    # Purpose: generate input velocity field.
     myVelfield = velocity_io.read_stationvels(MyParams.input_file);
     myVelfield = clean_velfield(myVelfield, coord_box=MyParams.range_data);
     if len(myVelfield) == 0:

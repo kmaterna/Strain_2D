@@ -7,7 +7,6 @@ contrib/*
 early_work/*
 .idea/*
 build
-config*
 dist
 tools/*.egg*
 *.swp

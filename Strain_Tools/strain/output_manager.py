@@ -41,41 +41,45 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     return;
 
 
-def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVelfield, MyParams):
+def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):
     print("------------------------------\nWriting 1d outputs:");
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
     [positive_eigs, negative_eigs] = get_list_eigenvectors(xcentroid, ycentroid, e1, e2, v00, v01, v10, v11);
 
-    velocity_io.write_multisegment_file(polygon_vertices, rot, MyParams.outdir + "rot_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, I2nd, MyParams.outdir + "I2nd_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, dilatation, MyParams.outdir + "Dilatation_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, max_shear, MyParams.outdir + "max_shear_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, azimuth, MyParams.outdir + "azimuth_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, exx, MyParams.outdir + "exx_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, exy, MyParams.outdir + "exy_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, eyy, MyParams.outdir + "eyy_polygons.txt");
-    velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, rot, outdir + "rot_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, I2nd, outdir + "I2nd_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, dilatation, outdir + "Dilatation_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, max_shear, outdir + "max_shear_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, azimuth, outdir + "azimuth_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, exx, outdir + "exx_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, exy, outdir + "exy_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, eyy, outdir + "eyy_polygons.txt");
+    velocity_io.write_stationvels(myVelfield, outdir+"tempgps.txt");
 
     # Write the eigenvectors and eigenvalues
-    velocity_io.write_simple_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs_polygons.txt');
-    velocity_io.write_simple_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs_polygons.txt');
+    velocity_io.write_simple_gmt_format(positive_eigs, outdir + 'positive_eigs_polygons.txt');
+    velocity_io.write_simple_gmt_format(negative_eigs, outdir + 'negative_eigs_polygons.txt');
 
     print("Max I2: %f " % (max(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.amin(rot), np.amax(rot)) );
 
     # Plot the polygons as additional output (more intuitive)
-    pygmt_plots.plot_dilatation_1D(MyParams.range_strain, polygon_vertices, dilatation, MyParams.outdir, positive_eigs,
-                                   negative_eigs, MyParams.outdir+'polygon_dilatation.eps');
-    pygmt_plots.plot_I2nd_1D(MyParams.range_strain, polygon_vertices, I2nd, MyParams.outdir, positive_eigs,
-                             negative_eigs, MyParams.outdir+'polygon_I2nd.eps');
+    pygmt_plots.plot_dilatation_1D(range_strain, polygon_vertices, dilatation, outdir, positive_eigs,
+                                   negative_eigs, outdir+'polygon_dilatation.eps');
+    pygmt_plots.plot_I2nd_1D(range_strain, polygon_vertices, I2nd, outdir, positive_eigs,
+                             negative_eigs, outdir+'polygon_I2nd.eps');
     return;
 
 
 def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
-    # Resample eigenvectors on grid with maximum eigenvalue imposed
-    # Returns a set of vectors for plotting
-    # Also has functionality to saturate eigenvectors so they don't blow up.
+    """
+    xdata : 1d array of floats (lons)
+    ydata: 1d array of floats (lats)
+    w, v: all 2d arrays of floats (values)
+    Function resamples eigenvectors on regular grid, with maximum eigenvalue imposed
+    Returns two lists of "stationvels" objects for plotting vectors
+    """
     eigs_dec = 12;
     do_not_print_value = 200;
     overmax_scale = 200;
@@ -83,6 +87,8 @@ def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
     for j in range(len(ydata)):
         for k in range(len(xdata)):
             if np.mod(j, eigs_dec) == 0 and np.mod(k, eigs_dec) == 0:
+                if np.isnan(w1[j][k]) or np.isnan(w2[j][k]) or np.isnan(v00[j][k]) or np.isnan(v11[j][k]):
+                    continue;
                 # Write the first eigenvector pair
                 scale = w1[j][k];
                 if abs(scale) > do_not_print_value:
@@ -115,14 +121,21 @@ def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
 
 
 def get_list_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
-    # Returns a set of vectors for plotting
-    # Also has functionality to saturate eigenvectors so they don't blow up.
+    """
+    xdata : 1d array of floats (lons)
+    ydata: 1d array of floats (lats)
+    w, v: all 1d arrays of floats (values)
+    Function returns vectors with maximum eigenvalue imposed
+    Returns two lists of "stationvels" objects for plotting vectors
+    """
     positive_eigs, negative_eigs = [], [];
     overall_max = 40.0;
     for i in range(len(xdata)):
         scale = 0.4 * w1[i];
         if abs(w1[i]) > overall_max:
             scale = overall_max;
+        if np.isnan(w1[i]) or np.isnan(w2[i]) or np.isnan(v00[i]) or np.isnan(v11[i]):
+            continue;
         if w1[i] > 0:
             positive_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=v00[i] * scale,
                                                         n=v10[i] * scale, u=0, se=0, sn=0, su=0, name=0));

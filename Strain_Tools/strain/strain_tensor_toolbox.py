@@ -37,9 +37,11 @@ def max_shear_strain(exx, exy, eyy):
 
 
 def compute_displacement_gradients(up, vp, ur, vr, uq, vq, dx, dy):
-    # up, vp describe velocity at a reference point P
-    # R and Q are two other points: Q offset by dx in the x direction, and R offset by dy in the y direction.
-    # In practical usage, these are in mm/yr and km.
+    """
+    up, vp : velocity at a reference point P
+    R and Q : two other points. Q offset by dx in the x direction, and R offset by dy in the y direction.
+    In practical usage, these are in mm/yr and km.
+    """
     dudx = (uq - up) / dx;
     dvdx = (vq - vp) / dx;
     dudy = (ur - up) / dy;
@@ -48,11 +50,13 @@ def compute_displacement_gradients(up, vp, ur, vr, uq, vq, dx, dy):
 
 
 def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
-    # Given a displacement tensor, compute the relevant parts of the strain and rotation tensors.
-    # Also converts to nanostrain per year.
-    # Rot is the off-diagonal element of the rotation tensor
-    # Rot has native units radians/year. Here we return radians per 1000 yrs (easier to interpret numbers)
-    # http://www.engr.colostate.edu/~thompson/hPage/CourseMat/Tutorials/Solid_Mechanics/rotations.pdf
+    """
+    Given a displacement tensor, compute the relevant parts of the strain and rotation tensors.
+    Also converts to nanostrain per year.
+    Rot is the off-diagonal element of the rotation tensor
+    Rot has native units radians/year. Here we return radians per 1000 yrs (easier to interpret numbers)
+    http://www.engr.colostate.edu/~thompson/hPage/CourseMat/Tutorials/Solid_Mechanics/rotations.pdf
+    """
     exx = dudx * 1000;
     exy = (0.5 * (dvdx + dudy)) * 1000;
     eyy = dvdy * 1000;
@@ -61,26 +65,7 @@ def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
     return [exx, exy, eyy, rot];
 
 
-def max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
-    dshape = np.shape(e1);
-    az = np.zeros(dshape);
-    if len(dshape) == 1:
-        for i in range(len(e1)):
-            az[i] = azimuth_math(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
-            if az[i] > 180:
-                print("Found an azimuth over 180 degrees. Please fix this.  %d " % i)
-    if len(dshape) == 2:
-        for i in range(len(e1)):
-            for j in range(len(e1[0])):
-                az[i][j] = azimuth_math(e1[i][j], e2[i][j], v00[i][j], v01[i][j], v10[i][j], v11[i][j]);
-                if az[i][j] > 179.999:
-                    print("Found an azimuth over 180 degrees. Please fix this.  %d " % i, j)
-    print("Minimum azimuth: %.3f degrees" % np.nanmin(az))
-    print("Maximum azimuth: %.3f degrees" % np.nanmax(az))
-    return az;
-
-
-def azimuth_math(e1, e2, v00, v01, v10, v11):
+def compute_max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
     if e1 < e2:
         maxv = np.array([v00, v10])
     else:
@@ -91,11 +76,12 @@ def azimuth_math(e1, e2, v00, v01, v10, v11):
         theta = 180 + theta
     elif theta > 180:
         theta = theta - 180
+    assert (theta < 180), ValueError("Error: computing an azimuth over 180 degrees.");
     return theta
 
 
 def compute_eigenvectors(exx, exy, eyy):
-    # exx, eyy can be 1d arrays or 2D arrays
+    """exx, eyy can be 1d arrays or 2D arrays"""
     e1 = np.zeros(np.shape(exx));
     e2 = np.zeros(np.shape(exx));  # eigenvalues
     v00 = np.zeros(np.shape(exx));
@@ -126,9 +112,11 @@ def compute_eigenvectors(exx, exy, eyy):
 
 
 def compute_derived_quantities(exx, exy, eyy):
-    # Given the basic components of the strain tensor, compute the rest of the derived quantities
-    # like 2nd invariant, azimuth of maximum strain, dilatation, etc.
-    # exx, eyy can be 1d arrays or 2D arrays
+    """
+    Given the basic components of the strain tensor, compute the rest of the derived quantities
+    like 2nd invariant, azimuth of maximum strain, dilatation, etc.
+    exx, eyy can be 1d arrays or 2D arrays
+    """
 
     I2nd = np.zeros(np.shape(exx));
     max_shear = np.zeros(np.shape(exx));
@@ -144,7 +132,7 @@ def compute_derived_quantities(exx, exy, eyy):
             dilatation[i] = e1[i] + e2[i];
             I2nd[i] = np.log10(np.abs(second_invariant(e1[i], 0, e2[i])));
             max_shear[i] = abs((-e1[i] + e2[i]) / 2);
-            azimuth[i] = azimuth_math(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
+            azimuth[i] = compute_max_shortening_azimuth(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
     elif len(dshape) == 2:
         print("Computing strain invariants for 2d dataset.");
         for j in range(dshape[0]):
@@ -152,13 +140,15 @@ def compute_derived_quantities(exx, exy, eyy):
                 I2nd[j][i] = np.log10(np.abs(second_invariant(e1[j][i], 0, e2[j][i])));
                 max_shear[j][i] = abs((e1[j][i] - e2[j][i]) / 2);
                 dilatation[j][i] = e1[j][i] + e2[j][i];
-                azimuth[j][i] = azimuth_math(e1[j][i], e2[j][i], v00[j][i], v01[j][i], v10[j][i], v11[j][i]);
+                azimuth[j][i] = compute_max_shortening_azimuth(e1[j][i], e2[j][i], v00[j][i], v01[j][i], v10[j][i], v11[j][i]);
     return [I2nd, max_shear, dilatation, azimuth];
 
 
 def angle_mean_math(azimuth_values):
-    # azimuth_values : a list of azimuths in degrees
-    # Returns : an average azimuth and standard deviation of azimuths, in degrees
+    """
+    azimuth_values : a list of azimuths in degrees
+    Returns : an average azimuth and standard deviation of azimuths, in degrees
+    """
     sin_list, cos_list = [], [];
     for phi in azimuth_values:
         sin_list.append(np.sin(2 * np.radians(90 - phi)));
