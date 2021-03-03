@@ -4,8 +4,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import sys
-from Strain_2D.Tools.strain import internal_coordinator
-from Strain_2D.Tools.strain import configure_functions
+from Strain_2D.Strain_Tools.strain import internal_coordinator
+from Strain_2D.Strain_Tools.strain import configure_functions
 
 
 if __name__ == "__main__":

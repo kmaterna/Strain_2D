@@ -1,6 +1,6 @@
 import unittest
-from Tools.strain import strain_tensor_toolbox, configure_functions, velocity_io
-from Tools.strain.models import strain_delaunay_flat, strain_delaunay
+from Strain_Tools.strain import strain_tensor_toolbox, configure_functions, velocity_io
+from Strain_Tools.strain.models import strain_delaunay_flat, strain_delaunay
 
 
 class Tests(unittest.TestCase):

@@ -1,5 +1,4 @@
-import os
-from . import utilities, strain_tensor_toolbox
+from . import utilities, strain_tensor_toolbox, velocity_io
 from Tectonic_Utils.read_write import netcdf_read_write
 import numpy as np
 
@@ -12,7 +11,7 @@ def drive(MyParams):
     compare_grid_means(MyParams, "max_shear.nc", simple_means_statistics);
     compare_grid_means(MyParams, "dila.nc", simple_means_statistics);
     compare_grid_means(MyParams, "rot.nc", simple_means_statistics);
-    compare_grid_means(MyParams, "azimuth.nc", angular_means_statistics, mask=[MyParams.outdir+'I2nd.grd', 3]);
+    compare_grid_means(MyParams, "azimuth.nc", angular_means_statistics, mask=[MyParams.outdir+'/means_I2nd.nc', 3]);
     return;
 
 
@@ -22,7 +21,7 @@ def compare_grid_means(MyParams, filename, statistics_function, mask=None):
     The function for taking the mean/std is passed in
     `mask` has format [filename, cutoff_value] if you want to mask based on a particular computation result.
     """
-    strain_values_dict = read_strain_files(MyParams, filename);
+    strain_values_dict = velocity_io.read_multiple_strain_files(MyParams, filename);
     lons, lats, my_means, my_stds = compute_grid_statistics(strain_values_dict, statistics_function);
     if mask:
         [_, _, masking_values] = netcdf_read_write.read_any_grd(mask[0]);
@@ -31,30 +30,6 @@ def compare_grid_means(MyParams, filename, statistics_function, mask=None):
     netcdf_read_write.produce_output_netcdf(lons, lats, my_stds, 'per year', MyParams.outdir+"/deviations_"+filename);
     return;
 
-
-# --------- READ FUNCTION ----------- #
-
-def read_strain_files(MyParams, filename):
-    """
-    Read strain quantities of `filename` into a dictionary
-    Each dictionary key is a strain method
-    Each dictionary value is a data structure: [lon, lat, value]
-    lon : list of floats
-    lat: list of floats
-    value: 2D array of floats
-    We also guarantee the mutual co-registration of the dictionary elements
-    """
-    strain_values_dict = {};
-    for method in MyParams.strain_dict.keys():
-        specific_filename = MyParams.strain_dict[method]+"/"+filename
-        if os.path.isfile(specific_filename):
-            [lon, lat, val] = netcdf_read_write.read_any_grd(specific_filename);
-            strain_values_dict[method] = [lon, lat, val];
-        else:
-            raise Exception("Error! Can't find file %s " % specific_filename);
-    utilities.check_grids(MyParams, strain_values_dict);
-    utilities.check_shapes(strain_values_dict);
-    return strain_values_dict;
 
 
 # --------- COMPUTE FUNCTION ----------- #
