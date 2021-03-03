@@ -21,9 +21,10 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     netcdf_read_write.produce_output_netcdf(xdata, ydata, max_shear, 'per yr', MyParams.outdir + 'max_shear.nc');
     print("Max I2: %f " % (np.amax(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.amin(rot), np.amax(rot)) );
-    write_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11, MyParams);
-    positive_eigs = velocity_io.read_horiz_vels(MyParams.outdir+"positive_eigs.txt");
-    negative_eigs = velocity_io.read_horiz_vels(MyParams.outdir+"negative_eigs.txt");
+
+    [positive_eigs, negative_eigs] = get_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11);  # get grid eigenvectors for plotting
+    velocity_io.write_simple_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt');
+    velocity_io.write_simple_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
 
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(MyParams.outdir+'rot.nc', myVelfield, MyParams.range_strain, MyParams.outdir,
@@ -42,6 +43,9 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVelfield, MyParams):
     print("------------------------------\nWriting 1d outputs:");
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
+    [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
+    [positive_eigs, negative_eigs] = get_list_eigenvectors(xcentroid, ycentroid, e1, e2, v00, v01, v10, v11);
+
     write_multisegment_file(polygon_vertices, rot, MyParams.outdir+"rot_polygons.txt");
     write_multisegment_file(polygon_vertices, I2nd, MyParams.outdir+"I2nd_polygons.txt");
     write_multisegment_file(polygon_vertices, dilatation, MyParams.outdir+"Dilatation_polygons.txt");
@@ -53,16 +57,9 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVel
     velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
 
     # Write the eigenvectors and eigenvalues
-    positive_file = open(MyParams.outdir + "positive_eigs_polygons.txt", 'w');
-    negative_file = open(MyParams.outdir + "negative_eigs_polygons.txt", 'w');
-    [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
-    for i in range(len(I2nd)):
-        write_single_eigenvector(positive_file, negative_file, e1[i], v00[i], v10[i], xcentroid[i], ycentroid[i]);
-        write_single_eigenvector(positive_file, negative_file, e2[i], v01[i], v11[i], xcentroid[i], ycentroid[i]);
-    positive_file.close();
-    negative_file.close();
-    positive_eigs = velocity_io.read_horiz_vels(MyParams.outdir+"positive_eigs_polygons.txt");
-    negative_eigs = velocity_io.read_horiz_vels(MyParams.outdir+"negative_eigs_polygons.txt");
+    velocity_io.write_simple_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs_polygons.txt');
+    velocity_io.write_simple_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs_polygons.txt');
+
     print("Max I2: %f " % (max(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.amin(rot), np.amax(rot)) );
 
@@ -74,75 +71,82 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, myVel
     return;
 
 
-def write_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11, MyParams):
-    # Need eigs_interval and outdir from MyParams.
-    positive_file = open(MyParams.outdir + "positive_eigs.txt", 'w');
-    negative_file = open(MyParams.outdir + "negative_eigs.txt", 'w');
-
+def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
+    # Resample eigenvectors on grid with maximum eigenvalue imposed
+    # Returns a set of vectors for plotting
+    # Also has functionality to saturate eigenvectors so they don't blow up.
     eigs_dec = 12;
     do_not_print_value = 200;
     overmax_scale = 200;
-
+    positive_eigs, negative_eigs = [], [];
     for j in range(len(ydata)):
         for k in range(len(xdata)):
             if np.mod(j, eigs_dec) == 0 and np.mod(k, eigs_dec) == 0:
+                # Write the first eigenvector pair
+                scale = w1[j][k];
+                if abs(scale) > do_not_print_value:
+                    scale = overmax_scale;
                 if w1[j][k] > 0:
-                    scale = w1[j][k];
-                    if abs(scale) > do_not_print_value:
-                        scale = overmax_scale;
-                    positive_file.write(
-                        "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], v00[j][k] * scale, v10[j][k] * scale));
-                    positive_file.write(
-                        "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v00[j][k] * scale, -v10[j][k] * scale));
-                if w1[j][k] < 0:
-                    scale = w1[j][k];
-                    if abs(scale) > do_not_print_value:
-                        scale = overmax_scale;
-                    negative_file.write(
-                        "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], v00[j][k] * scale, v10[j][k] * scale));
-                    negative_file.write(
-                        "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v00[j][k] * scale, -v10[j][k] * scale));
+                    positive_eigs.append(velocity_io.StationVel(elon=xdata[k], nlat=ydata[j], e=v00[j][k]*scale,
+                                                                n=v10[j][k]*scale, u=0, se=0, sn=0, su=0, name=0));
+                    positive_eigs.append(velocity_io.StationVel(elon=xdata[k], nlat=ydata[j], e=-v00[j][k]*scale,
+                                                                n=-v10[j][k]*scale, u=0, se=0, sn=0, su=0, name=0));
+                else:
+                    negative_eigs.append(velocity_io.StationVel(elon=xdata[k], nlat=ydata[j], e=v00[j][k]*scale,
+                                                                n=v10[j][k]*scale, u=0, se=0, sn=0, su=0, name=0));
+                    negative_eigs.append(velocity_io.StationVel(elon=xdata[k], nlat=ydata[j], e=-v00[j][k]*scale,
+                                                                n=-v10[j][k]*scale, u=0, se=0, sn=0, su=0, name=0));
+                # Write the second eigenvector pair
+                scale = w2[j][k];
+                if abs(scale) > do_not_print_value:
+                    scale = overmax_scale;
                 if w2[j][k] > 0:
-                    scale = w2[j][k];
-                    if abs(scale) > do_not_print_value:
-                        scale = overmax_scale;
-                    positive_file.write(
-                        "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], v01[j][k] * scale, v11[j][k] * scale));
-                    positive_file.write(
-                        "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v01[j][k] * scale, -v11[j][k] * scale));
-                if w2[j][k] < 0:
-                    scale = w2[j][k];
-                    if abs(scale) > do_not_print_value:
-                        scale = overmax_scale;
-                    negative_file.write(
-                        "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], v01[j][k] * scale, v11[j][k] * scale));
-                    negative_file.write(
-                        "%s %s %s %s 0 0 0\n" % (xdata[k], ydata[j], -v01[j][k] * scale, -v11[j][k] * scale));
-    positive_file.close();
-    negative_file.close();
-    return;
+                    positive_eigs.append(velocity_io.StationVel(elon=xdata[k], nlat=ydata[j], e=v01[j][k]*scale,
+                                                                n=v11[j][k]*scale, u=0, se=0, sn=0, su=0, name=0));
+                    positive_eigs.append(velocity_io.StationVel(elon=xdata[k], nlat=ydata[j], e=-v01[j][k]*scale,
+                                                                n=-v11[j][k]*scale, u=0, se=0, sn=0, su=0, name=0));
+                else:
+                    negative_eigs.append(velocity_io.StationVel(elon=xdata[k], nlat=ydata[j], e=v01[j][k]*scale,
+                                                                n=v11[j][k]*scale, u=0, se=0, sn=0, su=0, name=0));
+                    negative_eigs.append(velocity_io.StationVel(elon=xdata[k], nlat=ydata[j], e=-v01[j][k]*scale,
+                                                                n=-v11[j][k]*scale, u=0, se=0, sn=0, su=0, name=0));
+    return positive_eigs, negative_eigs;
 
-def write_single_eigenvector(positive_file, negative_file, e, v0, v1, x, y):
-    # e = eigenvalue, [v0, v1] = eigenvector.
-    # Writes a single eigenvector eigenvalue pair.
+
+def get_list_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
+    # Returns a set of vectors for plotting
     # Also has functionality to saturate eigenvectors so they don't blow up.
+    positive_eigs, negative_eigs = [], [];
     overall_max = 40.0;
-    scale = 0.4 * e;
+    for i in range(len(xdata)):
+        scale = 0.4 * w1[i];
+        if abs(w1[i]) > overall_max:
+            scale = overall_max;
+        if w1[i] > 0:
+            positive_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=v00[i] * scale,
+                                                        n=v10[i] * scale, u=0, se=0, sn=0, su=0, name=0));
+            positive_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=-v00[i] * scale,
+                                                        n=-v10[i] * scale, u=0, se=0, sn=0, su=0, name=0));
+        else:
+            negative_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=v00[i] * scale,
+                                                        n=v10[i] * scale, u=0, se=0, sn=0, su=0, name=0));
+            negative_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=-v00[i] * scale,
+                                                        n=-v10[i] * scale, u=0, se=0, sn=0, su=0, name=0));
+        scale = 0.4 * w2[i];
+        if abs(w2[i]) > overall_max:
+            scale = overall_max;
+        if w2[i] > 0:
+            positive_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=v01[i] * scale,
+                                                        n=v11[i] * scale, u=0, se=0, sn=0, su=0, name=0));
+            positive_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=-v01[i] * scale,
+                                                        n=-v11[i] * scale, u=0, se=0, sn=0, su=0, name=0));
+        else:
+            negative_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=v01[i] * scale,
+                                                        n=v11[i] * scale, u=0, se=0, sn=0, su=0, name=0));
+            negative_eigs.append(velocity_io.StationVel(elon=xdata[i], nlat=ydata[i], e=-v01[i] * scale,
+                                                        n=-v11[i] * scale, u=0, se=0, sn=0, su=0, name=0));
+    return positive_eigs, negative_eigs;
 
-    vx = v0 * scale;
-    vy = v1 * scale;
-    if np.sqrt(vx * vx + vy * vy) > overall_max:
-        scale = scale * (overall_max / np.sqrt(vx * vx + vy * vy))
-        vx = v0 * scale;
-        vy = v1 * scale;
-
-    if e > 0:
-        positive_file.write("%s %s %s %s 0 0 0\n" % (x, y, vx, vy));
-        positive_file.write("%s %s %s %s 0 0 0\n" % (x, y, -vx, -vy));
-    else:
-        negative_file.write("%s %s %s %s 0 0 0\n" % (x, y, vx, vy));
-        negative_file.write("%s %s %s %s 0 0 0\n" % (x, y, -vx, -vy));
-    return;
 
 def write_multisegment_file(polygon_vertices, quantity, filename):
     # Write a quantity for each polygon, in GMT-readable format

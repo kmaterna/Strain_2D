@@ -1,4 +1,16 @@
 import pygmt
+import numpy as np
+
+
+def station_vels_to_arrays(station_vels):
+    # Unpack station vels into arrays for pygmt plotting of vectors
+    elon, nlat, e, n = [], [], [], [];
+    for item in station_vels:
+        elon.append(item.elon);
+        nlat.append(item.nlat);
+        e.append(item.e)
+        n.append(item.n);
+    return np.array(elon), np.array(nlat), np.array(e), np.array(n);
 
 
 def plot_rotation(filename, station_vels, region, outdir, outfile):
@@ -9,10 +21,10 @@ def plot_rotation(filename, station_vels, region, outdir, outfile):
     fig.grdimage(filename, region=region, C=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue',
               L="n0.12/0.12+c" + str(region[2]) + "+w50", B="1.0");
-    for n in station_vels:
-        fig.plot(x=n.elon, y=n.nlat, S='c0.04i', G='black', W='0.4p,white');  # station locations
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
-                 direction=[[n.e], [n.n]]);  # displacement vectors
+    elon, nlat, e, n = station_vels_to_arrays(station_vels);
+    fig.plot(x=elon, y=nlat, S='c0.04i', G='black', W='0.4p,white');  # station locations
+    fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
+             direction=[e, n]);  # displacement vectors
     fig.plot(x=region[0] + 0.9, y=region[2] + 0.1, style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
              direction=[[20], [0]]);  # scale vector
     fig.text(x=region[0] + 0.5, y=region[2] + 0.1, text="20 mm/yr", font='10p,Helvetica,black')
@@ -30,12 +42,10 @@ def plot_dilatation(filename, region, outdir, positive_eigs, negative_eigs, outf
     fig.grdimage(filename, region=region, C=outdir+"mycpt.cpt");
     fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue',
               L="n0.12/0.12+c" + str(region[2]) + "+w50", B="1.0");
-    for n in positive_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[[n.e], [n.n]]);  # vectors
-    for n in negative_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[[n.e], [n.n]]);  # vectors
+    elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue', direction=[e, n]);
+    elon, nlat, e, n = station_vels_to_arrays(negative_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black', direction=[e, n]);
     # Scale vector
     fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]]);
@@ -56,12 +66,10 @@ def plot_I2nd(filename, region, outdir, positive_eigs, negative_eigs, outfile):
     fig.grdimage(filename, region=region, C=outdir+"mycpt.cpt");
     fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue',
               L="n0.12/0.12+c" + str(region[2]) + "+w50", B="1.0");
-    for n in positive_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[[n.e], [n.n]]);  # vectors
-    for n in negative_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[[n.e], [n.n]]);  # vectors
+    elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue', direction=[e, n]);
+    elon, nlat, e, n = station_vels_to_arrays(negative_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black', direction=[e, n]);
     # Scale vector
     fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]]);
@@ -82,12 +90,10 @@ def plot_maxshear(filename, region, outdir, positive_eigs, negative_eigs, outfil
     fig.grdimage(filename, region=region, C=outdir+"mycpt.cpt");
     fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue',
               L="n0.12/0.12+c" + str(region[2]) + "+w50", B="1.0");
-    for n in positive_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[[n.e], [n.n]]);  # vectors
-    for n in negative_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[[n.e], [n.n]]);  # vectors
+    elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue', direction=[e, n]);
+    elon, nlat, e, n = station_vels_to_arrays(negative_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black', direction=[e, n]);
     # Scale vector
     fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]]);
@@ -108,12 +114,10 @@ def plot_azimuth(filename, region, outdir, positive_eigs, negative_eigs, outfile
     fig.grdimage(filename, region=region, C=outdir+"mycpt.cpt");
     fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue',
               L="n0.12/0.12+c" + str(region[2]) + "+w50", B="1.0");
-    for n in positive_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[[n.e], [n.n]]);  # vectors
-    for n in negative_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[[n.e], [n.n]]);  # vectors
+    elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue', direction=[e, n]);
+    elon, nlat, e, n = station_vels_to_arrays(negative_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black', direction=[e, n]);
     # Scale vector
     fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]]);
@@ -140,12 +144,10 @@ def plot_dilatation_1D(region, polygon_vertices, dilatation, outdir, positive_ei
         fig.plot(x=lons, y=lats, Z=str(dilatation[i]), pen="thinner,black", G="+z", C=outdir+"mycpt.cpt");
 
     fig.coast(N='2', W='1.0p,black', S='lightblue', L="n0.12/0.12+c" + str(region[2]) + "+w50");
-    for n in positive_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[[n.e], [n.n]]);  # vectors
-    for n in negative_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[[n.e], [n.n]]);  # vectors
+    elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue', direction=[e, n]);
+    elon, nlat, e, n = station_vels_to_arrays(negative_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black', direction=[e, n]);
     # Scale vector
     fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]]);
@@ -172,12 +174,10 @@ def plot_I2nd_1D(region, polygon_vertices, I2nd, outdir, positive_eigs, negative
         fig.plot(x=lons, y=lats, Z=str(I2nd[i]), pen="thinner,black", G="+z", C=outdir+"mycpt.cpt");
 
     fig.coast(N='2', W='1.0p,black', S='lightblue', L="n0.12/0.12+c" + str(region[2]) + "+w50");
-    for n in positive_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[[n.e], [n.n]]);  # vectors
-    for n in negative_eigs:
-        fig.plot(x=n.elon, y=n.nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[[n.e], [n.n]]);  # vectors
+    elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue', direction=[e, n]);
+    elon, nlat, e, n = station_vels_to_arrays(negative_eigs);
+    fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black', direction=[e, n]);
     # Scale vector
     fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]]);
