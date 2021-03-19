@@ -19,13 +19,15 @@ class geostats(Strain_2d):
                 self, params.inc, params.range_strain, params.range_data
             )
         self._Name = 'geostatistical'
-        self.setVariogram(params.cov_type, params.c0, params.trend)
+        self.setVariogram(params.cov_type, params.sill, params.range, params.nugget, params.trend)
         self.setGrid(params.XY)
 
     def setVariogram(
             self, 
-            model_type='Gaussian',
-            c0=None,
+            model_type,
+            sill,
+            rang,
+            nugget=None,
             trend=False,
         ):
         ''' 
@@ -40,7 +42,9 @@ class geostats(Strain_2d):
         trend: boolean or list      Use a trend or not, can be a list of bool
         '''
         self._model = getattr('.', model_type)
-        self._c0 = c0
+        self._sill = sill 
+        self._range = rang 
+        self._nugget = nugget
         self._trend = trend
 
     def setPoints(self, xy, data):
@@ -82,12 +86,11 @@ class geostats(Strain_2d):
         Interpolate velocities using kriging
         '''
         # Create the data covariance matrix
-        
         SIG = compute_covariance(model, param, xy)
-        SIG = SIG + sqrt(eps)*eye(size(SIG,1))
+        SIG = SIG + np.sqrt(np.finfo(float).eps)*np.eye(SIG.shape[0])
 
         # create the data/grid covariance and point-wise terms
-        sig0 = compute_covariance(model, param, xy, XY,0); 
+        sig0 = compute_covariance(model, param, xy, XY); 
         sig2 = compute_covariance(model, param, 0, 0, 1); 
 
         # Do different things, depending on if SK, OK, or UK is desired
