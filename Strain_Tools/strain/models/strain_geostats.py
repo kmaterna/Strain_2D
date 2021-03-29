@@ -19,7 +19,7 @@ class geostats(Strain_2d):
                 self, params.inc, params.range_strain, params.range_data
             )
         self._Name = 'geostatistical'
-        self.setVariogram(params.cov_type, params.sill, params.range, params.nugget, params.trend)
+        self.setVariogram(params.model_type, params.sill, params.range, params.nugget, params.trend)
         self.setGrid(params.XY)
 
     def setVariogram(
@@ -41,11 +41,14 @@ class geostats(Strain_2d):
                                     variogram model type
         trend: boolean or list      Use a trend or not, can be a list of bool
         '''
-        self._model = getattr('.', model_type)
-        self._sill = sill 
-        self._range = rang 
-        self._nugget = nugget
-        self._trend = trend
+        try:
+            self._model = eval(model_type)
+        except AttributeError:
+            raise ValueError('Model "{}" has not been implemented'.format(model_type)) 
+        self._sill = float(sill)
+        self._range = float(rang)
+        self._nugget = float(nugget)
+        self._trend = bool(trend)
 
     def setPoints(self, xy, data):
         '''
@@ -106,14 +109,9 @@ class geostats(Strain_2d):
 
     def compute(self, myVelfield):
         raise NotImplementedError
-        #[lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = 
-        #return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
         lons/lats - coordinate 1D arrays
         others are shape (lat, lon)
-
-
-def verify_inputs_geostats(method_specific_dict):
-    ''' to implement'''
+        #return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def makeGrid(gridx, gridy, bounds):
