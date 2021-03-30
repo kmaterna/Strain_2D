@@ -98,11 +98,11 @@ class geostats(Strain_2d):
 
         # Do different things, depending on if SK, OK, or UK is desired
         if self._flag == 'sk':
-            self._Dest, self._Dsig, self._lam = kriging_cpsk(SIG, sig0,data, sig2)
+            self._Dest, self._Dsig, self._lam = simple_kriging(SIG, sig0,data, sig2)
         elif self._flag == 'ok':
-            self._Dest, self._Dsig, self._lam = kriging_cpuk(SIG, sig0,data, sig2,xy, XY)
+            self._Dest, self._Dsig, self._lam = ordinary_kriging(SIG, sig0,data, sig2)
         elif self._flag == 'uk':
-            self._Dest, self._Dsig, self._lam = kriging_cpok(SIG, sig0,data, sig2)
+            self._Dest, self._Dsig, self._lam = universal_kriging(SIG, sig0,data, sig2, xy, XY)
         else:
             raise ValueError('Method "{}" is not implemented'.format(self._flag))
 
@@ -112,6 +112,69 @@ class geostats(Strain_2d):
         lons/lats - coordinate 1D arrays
         others are shape (lat, lon)
         #return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+
+
+def simple_kriging(SIG, sig0, data, sig2):
+    '''
+    Perform simple (i.e. zero-mean) kriging
+
+    Parameters
+    ----------
+    SIG: N x N ndarray 	- Covariance of all observed data locations
+    sig0: N x M ndarray - Covariance of observed vs query locations
+    data: N x 1 ndarray - Observed data values
+    sig2: 1 x 1 float   - point-wise variance
+
+    Returns
+    -------
+    Dest: M x 1 ndarray - Expected value of the field at the query locations
+    Dsig: M x 1 ndarray - Sqrt of the kriging variance for each query location
+    lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
+    '''
+    raise NotImplementedError
+
+
+def ordinary_kriging(SIG, sig0, data, sig2):
+    '''
+    Perform ordinary kriging (stationary non-zero mean)
+
+    Parameters
+    ----------
+    SIG: N x N ndarray 	- Covariance of all observed data locations
+    sig0: N x M ndarray - Covariance of observed vs query locations
+    data: N x 1 ndarray - Observed data values
+    sig2: 1 x 1 float   - point-wise variance
+
+    Returns
+    -------
+    Dest: M x 1 ndarray - Expected value of the field at the query locations
+    Dsig: M x 1 ndarray - Sqrt of the kriging variance for each query location
+    lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
+    '''
+    raise NotImplementedError
+
+
+def universal_kriging(SIG, sig0, data, sig2, xy, XY):
+    '''
+    Perform universal kriging (field can be a linear function of "space". In reality 
+    "space" can be any auxilliary variables, such as xy-location, topographic height, etc.)
+
+    Parameters
+    ----------
+    SIG: N x N ndarray 	- Covariance of all observed data locations
+    sig0: N x M ndarray - Covariance of observed vs query locations
+    data: N x 1 ndarray - Observed data values
+    sig2: 1 x 1 float   - point-wise variance
+    xy: N x D ndarray   - Location of the observed data in D-dimensional space
+    XY: M x D ndarray   - Location of the query locations in D-dimensional space
+
+    Returns
+    -------
+    Dest: M x 1 ndarray - Expected value of the field at the query locations
+    Dsig: M x 1 ndarray - Sqrt of the kriging variance for each query location
+    lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
+    '''
+    raise NotImplementedError
 
 
 def makeGrid(gridx, gridy, bounds):
