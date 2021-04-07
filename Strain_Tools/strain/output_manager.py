@@ -20,7 +20,7 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     netcdf_read_write.produce_output_netcdf(xdata, ydata, dilatation, 'per yr', MyParams.outdir + 'dila.nc');
     netcdf_read_write.produce_output_netcdf(xdata, ydata, max_shear, 'per yr', MyParams.outdir + 'max_shear.nc');
     print("Max I2: %f " % (np.amax(I2nd)));
-    print("Min/Max rot:   %f,   %f " % (np.amin(rot), np.amax(rot)) );
+    print("Min/Max rot:   %f,   %f " % (np.nanmin(rot), np.nanmax(rot)) );
 
     # get grid eigenvectors for plotting
     [positive_eigs, negative_eigs] = get_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11);

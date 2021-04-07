@@ -124,6 +124,8 @@ def compute_max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
         maxv = np.array([v01, v11])
     strike = np.arctan2(maxv[1], maxv[0])
     theta = 90 - m.degrees(strike)
+    if np.isnan(theta):
+        return np.nan;
     if theta < 0:
         theta = 180 + theta
     elif theta > 180:

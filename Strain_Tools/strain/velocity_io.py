@@ -92,7 +92,7 @@ def write_gmt_format(myVelfield, outfile):
     :param myVelfield: Velfield object
     :param outfile: name of velocity file
     """
-    print("writing velocity output file %s " % outfile);
+    print("writing vector output file %s " % outfile);
     ofile = open(outfile, 'w');
     ofile.write("# Format: lon(deg) lat(deg) VE(mm) VN(mm) SE(mm) SN(mm) Corr\n");
     for item in myVelfield:
