@@ -4,8 +4,10 @@ import numpy as np
 
 def get_float_range(string_range):
     """
-    string range: format "-125/-121/32/35"
-    float range: array of floats
+    :param string_range: format "-125/-121/32/35"
+    :type string_range: string
+    :returns: list of floats
+    :rtype: list
     """
     number_strings = string_range.split('/')
     float_range = [float(number_strings[0]), float(number_strings[1]),
@@ -18,7 +20,18 @@ def get_float_range(string_range):
 
 
 def get_string_range(float_range, x_buffer=0, y_buffer=0):
-    """Buffer is for the possible interface between pixel-node-registered and gridline-node-registered files"""
+    """
+    Buffer is for the possible interface between pixel-node-registered and gridline-node-registered files
+
+    :param float_range: list, [w, e, s, n]
+    :type float_range: list
+    :param x_buffer: possible interface between pixel-node-registered etc.
+    :type x_buffer: float
+    :param y_buffer: possible interface between pixel-node-registered etc.
+    :type y_buffer: float
+    :returns: string range
+    :rtype: string
+    """
     string_range = str(float_range[0] - x_buffer) + '/' + str(float_range[1] + x_buffer) + '/' + \
                    str(float_range[2] - y_buffer) + '/' + str(float_range[3] + y_buffer);
     return string_range;
@@ -26,8 +39,10 @@ def get_string_range(float_range, x_buffer=0, y_buffer=0):
 
 def get_float_inc(string_inc):
     """
-    string_inc: like '0.04/0.04'
-    float_inc: array of floats
+    :param string_inc: string, e.g., '0.04/0.04'
+    :type string_inc: string
+    :returns: list of floats
+    :rtype: list
     """
     number_incs = string_inc.split('/')
     float_inc = [float(number_incs[0]), float(number_incs[1])];
@@ -35,16 +50,27 @@ def get_float_inc(string_inc):
 
 
 def get_string_inc(float_inc):
+    """
+    :type float_inc: list
+    :returns: string separated by slash, e.g., '0.04/0.04'
+    :rtype: string
+    """
     string_inc = str(float_inc[0]) + '/' + str(float_inc[1]);
     return string_inc;
 
 
 def mask_by_value(grid1, grid_maskingbasis, cutoff_value):
     """
-    Will NAN mask one grid in all places where values are smaller than a cutoff value in a corresponding grid.
-    grid1 = usually azimuth deviations
-    grid2 = usually I2nd
-    Returns: masked grid.
+    Implement NAN-mask for one grid in all places where values are smaller than cutoff value in corresponding grid.
+
+    :param grid1: usually azimuth deviations
+    :type grid1: 2D array
+    :param grid_maskingbasis: usually I2nd
+    :type grid_maskingbasis: 2D array
+    :param cutoff_value: cutoff for nans
+    :type cutoff_value: float
+    :returns: masked grid
+    :rtype: 2D array
     """
     (y, x) = np.shape(grid1);
     masked_vals = np.zeros(np.shape(grid1));
@@ -60,20 +86,31 @@ def mask_by_value(grid1, grid_maskingbasis, cutoff_value):
 # --------- DEFENSIVE PROGRAMMING FOR COMPARING MULTIPLE GRIDS ------------------ #
 
 def check_coregistered_shapes(strain_values_dict):
-    """Make sure arrays are of the same dimensions before attempting to produce any statistics"""
+    """
+    Make sure arrays are of the same dimensions before attempting to produce any statistics
+
+    :param strain_values_dict: group of strain values from different calculations
+    :returns: None
+    """
     method1 = list(strain_values_dict.keys())[0];
     for method2 in strain_values_dict.keys():
         v1 = strain_values_dict[method1][2];  # strain values array
         v2 = strain_values_dict[method2][2];  # second strain values array
-        assert(np.shape(v1) == np.shape(v2)), ValueError("Error! Not all arrays have the same shape!  Cannot compare.");
+        assert (np.shape(v1) == np.shape(v2)), ValueError(
+            "Error! Not all arrays have the same shape!  Cannot compare.");
     print("All methods have the same shape!");
     return;
 
 
 def check_coregistered_grids(range_strain, inc, strain_values_dict):
     """
-    Check a number of grids for ranges and increment consistent with the parameter ranges and increments
+    Check a number of grids for ranges and increment consistent with parameter ranges and increments
     Within a certain number of decimal places
+
+    :param range_strain: list
+    :param inc: list
+    :param strain_values_dict: group of strain values from different calculations
+    :returns: None
     """
     range_strain = np.round(range_strain, 6);
     inc = np.round(inc, 6);

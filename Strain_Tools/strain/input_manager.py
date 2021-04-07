@@ -1,10 +1,10 @@
-# The input manager for GPS Strain analysis. 
+# The input manager for Strain analysis.
 
 from . import velocity_io
 
 # ----------------- INPUTS -------------------------
 def inputs(MyParams):
-    """ Purpose: generate input velocity field."""
+    """ Generate input velocity field."""
     print("------------------------------");
     myVelfield = velocity_io.read_stationvels(MyParams.input_file);
     myVelfield = clean_velfield(myVelfield, coord_box=MyParams.range_data);
@@ -17,6 +17,7 @@ def inputs(MyParams):
 
 
 def clean_velfield(myVelfield, coord_box=(-180, 180, -90, 90)):
+    """ Clean input velocity field."""
     print("{} stations before applying cleaning.".format(len(myVelfield)));
     select_velfield = [];
     for station_vel in myVelfield:

@@ -7,8 +7,13 @@ StationVel = collections.namedtuple('StationVel', ['elon', 'nlat', 'e', 'n', 'u'
 
 
 def read_stationvels(input_file):
-    # Reading a simple velocity format
-    # Format: lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)
+    """
+    Reading basic format for 2D velocity data.
+    Format: lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)
+
+    :param input_file: name of velocity file
+    :returns: list of stationvels
+    """
     print("Reading file %s " % input_file);
     myVelfield = [];
     ifile = open(input_file, 'r');
@@ -37,7 +42,12 @@ def read_stationvels(input_file):
 
 
 def write_stationvels(myVelfield, output_file):
-    # Writing a simple velocity format
+    """
+    Writing basic format for 2D velocity data
+
+    :param myVelfield: Velfield object
+    :param output_file: name of velocity file
+    """
     print("writing human-readable velfile in station-vel format, %s" % output_file);
     ofile = open(output_file, 'w');
     ofile.write(
@@ -50,8 +60,13 @@ def write_stationvels(myVelfield, output_file):
     return;
 
 
-def read_simple_gmt_format(filename):
-    # An even simpler format for 2D data, no error ellipses
+def read_gmt_format(filename):
+    """
+    Reading simplest gmt format for 2D velocity data, usually without error ellipses
+
+    :param filename: name of velocity file
+    :returns: list of stationvels
+    """
     print("reading file %s " % filename);
     myVelfield = [];
     ifile = open(filename, 'r');
@@ -70,9 +85,16 @@ def read_simple_gmt_format(filename):
     return myVelfield;
 
 
-def write_simple_gmt_format(myVelfield, outfile):
-    # Write function for the even simpler format
+def write_gmt_format(myVelfield, outfile):
+    """
+    Writing simplest gmt format for 2D velocity data
+
+    :param myVelfield: Velfield object
+    :param outfile: name of velocity file
+    """
+    print("writing velocity output file %s " % outfile);
     ofile = open(outfile, 'w');
+    ofile.write("# Format: lon(deg) lat(deg) VE(mm) VN(mm) SE(mm) SN(mm) Corr\n");
     for item in myVelfield:
         ofile.write("%f %f %f %f %f %f 0.0\n" % (item.elon, item.nlat, item.e, item.n, item.se, item.sn));
     ofile.close();
@@ -80,7 +102,16 @@ def write_simple_gmt_format(myVelfield, outfile):
 
 
 def write_multisegment_file(polygon_vertices, quantity, filename):
-    # Write a quantity for each polygon, in GMT-readable format
+    """
+    Write a quantity (e.g., gmt multisegment file) to color each polygon on a map
+
+    :param polygon_vertices: list, a type of data structure
+    :param quantity: z-values
+    :type quantity: list
+    :param filename: output file name
+    :type filename: string
+    """
+    print("Writing output file %s " % filename);
     ofile = open(filename, 'w');
     for i in range(len(quantity)):
         # Write the value associated with the triangle

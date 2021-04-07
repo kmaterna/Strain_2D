@@ -41,7 +41,7 @@ def verify_inputs_gpsgridder(method_specific_dict):
 # ----------------- COMPUTE -------------------------
 def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, tempoutdir):
     print("------------------------------\nComputing strain via gpsgridder method.");
-    velocity_io.write_simple_gmt_format(myVelfield, "tempgps.txt");
+    velocity_io.write_gmt_format(myVelfield, "tempgps.txt");
     command = "gmt gpsgridder tempgps.txt" + \
               " -R" + utilities.get_string_range(range_strain, x_buffer=0.02, y_buffer=0.02) + \
               " -I" + utilities.get_string_inc(inc) + \

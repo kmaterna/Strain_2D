@@ -1,4 +1,4 @@
-# The output manager for GPS Strain analysis. 
+# The output manager for Strain analysis.
 # ----------------- OUTPUTS -------------------------
 
 import numpy as np
@@ -24,8 +24,8 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
 
     # get grid eigenvectors for plotting
     [positive_eigs, negative_eigs] = get_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11);
-    velocity_io.write_simple_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt');
-    velocity_io.write_simple_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
+    velocity_io.write_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt');
+    velocity_io.write_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
 
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(MyParams.outdir+'rot.nc', myVelfield, MyParams.range_strain, MyParams.outdir,
@@ -58,8 +58,8 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range
     velocity_io.write_stationvels(myVelfield, outdir+"tempgps.txt");
 
     # Write the eigenvectors and eigenvalues
-    velocity_io.write_simple_gmt_format(positive_eigs, outdir + 'positive_eigs_polygons.txt');
-    velocity_io.write_simple_gmt_format(negative_eigs, outdir + 'negative_eigs_polygons.txt');
+    velocity_io.write_gmt_format(positive_eigs, outdir + 'positive_eigs_polygons.txt');
+    velocity_io.write_gmt_format(negative_eigs, outdir + 'negative_eigs_polygons.txt');
 
     print("Max I2: %f " % (max(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.amin(rot), np.amax(rot)) );
@@ -74,11 +74,17 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range
 
 def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
     """
-    xdata : 1d array of floats (lons)
-    ydata: 1d array of floats (lats)
-    w, v: all 2d arrays of floats (values)
-    Function resamples eigenvectors on regular grid, with maximum eigenvalue imposed
+    Resamples eigenvectors on regular grid, with maximum eigenvalue imposed
     Returns two lists of "stationvels" objects for plotting vectors
+
+    :param xdata: 1d array of floats (lons)
+    :param ydata: 1d array of floats (lats)
+    :param w1: 2d arrays of floats (values)
+    :param w2: 2d arrays of floats (values)
+    :param v00: 2d arrays of floats
+    :param v01: 2d arrays of floats
+    :param v10: 2d arrays of floats
+    :param v11: 2d arrays of floats
     """
     eigs_dec = 12;
     do_not_print_value = 200;
@@ -122,11 +128,17 @@ def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
 
 def get_list_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
     """
-    xdata : 1d array of floats (lons)
-    ydata: 1d array of floats (lats)
-    w, v: all 1d arrays of floats (values)
-    Function returns vectors with maximum eigenvalue imposed
+    Returns vectors with maximum eigenvalue imposed
     Returns two lists of "stationvels" objects for plotting vectors
+
+    :param xdata: 1d array of floats (lons)
+    :param ydata: 1d array of floats (lats)
+    :param w1: 1d array of floats (values)
+    :param w2: 1d array of floats (values)
+    :param v00: 1d array of floats (values)
+    :param v01: 1d array of floats (values)
+    :param v10: 1d array of floats (values)
+    :param v11: 1d array of floats (values)
     """
     positive_eigs, negative_eigs = [], [];
     overall_max = 40.0;
