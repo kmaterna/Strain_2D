@@ -1,88 +1,43 @@
 import numpy as np
-import gps_io_functions
-from Tectonic_Utils.read_write import netcdf_read_write
 import scipy.interpolate as interp
-from .. import strain_tensor_toolbox
+from . import strain_2d
 
 
-# 2021: THIS IS NOT UPDATED WITH NEW ARCHITECTURE OF STRAIN LIBRARY.
+class tape(strain_2d.Strain_2d):
+    """ Tape class for 2d strain rate, with general strain_2d behavior """
+    def __init__(self, params):
+        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        self._Name = 'tape'
+        self._code_dir = verify_inputs_tape(params.method_specific);
+
+    def compute(self, myVelfield):
+        write_to_tape_vel_format(myVelfield, "vel_tape.txt");
+        # HERE YOU CALL THE CODE.
+        x, y, tt, tp, pp = input_tape(self._code_dir, "cascadia_d02_q03_q06_b1_2D_s1_u1_strain.dat",
+                                      "cascadia_d02_q03_q06_b1_2D_s1_u1_Dtensor_6entries.dat");
+        [exx, exy, eyy, rot] = compute_tape(tt, tp, pp);
+        lons, lats, exx = nn_interp(x, y, exx, self._strain_range, self._grid_inc);
+        _, _, exy = nn_interp(x, y, exy, self._strain_range, self._grid_inc);
+        _, _, eyy = nn_interp(x, y, eyy, self._strain_range, self._grid_inc);
+        return [lons, lats, rot, exx, exy, eyy];
+
+
+def verify_inputs_tape(method_specific_dict):
+    # Takes a dictionary and verifies that it contains the right parameters for Tape method
+    if 'code_dir' not in method_specific_dict.keys():
+        raise ValueError("\nTape requires code_dir. Please add to method_specific config. Exiting.\n");
+    code_dir = float(method_specific_dict["code_dir"]);
+    return code_dir;
+
 
 # This code was created to work with matlab scripts published on Github by Carl Tape under the name surfacevel2strain.
-# The functions reformulate .txt files to be read by Tape's code.
-
-# This function inputs a NAM velo file and selects the columns needed for the tape strain method, in correct order.
-# These columns are: lon, lat, ve, vn, vu, se, sn, su, ren, reu, rnu, start, finish, name
-def input_to_tape(filename):
-    if "unr" in filename or "UNR" in filename or "MIDAS" in filename or "midas" in filename:
-        [velfield] = gps_io_functions.read_unr_vel_file(filename)
-        infile = np.array((velfield[2], velfield[1], velfield[4], velfield[3], velfield[5], velfield[7], velfield[6], velfield[8]))
-        name_field = velfield[0]
-
-        lon = np.array(infile[0])
-        for i in range(len(lon)):
-            if lon[i] >= 180:
-                lon[i] = lon[i] - 360
-
-        starts = []
-        ends = []
-        for i in range(len(velfield[9])):
-            start = float(velfield[9][i].date().strftime("%Y%m%d"))
-            end = float(velfield[10][i].date().strftime("%Y%m%d"))
-            # start = datetime.strptime(velfield[9], %Y%m%d)
-            # end = datetime.strptime(velfield[10], %Y%m%d)
-            starts.append(start)
-            ends.append(end)
-
-        infile = np.vstack((lon, np.array(infile[1]), np.array(infile[2]), np.array(infile[3]), np.array(infile[4]), np.array(infile[5]), np.array(infile[6]), np.array(infile[7]), np.zeros(len(lon)), np.zeros(len(lon)), np.zeros(len(lon)), starts, ends))
-
-    elif "nam" in filename or "NAM" in filename:
-        infile = np.loadtxt(filename, skiprows = 37, usecols = (8, 7, 20, 19, 21, 23, 22, 24, 25, 27, 26, 28, 29), unpack = True)
-
-        temp_file = open(filename, 'r')
-        data = temp_file.readlines()[37:]
-        temp_file.close()
-
-        name_field = []
-        for line in data:
-            name_field.append(line.split()[0])
-
-        lon = np.array(infile[0])
-        for i in range(len(lon)):
-            if lon[i] >= 180:
-                lon[i] = lon[i] - 360
-        infile = np.vstack(lon, infile[1:])
-
-        infile[2:10] = infile[2:10]*1e3
-
-    else:
-        print("Cannot read file format")
-
-    outfile = np.vstack((infile, name_field))
-    outfile = np.transpose(outfile)
-
-    return outfile
-
-
-def drive_tape(myParams):
-    # generic steps
-    indir = "../compearth/surfacevel2strain/matlab_output/"
-    print("Producing gridded dataset of: ")
-    x, y, tt, tp, pp = input_tape(indir, "cascadia_d02_q03_q06_b1_2D_s1_u1_strain.dat",
-                                  "cascadia_d02_q03_q06_b1_2D_s1_u1_Dtensor_6entries.dat");
-    [I2nd, max_shear, _, e1, e2, v00, v01, v10, v11, dilatation] = compute_tape(tt, tp, pp);
-    # second invariant
-    newx, newy, newI2nd = nn_interp(x, y, I2nd, myParams.coord_box, myParams.grid_inc);
-    output_tape(newx, newy, newI2nd, myParams.outdir, "I2nd.nc");
-    # dilatation
-    newx, newy, newdila = nn_interp(x, y, dilatation, myParams.coord_box, myParams.grid_inc);
-    output_tape(newx, newy, newdila, myParams.outdir, "dila.nc");
-    # max shear
-    newx, newy, newmax = nn_interp(x, y, max_shear, myParams.coord_box, myParams.grid_inc);
-    output_tape(newx, newy, newmax, myParams.outdir, "max_shear.nc");
-    # azimuth
-    azimuth = strain_tensor_toolbox.max_shortening_azimuth(e1, e2, v00, v01, v10, v11)
-    newx, newy, newaz = nn_interp(x, y, azimuth, myParams.coord_box, myParams.grid_inc);
-    netcdf_read_write.produce_output_netcdf(newx, newy, newaz, 'degrees', myParams.outdir+'azimuth.nc');
+# The Tape-format columns are: lon, lat, ve, vn, vu, se, sn, su, ren, reu, rnu, start, finish, name
+# ren, reu, rnu, start, finish, and name are not used
+def write_to_tape_vel_format(velfield, outfile):
+    ofile = open(outfile, 'w');
+    for item in velfield:
+        ofile.write("%f %f %f %f %f %f %f %f 0 0 0 0 0 name\n" % (item.elon, item.nlat, item.e, item.n, item.u,
+                                                                  item.se, item.sn, item.su) );
     return;
 
 
@@ -101,29 +56,15 @@ def input_tape(indir, coordsfile, datafile):
     return lon, lat, thth, thph, phph
 
 
-# This function computes second invariant, max shear strain, etc from symmetric strain tensor components
+# This function computes symmetric strain tensor components
 # (in spherical coords, from tape)
 def compute_tape(thth, thph, phph):
-    I2nd, max_shear, rot = [], [], [];
-    e1, e2 = [], [];  # eigenvalues
-    v00, v01, v10, v11 = [], [], [], [];  # eigenvectors
-    dilatation = [];  # dilatation	= e1+e2
-
+    exx, eyy, exy, rot = [], [], [], [];
     for i in range(len(thth)):
-        eyy = 1e9*phph[i]
-        exy = -1e9*thph[i]
-        exx = 1e9*thth[i]
-        [e11, e22, v] = strain_tensor_toolbox.eigenvector_eigenvalue(exx, exy, eyy);
-        e1.append(e11)
-        e2.append(e22)
-        v00.append(v[0][0])
-        v01.append(v[0][1])
-        v10.append(v[1][0])
-        v11.append(v[1][1])
-        max_shear.append(abs((-e11 + e22)/2))
-        dilatation.append(e11+e22)
-        I2nd.append(np.log10(np.abs(strain_tensor_toolbox.second_invariant(exx, exy, eyy))))
-    return [I2nd, max_shear, rot, e1, e2, v00, v01, v10, v11, dilatation]
+        eyy.append(1e9*phph[i])
+        exy.append(-1e9*thph[i])
+        exx.append(1e9*thth[i])
+    return [exx, exy, eyy, rot]
 
 
 # This function performs scipy nearest-neighbor interpolation on the data
@@ -151,27 +92,17 @@ def nn_interp(x, y, vals, coord_box, inc):
     return newx, newy, newvals
 
 
-# outputs a netcdf to the desired results directory
-def output_tape(lon, lat, vals, outdir, file):
-    netcdf_read_write.produce_output_netcdf(lon, lat, vals, 'per yr', outdir+file);
-    print("Success fitting wavelet-generated data to the required grid!");
-    return;
-
-
-
-
-# Takes reformatted data and outputs it as a .txt for use in matlab scripts.
-# Outdir should refer to location accessed by matlab scripts, and outdir and outfile should be strings.
-def output_to_tape(data, outdir, outfile):
-    print("Creating %s in %s" % (outfile, outdir))
-    np.savetxt(outdir+outfile, data, delimiter=" ", fmt="%s")
-    return
-
-
+# # outputs a netcdf to the desired results directory
+# def output_tape(lon, lat, vals, outdir, file):
+#     netcdf_read_write.produce_output_netcdf(lon, lat, vals, 'per yr', outdir+file);
+#     print("Success fitting wavelet-generated data to the required grid!");
+#     return;
+# # Takes reformatted data and outputs it as a .txt for use in matlab scripts.
+# # Outdir should refer to location accessed by matlab scripts, and outdir and outfile should be strings.
+# def output_to_tape(data, outdir, outfile):
+#     print("Creating %s in %s" % (outfile, outdir))
+#     np.savetxt(outdir+outfile, data, delimiter=" ", fmt="%s")
+#     return
 # for PBO/NAM08:
 # infile = input_to_tape("../Example_data/NAM08_pbovelfile_feb2018.vel")
 # output_to_tape(infile, "../../compearth/surfacevel2strain/data/", "NAM08.txt")
-
-# for UNR:
-infile = input_to_tape("../Example_data/midas.NA12.txt")
-output_to_tape(infile, "../../compearth/surfacevel2strain/data/", "UNR.txt")
