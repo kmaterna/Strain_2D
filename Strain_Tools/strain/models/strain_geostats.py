@@ -19,7 +19,13 @@ class geostats(Strain_2d):
                 self, params.inc, params.range_strain, params.range_data
             )
         self._Name = 'geostatistical'
-        self.setVariogram(params.model_type, params.sill, params.range, params.nugget, params.trend)
+        self.setVariogram(
+                params.model_type, 
+                params.sill, 
+                params.range, 
+                params.nugget, 
+                params.trend
+            )
         self.setGrid(params.XY)
 
     def setVariogram(
@@ -98,20 +104,59 @@ class geostats(Strain_2d):
 
         # Do different things, depending on if SK, OK, or UK is desired
         if self._flag == 'sk':
-            self._Dest, self._Dsig, self._lam = simple_kriging(SIG, sig0,data, sig2)
+            Dest, Dsig, lam = simple_kriging(SIG, sig0,data, sig2)
         elif self._flag == 'ok':
-            self._Dest, self._Dsig, self._lam = ordinary_kriging(SIG, sig0,data, sig2)
+            Dest, Dsig, lam = ordinary_kriging(SIG, sig0,data, sig2)
         elif self._flag == 'uk':
-            self._Dest, self._Dsig, self._lam = universal_kriging(SIG, sig0,data, sig2, xy, XY)
+            Dest, Dsig, lam = universal_kriging(SIG, sig0,data, sig2, xy, XY)
         else:
             raise ValueError('Method "{}" is not implemented'.format(self._flag))
 
+        return Dest, Dsig, lam
 
     def compute(self, myVelfield):
-        raise NotImplementedError
-        lons/lats - coordinate 1D arrays
-        others are shape (lat, lon)
-        #return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+        '''Compute the interpolated velocity field'''
+        lon, lat, e, n, se, sn = getVel(myVelfield)
+        xy = np.stack([lon, lat], axis=-1)
+        self.setPoints(xy=xy, data = e)
+        Dest_e, Dsig_e, _ = self.krige()
+        self.setPoints(data = n)
+        Dest_n, Dsig_n, _ = self.krige()
+        
+        # Compute strain rates
+        dx = self._grid_inc
+        dy = self._grid_inc # At the moment I only handle uniform grids
+        exx, eyy, exy, rot = strain(dx, dy, Dest_e, Dest_n)
+
+        # Return the strain rates etc.
+        return lon, lat, rot, exx, exy, eyy
+        
+
+def strain(dx,dy,V1,V2):
+    '''Compute strain rate on a regular grid'''
+    dV1dx1, dV1dx2 = np.gradient(V1, dx, dy)
+    dV2dx1, dV2dx2 = np.gradient(V2, dx, dy)
+
+    # shear strain rate is the symmetric part of the gradient
+    e12 = 0.5*(dV1dx2 + dV2dx1)
+
+    # Rotation is the anti-symmetric component of the displacmenet gradient tensor
+    rot = 0.5*(dV1dx2 - dV2dx1)
+
+    # all the strain rates in each grid location
+    return dV1dx1, dV2dx2, e12, rot
+
+
+def getVels(velField):
+    '''Read velocities from a NamedTuple'''
+    for item in myVelfield:
+        lon.append(item.elon)
+        lat.append(item.elat)
+        e.append(item.e)
+        n.append(item.n)
+        se.append(item.se)
+        sn.append(item.sn)
+    return np.array(lon), np.array(lat), np.array(e), np.array(n), np.array(se), np.array(sn)
 
 
 def simple_kriging(SIG, sig0, data, sig2):
@@ -131,7 +176,14 @@ def simple_kriging(SIG, sig0, data, sig2):
     Dsig: M x 1 ndarray - Sqrt of the kriging variance for each query location
     lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
     '''
-    raise NotImplementedError
+    A = SIG
+    B = sig0
+    lam = np.linalg.lstsq(A,B)
+    Dest = np.dot(lam.T, data)
+    Dsig=[]
+    for k in range(lam.shape[1]):
+        Dsig.append(np.sqrt(sig2 - np.dot(lam[:,k], sig0[:,k])))
+    return Dest, np.array(Dsig), lam
 
 
 def ordinary_kriging(SIG, sig0, data, sig2):
@@ -151,7 +203,19 @@ def ordinary_kriging(SIG, sig0, data, sig2):
     Dsig: M x 1 ndarray - Sqrt of the kriging variance for each query location
     lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
     '''
-    raise NotImplementedError
+    M,N = sig0.shape
+    A = np.block([
+        [SIG, np.ones(M,1)],
+        [np.ones(1,M), 0],
+    ])
+    B = np.vstack([sig0, np.ones(1,N)])
+    lam_nu = np.linalg.lstsq(A,B)
+    lam = lam_nu[:-1,:]; nu = -lam_nu[-1,:]
+    Dest = np.dot(lam.T, data)
+    Dsig=[]
+    for k in range(lam.shape[1]):
+        Dsig.append(np.sqrt(sig2 - np.dot(lam[:,k], sig0[:,k]) + nu))
+    return Dest, np.array(Dsig), lam, nu
 
 
 def universal_kriging(SIG, sig0, data, sig2, xy, XY):
@@ -182,7 +246,7 @@ def makeGrid(gridx, gridy, bounds):
     x = np.arange(bounds[0], bounds[1], gridx) 
     y = np.arange(bounds[2], bounds[3], gridy) 
     [X, Y] = np.meshgrid(x, y)
-    return np.array([X.flatten(), Y.flatten()]).T
+    return x, y, np.array([X.flatten(), Y.flatten()]).T
 
 
 def compute_covariance(model, xy, XY=None):
