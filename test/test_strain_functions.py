@@ -25,7 +25,7 @@ class Tests(unittest.TestCase):
         return;
 
     def test_reading_config(self):
-        MyParams = configure_functions.parse_config_file_into_Params(configfile="test/testing_data/example_config.txt");
+        MyParams = configure_functions.read_strain_config(configfile="example/example_strain_config.txt");
         self.assertTrue(MyParams);
         return;
 

@@ -188,6 +188,6 @@ def convert_to_local_planar(lon, lat, reflon, reflat):
     earth_r = 6371000;  # earth's radius
     x_deg = np.subtract(lon, reflon);
     y_deg = np.subtract(lat, reflat);
-    x_meters = x_deg * earth_r * np.cos(np.deg2rad(lon)) * 2 * np.pi / 360;
+    x_meters = x_deg * earth_r * np.cos(np.deg2rad(lat)) * 2 * np.pi / 360;
     y_meters = y_deg * earth_r * 2 * np.pi / 360;
     return [x_meters, y_meters];

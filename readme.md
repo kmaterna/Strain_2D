@@ -25,7 +25,7 @@ Output strain components and derived quantities (invariants, eigenvectors) are w
 
 
 ### Contributing
-If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications. 
+If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications. See the section on API below if you'd like to contribute a method. 
 
 ### Supported strain methods:  
 
@@ -60,8 +60,32 @@ This library uses the following units and sign conventions:
 * Dilatation: units of nanostrain / year. Positive means shortening and negative means extension.
 * Max Shear: units of nanostrain / year
 
+### Internal Library API
+If you're interested in contributing your own type of strain computation, I am happy to add new methods to the library.  You would need to build a Python 'compute' function that matches the API of the other compute functions in the repository (see models/strain_2d.py for template). 
 
-### Example Computations: 
+```
+class your_strain_method(strain_2d.Strain_2d):
+    def __init__(self, Params):
+        # perform various types of parameter-setting and input-verification, 
+        # different for each technique
+        return
+
+    def compute(self, myVelfield):
+        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = your_strain_method_compute(myVelfield... etc);
+        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+```
+
+where:
+* myVelfield is a 1D list of StationVel objects (very easy to use).
+* lons is a 1D array of longitudes, in increasing order 
+* lats is a 1D array of latitudes, in increasing order
+* rot_grd, exx_grd, exy_grd, eyy_grd are 2D arrays that correspond to lons/lats grids
+    * exx/exy/eyy have units of nanostrain
+    * rot has units of radians/Ka
+
+### Example: 
+
+
 
 ![strain](https://github.com/kmaterna/2D_Strain/blob/master/sample_plots/front_page_four_maps.png)
 

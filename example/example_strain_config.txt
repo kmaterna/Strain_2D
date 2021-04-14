@@ -1,0 +1,33 @@
+[general]
+method = delaunay
+output_dir = Output
+input_vel_file = ../test/testing_data/NorCal_stationvels.txt
+
+[strain]
+range_strain = -125/-120/38/42
+range_data = -125/-119/37.5/42.5
+inc = 0.04/0.04
+
+[delaunay]
+
+[delaunay_flat]
+
+[visr]
+distance_weighting = gaussian
+spatial_weighting = voronoi
+min_max_inc_smooth = 1/100/1
+executable = ../contrib/visr/visr.exe
+
+[gpsgridder]
+poisson = 0.5
+fd = 0.01
+eigenvalue = 0.0005
+
+[huang]
+estimateradiuskm = 80
+nstations = 8
+
+[strain-comparison]
+output_dir = Output/_strain_comparison
+input_dirs = Output/delaunay:Output/gps_gridder:Output/huang:Output/visr
+
