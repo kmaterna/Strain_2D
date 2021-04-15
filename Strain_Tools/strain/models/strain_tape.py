@@ -11,14 +11,15 @@ class tape(strain_2d.Strain_2d):
         self._code_dir = verify_inputs_tape(params.method_specific);
 
     def compute(self, myVelfield):
-        write_to_tape_vel_format(myVelfield, "vel_tape.txt");
+        write_to_tape_vel_format(myVelfield, params.outdir+"/vel_tape.txt");
+        sys.exit(0);
         # HERE YOU CALL THE CODE.
-        x, y, tt, tp, pp = input_tape(self._code_dir, "cascadia_d02_q03_q06_b1_2D_s1_u1_strain.dat",
-                                      "cascadia_d02_q03_q06_b1_2D_s1_u1_Dtensor_6entries.dat");
-        [exx, exy, eyy, rot] = compute_tape(tt, tp, pp);
-        lons, lats, exx = nn_interp(x, y, exx, self._strain_range, self._grid_inc);
-        _, _, exy = nn_interp(x, y, exy, self._strain_range, self._grid_inc);
-        _, _, eyy = nn_interp(x, y, eyy, self._strain_range, self._grid_inc);
+        # x, y, tt, tp, pp = input_tape(self._code_dir, "cascadia_d02_q03_q06_b1_2D_s1_u1_strain.dat",
+        #                               "cascadia_d02_q03_q06_b1_2D_s1_u1_Dtensor_6entries.dat");
+        # [exx, exy, eyy, rot] = compute_tape(tt, tp, pp);
+        # lons, lats, exx = nn_interp(x, y, exx, self._strain_range, self._grid_inc);
+        # _, _, exy = nn_interp(x, y, exy, self._strain_range, self._grid_inc);
+        # _, _, eyy = nn_interp(x, y, eyy, self._strain_range, self._grid_inc);
         return [lons, lats, rot, exx, exy, eyy];
 
 
@@ -26,7 +27,7 @@ def verify_inputs_tape(method_specific_dict):
     # Takes a dictionary and verifies that it contains the right parameters for Tape method
     if 'code_dir' not in method_specific_dict.keys():
         raise ValueError("\nTape requires code_dir. Please add to method_specific config. Exiting.\n");
-    code_dir = float(method_specific_dict["code_dir"]);
+    code_dir = method_specific_dict["code_dir"];
     return code_dir;
 
 
@@ -34,6 +35,7 @@ def verify_inputs_tape(method_specific_dict):
 # The Tape-format columns are: lon, lat, ve, vn, vu, se, sn, su, ren, reu, rnu, start, finish, name
 # ren, reu, rnu, start, finish, and name are not used
 def write_to_tape_vel_format(velfield, outfile):
+    print("Writing file %s" % outfile);
     ofile = open(outfile, 'w');
     for item in velfield:
         ofile.write("%f %f %f %f %f %f %f %f 0 0 0 0 0 name\n" % (item.elon, item.nlat, item.e, item.n, item.u,
@@ -106,3 +108,33 @@ def nn_interp(x, y, vals, coord_box, inc):
 # for PBO/NAM08:
 # infile = input_to_tape("../Example_data/NAM08_pbovelfile_feb2018.vel")
 # output_to_tape(infile, "../../compearth/surfacevel2strain/data/", "NAM08.txt")
+
+
+"""
+Steps for Tape:
+Create compearth/ somewhere in your Software directory
+Inside compearth, git clone Tape's surfacevel2strain
+first time: open matlab. 
+>> setenv('REPOS','/Users/kzm/Documents/Software')   # where compearth lives  // maybe not necessary in the end? not sure. 
+
+# Set up matlab python integration with python3.7 in a pygmt environment (see computer setups)
+go to "$matlabroot/extern/engines/python"
+python setup.py install
+
+import matlab.engine
+eng = matlab.engine.start_matlab()
+eng.addpath(r'/Users/kzm/Documents/Software/compearth/surfacevel2strain/matlab', nargout=0)  // matlab folder within source directory
+eng.surfacevel2strain(nargout=0)
+
+
+go to surfacevel2strain in matlab prompt
+I needed to create matlab_outputs manually for this to work.
+from code place in matlab: call surfacevel2strain
+I needed to remove one "error" in line 809 of surfacevel2strain, maybe? 
+"""
+
+
+
+
+
+
