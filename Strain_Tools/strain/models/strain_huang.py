@@ -40,7 +40,9 @@ def compute_huang(myVelfield, range_strain, inc, radiuskm, nstations):
     gx = len(xlons);  # number of x - grid
     gy = len(ylats);  # number of y - grid
 
-    [elon, nlat, e, n, _, _] = velfield_to_huang_format(myVelfield);
+    [elon, nlat, e, n, _, _] = velfield_to_huang_non_utm(myVelfield);
+    reflon = np.min([item.elon for item in myVelfield]);
+    reflat = np.min([item.nlat for item in myVelfield]);
 
     # set up a local coordinate reference
     refx = np.min(elon);
@@ -64,9 +66,10 @@ def compute_huang(myVelfield, range_strain, inc, radiuskm, nstations):
     rot = np.zeros((gy, gx));
     for i in range(gx):
         for j in range(gy):
-            [gridX_loc, gridY_loc] = coord_to_local_utm(xlons[i], ylats[j], refx, refy);
-            X = elon;
-            Y = nlat;
+            # [gridX_loc, gridY_loc] = coord_to_local_utm(xlons[i], ylats[j], refx, refy);
+            [gridX_loc, gridY_loc] = convert_to_local_planar(xlons[i], ylats[j], reflon, reflat);
+            X = elon;   # in local coordinates, m
+            Y = nlat;   # in local coordiantes, m
             l1 = len(elon);
 
             # the distance from stations to grid
@@ -141,7 +144,25 @@ def compute_huang(myVelfield, range_strain, inc, radiuskm, nstations):
     return [xlons, ylats, rot, exx, exy, eyy];
 
 
-def velfield_to_huang_format(myVelfield):
+def velfield_to_huang_non_utm(myVelfield):
+    elon, nlat = [], [];
+    e, n, esig, nsig = [], [], [], [];
+    elon_all = [item.elon for item in myVelfield];
+    nlat_all = [item.nlat for item in myVelfield];
+    reflon = np.min(elon_all);
+    reflat = np.min(nlat_all);
+    for item in myVelfield:
+        [x_meters, y_meters] = convert_to_local_planar(item.elon, item.nlat, reflon, reflat)
+        elon.append(x_meters);
+        nlat.append(y_meters);
+        e.append(item.e*0.001);
+        n.append(item.n*0.001);
+        esig.append(item.se*0.001);
+        nsig.append(item.sn*0.001);
+    return [np.array(elon), np.array(nlat), np.array(e), np.array(n), np.array(esig), np.array(nsig)];
+
+
+def velfield_to_huang_format_utm(myVelfield):
     elon, nlat = [], [];
     e, n, esig, nsig = [], [], [], [];
     for item in myVelfield:
@@ -155,8 +176,18 @@ def velfield_to_huang_format(myVelfield):
 
     return [np.array(elon), np.array(nlat), np.array(e), np.array(n), np.array(esig), np.array(nsig)];
 
+
 def coord_to_local_utm(lon, lat, utm_xref, utm_yref):
     [x, y, _] = utm_conversion.deg2utm([lat], [lon]);
     local_utmx = x - utm_xref;
     local_utmy = y - utm_yref;
     return [local_utmx, local_utmy];
+
+
+def convert_to_local_planar(lon, lat, reflon, reflat):
+    earth_r = 6371000;  # earth's radius
+    x_deg = np.subtract(lon, reflon);
+    y_deg = np.subtract(lat, reflat);
+    x_meters = x_deg * earth_r * np.cos(np.deg2rad(lat)) * 2 * np.pi / 360;
+    y_meters = y_deg * earth_r * 2 * np.pi / 360;
+    return [x_meters, y_meters];

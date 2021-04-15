@@ -7,62 +7,37 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'inc', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
-help_message = "  Welcome to a geodetic strain calculator.\n" \
-               "  USAGE: strain_driver.py config.txt\n" \
-               "  See repository source for an example config file.\n"
-comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n" \
-                     "  USAGE: compare_driver config.txt\n" \
-                     "  See repository source for an example config file.\n"
+help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
+               "  USAGE 1: strain_driver.py config.txt      <-- for running a strain calculation\n" \
+               "  USAGE 2: strain_driver.py --help          <-- for printing help message\n" \
+               "  USAGE 3: strain_driver.py --print_config  <-- for writing example strain_calculation config file\n"
+
+comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n\n" \
+                     "  USAGE 1: compare_driver config.txt      <-- for running a strain comparison\n" \
+                     "  USAGE 2: compare_driver.py --help        <-- for printing help message\n"
 
 
-def strain_config_parser(cmdargs=None, configfile=None):
-    """The configfile can be passed as argv (if bash API) or passed as argument (if python API)"""
-    if not configfile:
-        if len(cmdargs) < 2:
-            print(help_message);
-            sys.exit(0);
-        else:
-            if cmdargs[1] == '--help':
-                print(help_message);
-                sys.exit(0);
-            configfile = cmdargs[1];
-
-    MyParams = parse_config_file_into_Params(configfile);
-    subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
-    subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
-
-    print("\n------------------------------");
-    print("Hello! We are...");
-    print("   Computing strain using : %s " % MyParams.strain_method);
-    print("   Input data from        : %s" % MyParams.input_file);
-    print("   Calculation range      : %s" % MyParams.range_strain);
-    print("   Putting the outputs    : %s \n" % MyParams.outdir);
-    return MyParams;
+def strain_config_parser(cmdargs):
+    """The configfile is passed as arg"""
+    if len(cmdargs) < 2:
+        cmdargs = ("", "--help");   # help message
+    if cmdargs[1] == '--help':    # help message
+        print(help_message);
+        sys.exit(0);
+    elif cmdargs[1] == '--print_config':    # print example config file
+        print("Writing example config file.");
+        write_example_strain_config("example_strain_config.txt");
+        sys.exit(0);
+    else:                           # run the main program
+        configfile = cmdargs[1];
+        MyParams = read_strain_config(configfile);
+        subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
+        subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
+        return MyParams;
 
 
-def comparison_config_parser(args=None, configfile=None):
-    """The configfile can be passed as argv (if bash API) or passed as argument (if python API)"""
-    if not configfile:
-        if len(args) < 2:
-            print(comps_help_message);
-            sys.exit(0);
-        else:
-            if args[1] == '--help':
-                print(comps_help_message);
-                sys.exit(0);
-            configfile = args[1];
-    MyParams = parse_comparison_config_into_Params(configfile);
-    subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
-    subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
-    print("\n------------------------------");
-    print("Hello! We are comparing strain calculations...");
-    print("   Comparing strain from calculations : \n  %s " % MyParams.strain_dict);
-    print("   Putting the outputs    : %s \n" % MyParams.outdir);
-    return MyParams;
-
-
-def parse_config_file_into_Params(configfile):
-    """Build a valid Params structure from the configfile """
+def read_strain_config(configfile):
+    """Build a Params structure from the configfile and set up the output directory"""
     assert(os.path.isfile(configfile)), FileNotFoundError("Error! config file "+configfile+" was not found.");
 
     config = configparser.ConfigParser()
@@ -89,24 +64,90 @@ def parse_config_file_into_Params(configfile):
     inc = utilities.get_float_inc(inc);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
                       range_data=range_data, inc=inc, outdir=output_dir, method_specific=method_specific);
+
+    print("\n------------------------------");
+    print("Hello! We are...");
+    print("   Computing strain using : %s " % MyParams.strain_method);
+    print("   Input data from        : %s" % MyParams.input_file);
+    print("   Calculation range      : %s" % MyParams.range_strain);
+    print("   Putting the outputs    : %s \n" % MyParams.outdir);
     return MyParams;
 
 
-def parse_comparison_config_into_Params(configfile):
-    """Build a valid Params structure from the comps configfile"""
-    assert (os.path.isfile(configfile)), FileNotFoundError("Error! config file " + configfile + " was not found.");
+def write_example_strain_config(outfile):
+    """Write an example strain config file, useful for tutorial."""
+    configobj = configparser.ConfigParser()
+    configobj["general"] = {};
+    configobj["strain"] = {};
+    configobj["delaunay"] = {}
+    configobj["delaunay_flat"] = {}
+    configobj["visr"] = {}
+    configobj["gpsgridder"] = {}
+    configobj["huang"] = {}
+    configobj["strain-comparison"] = {}
+    genconfig = configobj["general"];
+    genconfig["method"] = "delaunay"
+    genconfig["output_dir"] = "Output"
+    genconfig["input_vel_file"] = "../test/testing_data/NorCal_stationvels.txt";
+    strainconfig = configobj["strain"];
+    strainconfig["range_strain"] = "-125/-120/38/42"
+    strainconfig["range_data"] = "-125/-119/37.5/42.5"
+    strainconfig["inc"] = "0.04/0.04"
+    d1 = configobj["visr"];
+    d1["distance_weighting"] = "gaussian";
+    d1["spatial_weighting"] = "voronoi";
+    d1["min_max_inc_smooth"] = "1/100/1";
+    d1["executable"] = "../contrib/visr/visr.exe";
+    d2 = configobj["gpsgridder"];
+    d2["poisson"] = "0.5";
+    d2["fd"] = "0.01";
+    d2["eigenvalue"] = "0.0005";
+    d3 = configobj["huang"];
+    d3["EstimateRadiusKm"] = "80";
+    d3["nstations"] = "8";
+    dcomps = configobj["strain-comparison"];
+    dcomps["output_dir"] = "Output/_strain_comparison"
+    dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/huang:Output/visr"
+    with open(outfile, 'w') as configfile:
+        configobj.write(configfile)
+    print("Writing file %s " % outfile);
+    return;
 
+
+def comparison_config_parser(args):
+    """The configfile is passed as arg"""
+    if len(args) < 2:
+        args = ("", "--help");   # help message
+    if args[1] == '--help':
+        print(comps_help_message);
+        sys.exit(0);
+    else:
+        configfile = args[1];
+        MyParams = read_comparison_config(configfile);
+        subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
+        subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
+        return MyParams;
+
+
+def read_comparison_config(configfile):
+    """Build a comparison Params structure from the configfile"""
+    assert (os.path.isfile(configfile)), FileNotFoundError("Error! config file " + configfile + " was not found.");
     config = configparser.ConfigParser();
     config.read(configfile);
-    output_dir = config.get('general', 'output_dir');
     range_strain = config.get('strain', 'range_strain');
     range_strain = utilities.get_float_range(range_strain);
     inc = config.get('strain', 'inc');
     inc = utilities.get_float_inc(inc);
     # Reading the methods and their associated strain data
-    specific_keys = [item for item in config["inputs"].keys()];
+    input_dirs = config.get('strain-comparison', 'input_dirs');
     strain_dict = {};
-    for item in specific_keys:
-        strain_dict[item] = config.get("inputs", item);
+    for item in input_dirs.split(':'):
+        strain_method = item.split('/')[-1]  # get the name of the technique
+        strain_dict[strain_method] = item;
+    output_dir = config.get('strain-comparison', 'output_dir');
     MyParams = Comps_Params(inc=inc, range_strain=range_strain, outdir=output_dir, strain_dict=strain_dict);
+    print("\n------------------------------");
+    print("Hello! We are comparing strain calculations...");
+    print("   Comparing strain from calculations : \n  %s " % MyParams.strain_dict);
+    print("   Putting the outputs    : %s \n" % MyParams.outdir);
     return MyParams;

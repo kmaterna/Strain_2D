@@ -25,7 +25,7 @@ Output strain components and derived quantities (invariants, eigenvectors) are w
 
 
 ### Contributing
-If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications. 
+If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications. See the section on API below if you'd like to contribute a method. 
 
 ### Supported strain methods:  
 
@@ -60,8 +60,36 @@ This library uses the following units and sign conventions:
 * Dilatation: units of nanostrain / year. Positive means shortening and negative means extension.
 * Max Shear: units of nanostrain / year
 
+### Internal Library API
+If you're interested in contributing your own type of strain computation, I am happy to add new methods to the library.  You would need to build a Python 'compute' function that matches the API of the other compute functions in the repository (see models/strain_2d.py for template). 
 
-### Example Computations: 
+```
+class your_strain_method(strain_2d.Strain_2d):
+    def __init__(self, Params):
+        # perform various types of parameter-setting and input-verification, 
+        # different for each technique
+        return
 
-![strain](https://github.com/kmaterna/2D_Strain/blob/master/sample_plots/front_page_four_maps.png)
+    def compute(self, myVelfield):
+        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = your_strain_method_compute(myVelfield... etc);
+        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+```
+
+where:
+* myVelfield is a 1D list of StationVel objects (very easy to use).
+* lons is a 1D array of longitudes, in increasing order 
+* lats is a 1D array of latitudes, in increasing order
+* rot_grd, exx_grd, exy_grd, eyy_grd are 2D arrays that correspond to lons/lats grids
+    * exx/exy/eyy have units of nanostrain
+    * rot has units of radians/Ka
+
+### Example:
+To reproduce the figure in the README:  
+1. In the example/ directory, run: ```../Strain_Tools/bin/strain_rate_compute.py --print_config``` to print an example config file (similar to the one provided here in the repo).
+2. Run: ```../Strain_Tools/bin/strain_rate_compute.py example_strain_config.txt``` to compute delaunay strain rate using the parameters in the newly-created config file. 
+3. Change the method in the config file to try other methods, and re-run each time for different strain calculations with different parameters.
+4. Run: ```../Strain_Tools/bin/strain_rate_comparison.py example_strain_config.txt ``` to compute average strain rate maps from several results.
+5. Run: ```Display_output/comparison_rows_example.sh -125/-121/38/42``` to view a GMT plot with several strain rate calculations in Northern California together. 
+
+![strain](https://github.com/kmaterna/2D_Strain/blob/master/example/Display_output/output_rows.png)
 
