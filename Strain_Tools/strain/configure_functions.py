@@ -84,6 +84,7 @@ def write_example_strain_config(outfile):
     configobj["visr"] = {}
     configobj["gpsgridder"] = {}
     configobj["huang"] = {}
+    configobj["tape"] = {}
     configobj["strain-comparison"] = {}
     genconfig = configobj["general"];
     genconfig["method"] = "delaunay"
@@ -105,6 +106,11 @@ def write_example_strain_config(outfile):
     d3 = configobj["huang"];
     d3["EstimateRadiusKm"] = "80";
     d3["nstations"] = "8";
+    d4 = configobj["tape"];
+    d4["code_dir"] = "";
+    d4["qmin"] = "4";
+    d4["qmax"] = "7";
+    d4["qsec"] = "7";
     dcomps = configobj["strain-comparison"];
     dcomps["output_dir"] = "Output/_strain_comparison"
     dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/huang:Output/visr"
