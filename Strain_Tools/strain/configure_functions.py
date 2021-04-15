@@ -107,7 +107,7 @@ def write_example_strain_config(outfile):
     d3["nstations"] = "8";
     dcomps = configobj["strain-comparison"];
     dcomps["output_dir"] = "Output/_strain_comparison"
-    dcomps["input_dirs"] = "Output/delaunay:Output/gps_gridder:Output/huang:Output/visr"
+    dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/huang:Output/visr"
     with open(outfile, 'w') as configfile:
         configobj.write(configfile)
     print("Writing file %s " % outfile);
@@ -142,7 +142,8 @@ def read_comparison_config(configfile):
     input_dirs = config.get('strain-comparison', 'input_dirs');
     strain_dict = {};
     for item in input_dirs.split(':'):
-        strain_dict[item] = item;
+        strain_method = item.split('/')[-1]  # get the name of the technique
+        strain_dict[strain_method] = item;
     output_dir = config.get('strain-comparison', 'output_dir');
     MyParams = Comps_Params(inc=inc, range_strain=range_strain, outdir=output_dir, strain_dict=strain_dict);
     print("\n------------------------------");

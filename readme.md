@@ -83,9 +83,13 @@ where:
     * exx/exy/eyy have units of nanostrain
     * rot has units of radians/Ka
 
-### Example: 
+### Example:
+To reproduce the figure in the README:  
+1. In the example/ directory, run: ```../Strain_Tools/bin/strain_driver.py --print_config``` to print an example config file (similar to the one provided here in the repo).
+2. Run: ```../Strain_Tools/bin/strain_driver.py example_strain_config.txt``` to compute delaunay strain rate using the parameters in the newly-created config file. 
+3. Change the method in the config file to try other methods, and re-run each time for different strain calculations with different parameters.
+4. Run: ```../Strain_Tools/bin/compare_driver.py example_strain_config.txt ``` to compute average strain rate maps from several results.
+5. Run: ```Display_output/comparison_rows_example.sh -125/-121/38/42``` to view a GMT plot with several strain rate calculations in Northern California together. 
 
-
-
-![strain](https://github.com/kmaterna/2D_Strain/blob/master/sample_plots/front_page_four_maps.png)
+![strain](https://github.com/kmaterna/2D_Strain/blob/master/example/Display_output/output_rows.png)
 

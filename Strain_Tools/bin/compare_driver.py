@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Driver program for empirical strain statistics on several strain computations.
+# Driver program for empirical strain statistics on strain computations.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import sys

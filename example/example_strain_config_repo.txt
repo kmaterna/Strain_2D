@@ -29,5 +29,5 @@ nstations = 8
 
 [strain-comparison]
 output_dir = Output/_strain_comparison
-input_dirs = Output/delaunay:Output/gps_gridder:Output/huang:Output/visr
+input_dirs = Output/delaunay:Output/gpsgridder:Output/huang:Output/visr
 
