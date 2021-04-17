@@ -114,9 +114,16 @@ def write_fortran_data_file(data_file, Velfield):
     # 35    format(a8,2f10.4,2(f7.2,f5.2),f7.3)
     # 0102_GPS -119.2642   34.5655 -29.02 0.79  22.96 0.73  0.082     4   7.2  1994.4
     for item in Velfield:
-        ofile.write(item.name+"_GPS ");
+        if len(item.name) == 4:
+            ofile.write(item.name + "_GPS ");
+        elif len(item.name) == 8:
+            ofile.write(item.name + " ");
+        else:
+            ofile.write("         ");  # 8 characters plus space
         ofile.write("%9.4f %9.4f " % (item.elon, item.nlat) );
-        ofile.write("%6.2f %4.2f %6.2f %4.2f %6.3f " % (item.e, item.se, item.n, item.sn, 0.001) );
+        se = np.min((item.se, 9.99));  # uncertainty can only have one digit before decimal place :(
+        sn = np.min((item.sn, 9.99));  # uncertainty can only have one digit before decimal place :(
+        ofile.write("%6.2f %4.2f %6.2f %4.2f %6.3f " % (item.e, se, item.n, sn, 0.001) );
         ofile.write("    5   2.1  2005.0\n");
     ofile.close();
     return;
@@ -125,7 +132,8 @@ def write_fortran_data_file(data_file, Velfield):
 def call_fortran_compute(config_file, executable):
     # Here we will call the strain compute function, using visr's fortran code.
     # It will output a large text file.
-    print("Calling visr.exe fortran code to compute strain. ");
+    print("Calling visr.exe fortran code to compute strain: ");
+    print(executable + ' < ' + config_file);
     subprocess.call(executable + ' < '+config_file, shell=True);
     return;
 
@@ -141,7 +149,7 @@ def make_output_grids_from_strain_out(infile, range_strain, inc):
         else:
             x.append(float(temp[0]));
             y.append(float(temp[1]));
-            rotation.append(float(temp[7]));
+            rotation.append(float(line[53:60]));
             exx.append(float(temp[9]));
             exy.append(float(temp[11]));
             eyy.append(float(temp[13]));
