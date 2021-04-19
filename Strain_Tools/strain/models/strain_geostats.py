@@ -7,6 +7,7 @@ import os
 import numpy as np
 
 from Strain_Tools.strain.models.strain_2d import Strain_2d
+from Strain_Tools.strain.strain_tensor_toolbox import strain 
 
 
 class geostats(Strain_2d):
@@ -15,18 +16,27 @@ class geostats(Strain_2d):
     strain_2d behavior 
     """
     def __init__(self, params):
-        strain_2d.Strain_2d.__init__(
-                self, params.inc, params.range_strain, params.range_data
+        Strain_2d.__init__(
+                self, params['inc'], params['range_strain'],
             )
         self._Name = 'geostatistical'
+        self._model_type = params['model_type'] 
         self.setVariogram(
-                params.model_type, 
-                params.sill, 
-                params.range, 
-                params.nugget, 
-                params.trend
+                model_type = params['model_type'], 
+                sill = np.float64(params['sill']), 
+                rang = np.float64(params['range']), 
+                nugget = np.float64(params['nugget']), 
+                trend = bool(params['trend']),
             )
-        self.setGrid(params.XY)
+        self.setGrid(None)
+
+    def __repr__(self):
+          out_str = '''I'm a class for generating strain rates using kriging.
+          {}
+          '''.format(
+              self._model.__repr__()
+          )
+          return out_str
 
     def setVariogram(
             self, 
@@ -48,13 +58,16 @@ class geostats(Strain_2d):
         trend: boolean or list      Use a trend or not, can be a list of bool
         '''
         try:
-            self._model = eval(model_type)
+            _model = eval(model_type)
+            self._model = _model()
         except AttributeError:
-            raise ValueError('Model "{}" has not been implemented'.format(model_type)) 
-        self._sill = float(sill)
-        self._range = float(rang)
-        self._nugget = float(nugget)
-        self._trend = bool(trend)
+            raise ValueError('Model "{}" has not been implemented'.format(model_type))
+        self._model.setParms(
+            sill = sill,
+            range = rang,
+            use_nugget = [True if nugget is not None else False],
+            nugget = nugget
+        )
 
     def setPoints(self, xy, data):
         '''
@@ -95,12 +108,12 @@ class geostats(Strain_2d):
         Interpolate velocities using kriging
         '''
         # Create the data covariance matrix
-        SIG = compute_covariance(model, param, xy)
+        SIG = compute_covariance(model, xy)
         SIG = SIG + np.sqrt(np.finfo(float).eps)*np.eye(SIG.shape[0])
 
         # create the data/grid covariance and point-wise terms
-        sig0 = compute_covariance(model, param, xy, XY); 
-        sig2 = compute_covariance(model, param, 0, 0, 1); 
+        sig0 = compute_covariance(model, xy, XY); 
+        sig2 = model.getSigma00()
 
         # Do different things, depending on if SK, OK, or UK is desired
         if self._flag == 'sk':
@@ -124,28 +137,11 @@ class geostats(Strain_2d):
         Dest_n, Dsig_n, _ = self.krige()
         
         # Compute strain rates
-        dx = self._grid_inc
-        dy = self._grid_inc # At the moment I only handle uniform grids
-        exx, eyy, exy, rot = strain(dx, dy, Dest_e, Dest_n)
+        exx, eyy, exy, rot = strain(self._grid_inc, self._grid_inc, Dest_e, Dest_n)
 
         # Return the strain rates etc.
         return lon, lat, rot, exx, exy, eyy
         
-
-def strain(dx,dy,V1,V2):
-    '''Compute strain rate on a regular grid'''
-    dV1dx1, dV1dx2 = np.gradient(V1, dx, dy)
-    dV2dx1, dV2dx2 = np.gradient(V2, dx, dy)
-
-    # shear strain rate is the symmetric part of the gradient
-    e12 = 0.5*(dV1dx2 + dV2dx1)
-
-    # Rotation is the anti-symmetric component of the displacmenet gradient tensor
-    rot = 0.5*(dV1dx2 - dV2dx1)
-
-    # all the strain rates in each grid location
-    return dV1dx1, dV2dx2, e12, rot
-
 
 def getVels(velField):
     '''Read velocities from a NamedTuple'''
@@ -264,49 +260,95 @@ def compute_covariance(model, xy, XY=None):
 
 class VariogramModel(ABC):
     ''' Defines the base variogram model class'''
-    def __init__(self, model_type, useNugget = False):
+    def __init__(
+        self,
+        model_type,
+        use_nugget=False,
+      ):
         self._model = model_type
-        self._params = None
-        self._nugget = useNugget
+        self._params = {}
+        self._params['sill'] = None
+        self._params['range'] = None
+        self._params['nugget'] = None
+        self._use_nugget = use_nugget
+
+    def __repr__(self):
+      out_str = '''My name is {}
+      My sill is {}
+      My range is {}
+      I'm {} a nugget
+      '''.format(
+          self._model,
+          self._params['sill'],
+          self._params['range'],
+          ["using" if self._use_nugget else "not using"][0]
+        )
+      return out_str
+
     @abstractmethod
     def __call__(self, h):
         pass
-    def getParms(self):
-        return self._params
 
+    def getParms(self):
+        return self._params['sill'], self._params['range'], self._params['nugget']
+
+    def nugget(self):
+      '''This switches the use of nugget'''
+      if self._use_nugget:
+        self._use_nugget = False
+      else:
+        self._use_nugget = True
+
+    def setParms(self, **kwargs):
+      for key, value in kwargs.items():
+        self._params[key] = value
 
 class Nugget(VariogramModel):
     '''Implements a nugget model'''
-    def __init__(self):
+    def __init__(self, nugget = None):
         VariogramModel.__init__(self, 'Nugget')
     def __call__(self, h):
-        if self._params is None:
-            raise RuntimeError('You must first specify the parameters of the {} model'.format(self._model))
-        return self._params*(h != 0) # params is a scalar for nugget
+        if self._params['nugget'] is None:
+            raise RuntimeError('You must first specify a nugget')
+        return self._params['nugget']*(h != 0) # params is a scalar for nugget
 
 
 class Gaussian(VariogramModel):
     '''Implements a Gaussian model'''
-    def __init__(self, useNugget = False):
-        VariogramModel.__init__(self, 'Gaussian', useNugget)
+    def __init__(self,
+            sill=None,
+            range=None,
+            nugget=None,
+            use_nugget = False
+        ):
+        VariogramModel.__init__(self, 'Gaussian', use_nugget = use_nugget)
+        self.setParms(sill = sill, range = range, nugget = nugget)
+
     def __call__(self, h):
-        if self._params is None:
+        if self._params['sill'] is None:
             raise RuntimeError('You must first specify the parameters of the {} model'.format(self._model))
         if len(self._params) == 2:
-            return self._params[0]*(1 - np.exp(-(h**2)/(self._params[1]**2)))
+            return self._params['sill']*(1 - np.exp(-(h**2)/(self._params['range']**2)))
         elif len(self._params) == 3:
-            return self._params[0]*(1 - np.exp(-(h**2)/(self._params[1]**2))) + self._params[2]*(h != 0) # add a nugget
+            return self._params['sill']*(1 - np.exp(-(h**2)/(self._params['range']**2))) + self._params['nugget']*(h != 0) # add a nugget
 
 
 class Exponential(VariogramModel):
     '''Implements an Exponential model'''
-    def __init__(self, useNugget = False):
-        VariogramModel.__init__(self, 'Gaussian', useNugget)
+    def __init__(self,
+            sill=None,
+            range=None,
+            nugget=None,
+            use_nugget = False
+        ):
+        VariogramModel.__init__(self, 'Exponential', use_nugget = use_nugget)
+        self.setParms(sill = sill, range = range, nugget = nugget)
+
     def __call__(self, h):
         if self._params is None:
             raise RuntimeError('You must first specify the parameters of the {} model'.format(self._model))
         if len(self._params) == 2:
-            return self._params[0]*(1 - np.exp(-h/self._params[1]))
+            return self._params['sill']*(1 - np.exp(-h/self._params['range']))
         elif len(self._params) == 3:
-            return self._params[0]*(1 - np.exp(-h/self._params[1])) + self._params[2]*(h != 0) # add a nugget
+            return self._params['sill']*(1 - np.exp(-h/self._params['range'])) + self._params['nugget']*(h != 0) # add a nugget
 
