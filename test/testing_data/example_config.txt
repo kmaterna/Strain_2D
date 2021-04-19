@@ -26,3 +26,10 @@ eigenvalue = 0.0005
 [huang]
 EstimateRadiusKm = 70
 nstations = 13
+
+[geostats]
+model_type = 'Gaussian'
+sill = 20
+range = 100
+nugget = 1
+trend = 0
