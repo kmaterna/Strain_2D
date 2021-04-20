@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 import os
 
 import numpy as np
+from scipy.spatial.distance import pdist, cdist, squareform
 
 from Strain_Tools.strain.models.strain_2d import Strain_2d
 from Strain_Tools.strain.strain_tensor_toolbox import strain 
@@ -14,20 +15,36 @@ class geostats(Strain_2d):
     """ 
     Geostatistical interpolation class for 2d strain rate, with general 
     strain_2d behavior 
+
+    Parameters
+    ----------
+    params: dict - a dict-like containing at least the key word arguments 
+                   'inc' and 'range_strain' for specifying the grid. Can
+                   also have variogram parameters specified.
+    model: callable of VariogramModel type - any of valid VariogramModel
+                   subclasses. If specified, parameters other than inc and 
+                   range_strain will not be used. 
     """
-    def __init__(self, params):
+    def __init__(self, params=None, model=None):
         Strain_2d.__init__(
-                self, params['inc'], params['range_strain'],
+                self, 
+                params['inc'], 
+                params['range_strain'],
+                params['data_range'],
+                params['outdir'],
             )
         self._Name = 'geostatistical'
-        self._model_type = params['model_type'] 
-        self.setVariogram(
-                model_type = params['model_type'], 
-                sill = np.float64(params['sill']), 
-                rang = np.float64(params['range']), 
-                nugget = np.float64(params['nugget']), 
-                trend = bool(params['trend']),
-            )
+        if (model is not None) and callable(model):
+            self._model = model
+        else:
+            self._model_type = params['model_type'] 
+            self.setVariogram(
+                    model_type = params['model_type'], 
+                    sill = np.float64(params['sill']), 
+                    rang = np.float64(params['range']), 
+                    nugget = np.float64(params['nugget']), 
+                    trend = bool(params['trend']),
+                )
         self.setGrid(None)
 
     def __repr__(self):
@@ -99,29 +116,29 @@ class geostats(Strain_2d):
         XY: 2D ndarray  A 2-D array ordered [x y] of query points. 
         '''
         if XY is None:
-            self._XY = makeGrid(self._grid_inc, self._grid_inc, self._strain_range)
+            _, _, self._XY = makeGrid(self._grid_inc, self._grid_inc, self._strain_range)
         else:
             self._XY = XY
 
-    def krige(self):
+    def krige(self, ktype='ok'):
         ''' 
         Interpolate velocities using kriging
         '''
         # Create the data covariance matrix
-        SIG = compute_covariance(model, xy)
+        SIG = compute_covariance(self._model, self._xy)
         SIG = SIG + np.sqrt(np.finfo(float).eps)*np.eye(SIG.shape[0])
 
         # create the data/grid covariance and point-wise terms
-        sig0 = compute_covariance(model, xy, XY); 
-        sig2 = model.getSigma00()
+        sig0 = compute_covariance(self._model, self._xy, self._XY); 
+        sig2 = self._model.getSigma00()
 
         # Do different things, depending on if SK, OK, or UK is desired
-        if self._flag == 'sk':
-            Dest, Dsig, lam = simple_kriging(SIG, sig0,data, sig2)
-        elif self._flag == 'ok':
-            Dest, Dsig, lam = ordinary_kriging(SIG, sig0,data, sig2)
-        elif self._flag == 'uk':
-            Dest, Dsig, lam = universal_kriging(SIG, sig0,data, sig2, xy, XY)
+        if ktype == 'sk':
+            Dest, Dsig, lam = simple_kriging(SIG, sig0, self._values, sig2)
+        elif ktype == 'ok':
+            Dest, Dsig, lam, nu = ordinary_kriging(SIG, sig0,self._values, sig2)
+        elif ktype == 'uk':
+            Dest, Dsig, lam = universal_kriging(SIG, sig0,self._values, sig2, self._xy, self._XY)
         else:
             raise ValueError('Method "{}" is not implemented'.format(self._flag))
 
@@ -201,11 +218,11 @@ def ordinary_kriging(SIG, sig0, data, sig2):
     '''
     M,N = sig0.shape
     A = np.block([
-        [SIG, np.ones(M,1)],
-        [np.ones(1,M), 0],
+        [SIG, np.ones((M,1))],
+        [np.ones((1,M)), 0],
     ])
-    B = np.vstack([sig0, np.ones(1,N)])
-    lam_nu = np.linalg.lstsq(A,B)
+    B = np.vstack([sig0, np.ones((1,N))])
+    lam_nu, _, _, _ = np.linalg.lstsq(A,B)
     lam = lam_nu[:-1,:]; nu = -lam_nu[-1,:]
     Dest = np.dot(lam.T, data)
     Dsig=[]
@@ -250,7 +267,7 @@ def compute_covariance(model, xy, XY=None):
     if xy.size==1:
         h = 0
     elif XY is None:
-        h = pdist(xy)
+        h = squareform(pdist(xy))
     else:
         h = cdist(xy,XY)
 
@@ -303,6 +320,9 @@ class VariogramModel(ABC):
       for key, value in kwargs.items():
         self._params[key] = value
 
+    def getSigma00(self):
+        return self._params['sill']
+
 class Nugget(VariogramModel):
     '''Implements a nugget model'''
     def __init__(self, nugget = None):
@@ -327,9 +347,9 @@ class Gaussian(VariogramModel):
     def __call__(self, h):
         if self._params['sill'] is None:
             raise RuntimeError('You must first specify the parameters of the {} model'.format(self._model))
-        if len(self._params) == 2:
+        if not self._use_nugget == 2:
             return self._params['sill']*(1 - np.exp(-(h**2)/(self._params['range']**2)))
-        elif len(self._params) == 3:
+        elif self._use_nugget == 3:
             return self._params['sill']*(1 - np.exp(-(h**2)/(self._params['range']**2))) + self._params['nugget']*(h != 0) # add a nugget
 
 
