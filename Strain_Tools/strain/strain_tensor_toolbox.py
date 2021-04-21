@@ -6,7 +6,7 @@ import numpy as np
 import math as m
 
 
-def strain(dx,dy,V1,V2):
+def strain_on_regular_grid(dx, dy, V1, V2):
     '''Compute strain rate on a regular grid'''
     e11, dV1dx2 = np.gradient(V1, dx, dy)
     dV2dx1, e22 = np.gradient(V2, dx, dy)
@@ -14,7 +14,7 @@ def strain(dx,dy,V1,V2):
     # shear strain rate is the symmetric part of the gradient
     e12 = 0.5*(dV1dx2 + dV2dx1)
 
-    # Rotation is the anti-symmetric component of the displacmenet gradient tensor
+    # Rotation is the anti-symmetric component of the displacement gradient tensor
     rot = 0.5*(dV1dx2 - dV2dx1)
 
     # all the strain rates in each grid location
@@ -73,7 +73,6 @@ def max_shear_strain(exx, exy, eyy):
     # w = eigenvalues; v = eigenvectors
     max_shear = (w[0] - w[1]) * 0.5;
     return max_shear;
-
 
 
 def compute_displacement_gradients(up, vp, ur, vr, uq, vq, dx, dy):

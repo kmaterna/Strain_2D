@@ -17,7 +17,7 @@ comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n\n" 
                      "  USAGE 2: compare_driver.py --help        <-- for printing help message\n"
 
 
-def strain_config_parser(cmdargs):
+def strain_cmd_parser(cmdargs):
     """The configfile is passed as arg"""
     if len(cmdargs) < 2:
         cmdargs = ("", "--help");   # help message
@@ -85,6 +85,7 @@ def write_example_strain_config(outfile):
     configobj["gpsgridder"] = {}
     configobj["huang"] = {}
     configobj["tape"] = {}
+    configobj["geostats"] = {}
     configobj["strain-comparison"] = {}
     genconfig = configobj["general"];
     genconfig["method"] = "delaunay"
@@ -111,6 +112,12 @@ def write_example_strain_config(outfile):
     d4["qmin"] = "4";
     d4["qmax"] = "7";
     d4["qsec"] = "7";
+    d5 = configobj["geostats"];
+    d5["model_type"] = "Gaussian";
+    d5["sill"] = "20";
+    d5["range"] = "100";
+    d5["nugget"] = "1";
+    d5["trend"] = "0";
     dcomps = configobj["strain-comparison"];
     dcomps["output_dir"] = "Output/_strain_comparison"
     dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/huang:Output/visr"
@@ -120,7 +127,7 @@ def write_example_strain_config(outfile):
     return;
 
 
-def comparison_config_parser(args):
+def comparison_cmd_parser(args):
     """The configfile is passed as arg"""
     if len(args) < 2:
         args = ("", "--help");   # help message

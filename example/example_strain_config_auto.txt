@@ -1,5 +1,5 @@
 [general]
-method = delaunay
+method = gpsgridder
 output_dir = Output
 input_vel_file = ../test/testing_data/NorCal_stationvels.txt
 
@@ -26,6 +26,19 @@ eigenvalue = 0.0005
 [huang]
 estimateradiuskm = 80
 nstations = 8
+
+[tape]
+code_dir = 
+qmin = 4
+qmax = 7
+qsec = 7
+
+[geostats]
+model_type = Gaussian
+sill = 20
+range = 100
+nugget = 1
+trend = 0
 
 [strain-comparison]
 output_dir = Output/_strain_comparison

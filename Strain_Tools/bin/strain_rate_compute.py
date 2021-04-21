@@ -9,5 +9,5 @@ from Strain_2D.Strain_Tools.strain import configure_functions
 
 
 if __name__ == "__main__":
-    MyParams = configure_functions.strain_config_parser(cmdargs=sys.argv);
+    MyParams = configure_functions.strain_cmd_parser(cmdargs=sys.argv);
     internal_coordinator.strain_coordinator(MyParams);

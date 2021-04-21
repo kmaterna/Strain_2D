@@ -8,7 +8,7 @@ import numpy as np
 from scipy.spatial.distance import pdist, cdist, squareform
 
 from Strain_Tools.strain.models.strain_2d import Strain_2d
-from Strain_Tools.strain.strain_tensor_toolbox import strain 
+from Strain_Tools.strain.strain_tensor_toolbox import strain_on_regular_grid
 
 
 class geostats(Strain_2d):
@@ -146,15 +146,15 @@ class geostats(Strain_2d):
 
     def compute(self, myVelfield):
         '''Compute the interpolated velocity field'''
-        lon, lat, e, n, se, sn = getVel(myVelfield)
+        lon, lat, e, n, se, sn = getVels(myVelfield)
         xy = np.stack([lon, lat], axis=-1)
         self.setPoints(xy=xy, data = e)
         Dest_e, Dsig_e, _ = self.krige()
-        self.setPoints(data = n)
+        self.setPoints(xy=xy, data = n)
         Dest_n, Dsig_n, _ = self.krige()
         
         # Compute strain rates
-        exx, eyy, exy, rot = strain(self._grid_inc, self._grid_inc, Dest_e, Dest_n)
+        exx, eyy, exy, rot = strain_on_regular_grid(self._grid_inc, self._grid_inc, Dest_e, Dest_n)
 
         # Return the strain rates etc.
         return lon, lat, rot, exx, exy, eyy
@@ -162,7 +162,8 @@ class geostats(Strain_2d):
 
 def getVels(velField):
     '''Read velocities from a NamedTuple'''
-    for item in myVelfield:
+    lon, lat, e, n, se, sn = [], [], [], [], [], [];
+    for item in velField:
         lon.append(item.elon)
         lat.append(item.elat)
         e.append(item.e)
