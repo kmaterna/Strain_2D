@@ -7,6 +7,7 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'inc', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
+avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  tape\n  visr\n"
 help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
                "  USAGE 1: strain_driver.py config.txt      <-- for running a strain calculation\n" \
                "  USAGE 2: strain_driver.py --help          <-- for printing help message\n" \
@@ -20,20 +21,24 @@ comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n\n" 
 def strain_cmd_parser(cmdargs):
     """The configfile is passed as arg"""
     if len(cmdargs) < 2:
-        cmdargs = ("", "--help");   # help message
-    if cmdargs[1] == '--help':    # help message
         print(help_message);
         sys.exit(0);
-    elif cmdargs[1] == '--print_config':    # print example config file
-        print("Writing example config file.");
-        write_example_strain_config("example_strain_config.txt");
-        sys.exit(0);
-    else:                           # run the main program
-        configfile = cmdargs[1];
-        MyParams = read_strain_config(configfile);
-        subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
-        subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
-        return MyParams;
+    else:
+        if cmdargs[1] == '--help':    # help message
+            print(help_message);
+            print("Available modules are:")
+            print(avail_modules);
+            sys.exit(0);
+        elif cmdargs[1] == '--print_config':    # print example config file
+            print("Writing example config file.");
+            write_example_strain_config("example_strain_config.txt");
+            sys.exit(0);
+        else:                           # run the main program
+            configfile = cmdargs[1];
+            MyParams = read_strain_config(configfile);
+            subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
+            subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
+            return MyParams;
 
 
 def read_strain_config(configfile):
