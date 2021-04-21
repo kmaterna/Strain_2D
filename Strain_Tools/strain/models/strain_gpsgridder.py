@@ -73,12 +73,12 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     xinc = xinc * 111.000 * np.cos(np.deg2rad(range_strain[2]));  # in km (not degrees)
     yinc = yinc * 111.000;   # in km (not degrees)
 
-    # the strain calculation
     [exx, eyy, exy, rot] = strain_tensor_toolbox.strain_on_regular_grid(xinc, yinc, udata, vdata)
+    # Lastly we multiply by 1000 for units
     exx = np.multiply(exx, 1000);
     exy = np.multiply(exy, 1000);
     eyy = np.multiply(eyy, 1000);
-    rot = np.multiply(rot, 1000);
-    print("Success computing strain via gpsgridder method.\n");
+    rot = abs(np.multiply(rot, 1000));
 
+    print("Success computing strain via gpsgridder method.\n");
     return [xdata, ydata, rot, exx, exy, eyy];

@@ -8,8 +8,9 @@ import math as m
 
 def strain_on_regular_grid(dx, dy, V1, V2):
     '''Compute strain rate on a regular grid'''
-    e11, dV1dx2 = np.gradient(V1, dx, dy)
-    dV2dx1, e22 = np.gradient(V2, dx, dy)
+    # Seems to return y-direction derivatives followed by x-direction derivatives
+    dV1dx2, e11 = np.gradient(V1, dy, dx)
+    e22, dV2dx1 = np.gradient(V2, dy, dx)
 
     # shear strain rate is the symmetric part of the gradient
     e12 = 0.5*(dV1dx2 + dV2dx1)
