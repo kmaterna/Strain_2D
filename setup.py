@@ -25,15 +25,15 @@ def get_version():
 setup(
     name='Strain_2D',
     version=get_version(),
-    description='This is the Strain_2d package',
+    description='This is the Strain_2D package',
     package_dir={
         'Strain_Tools': 'Strain_Tools',
         '': 'Strain_Tools'
     },
     packages=['Strain_Tools'] + find_packages('Strain_Tools'),
     scripts=[
-        'Strain_Tools/bin/strain_driver.py',
-        'Strain_Tools/bin/compare_driver.py',
+        'Strain_Tools/bin/strain_rate_compute.py',
+        'Strain_Tools/bin/strain_rate_comparison.py',
     ],
     zip_safe=False,
 )

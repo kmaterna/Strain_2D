@@ -3,10 +3,11 @@
 
 import numpy as np
 from Tectonic_Utils.geodesy import utm_conversion
-from . import strain_2d
+from strain.models.strain_2d import Strain_2d
+from strain.utilities import makeGrid
 
 
-class huang(strain_2d.Strain_2d):
+class huang(Strain_2d):
     """ Huang class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
         strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
