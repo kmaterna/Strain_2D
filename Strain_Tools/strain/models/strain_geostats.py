@@ -159,8 +159,8 @@ class geostats(Strain_2d):
         
         # Compute strain rates
         exx, eyy, exy, rot = strain_on_regular_grid(
-                self._grid_inc[0], 
-                self._grid_inc[1], 
+                self._grid_inc[0]*111, 
+                self._grid_inc[1]*111, 
                 Dest_e.reshape(self._grid_shape), 
                 Dest_n.reshape(self._grid_shape)
             )
