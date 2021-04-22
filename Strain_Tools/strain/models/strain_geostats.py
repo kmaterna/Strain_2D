@@ -9,7 +9,7 @@ from scipy.spatial.distance import pdist, cdist, squareform
 
 from strain.models.strain_2d import Strain_2d
 from strain.strain_tensor_toolbox import strain_on_regular_grid
-from strain.utilities import makeGrid
+from strain.utilities import makeGrid, getVels
 
 
 class geostats(Strain_2d):
@@ -168,19 +168,6 @@ class geostats(Strain_2d):
         # Return the strain rates etc.
         return self._lons, self._lats, rot, exx, exy, eyy
         
-
-def getVels(velField):
-    '''Read velocities from a NamedTuple'''
-    lon, lat, e, n, se, sn = [], [], [], [], [], [];
-    for item in velField:
-        lon.append(item.elon)
-        lat.append(item.nlat)
-        e.append(item.e)
-        n.append(item.n)
-        se.append(item.se)
-        sn.append(item.sn)
-    return np.array(lon), np.array(lat), np.array(e), np.array(n), np.array(se), np.array(sn)
-
 
 def simple_kriging(SIG, sig0, data, sig2):
     '''
