@@ -5,7 +5,7 @@
 
 
 import numpy as np
-import subprocess
+import subprocess, sys
 from Tectonic_Utils.read_write import netcdf_read_write
 from .. import velocity_io, strain_tensor_toolbox, utilities
 from . import strain_2d
@@ -68,6 +68,9 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     file2 = tempoutdir+"nc_v.nc";
     [xdata, ydata, udata] = netcdf_read_write.read_any_grd(file1);
     [_, _, vdata] = netcdf_read_write.read_any_grd(file2);
+    udata = udata.T;
+    vdata = vdata.T;
+
     xinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $8}\'', shell=True));  # x-inc
     yinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $9}\'', shell=True));  # y-inc
     xinc = xinc * 111.000 * np.cos(np.deg2rad(range_strain[2]));  # in km (not degrees)
@@ -75,6 +78,10 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
 
     [exx, eyy, exy, rot] = strain_tensor_toolbox.strain_on_regular_grid(xinc, yinc, udata, vdata)
     # Lastly we multiply by 1000 for units
+    exx = exx.T;
+    eyy = eyy.T;
+    exy = exy.T;
+    rot = rot.T;
     exx = np.multiply(exx, 1000);
     exy = np.multiply(exy, 1000);
     eyy = np.multiply(eyy, 1000);
