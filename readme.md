@@ -4,22 +4,22 @@ This library contains several methods to compute geodetic strain from a GPS velo
 
 ### Requirements:
 * Python3, numpy, scipy, matplotlib
-* GMT5
+* GMT5, PYGMT
 * Tectonic_Utils - https://github.com/kmaterna/Tectonic_Utils (can be installed by pip)
 * Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
 
 To install this library, clone the repo and add the parent directory that contains Strain_2D/ to your $PYTHONPATH. 
  
  ### Usage: 
-The program is controlled using a config file (see example in test/testing_data/) that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. 
+The program is controlled using a config file that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. You can print a sample config file from the main executable ```strain_rate_compute.py```.  
 
 Input velocities must be in a text file. They must be a space-separated table with format as follows: 
 ```
 # lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)
 ``` 
  
-The main executable is strain_driver.py in the Strain_2D/ directory. An example run-string would be: 
-```python [path-to-code]/strain_driver.py config.txt```
+The main executable is strain_rate_compute.py in the Strain_2D/Strain_Tools/bin directory. An example run-string would be: 
+```python [path-to-code]/strain_rate_compute.py config.txt```
 
 Output strain components and derived quantities (invariants, eigenvectors) are written as grd files or text files and plotted in GMT.  
 
@@ -37,7 +37,7 @@ If you're using this library and have suggestions, let me know!  I'm happy to wo
 ```gfortran -c voronoi_area_version.f90 ``` / ```gfortran visr.f voronoi_area_version.o -o visr.exe```.
 Four additional config parameters are required to use this method. 
 
-4.  <ins>gps_gridder</ins>: based on a thin-sheet elastic interpolation scheme from Sandwell, D. T., and P. Wessel (2016), Interpolation of 2-D vector data using constraints from elasticity, GRL.  The implementation of the code is in GMT. Three additional config parameters are required to use this method. 
+4.  <ins>gpsgridder</ins>: based on a thin-sheet elastic interpolation scheme from Sandwell, D. T., and P. Wessel (2016), Interpolation of 2-D vector data using constraints from elasticity, GRL.  The implementation of the code is in GMT. Three additional config parameters are required to use this method. 
 
 5. <ins>huang</ins>: the weighted nearest neighbor algorithm of Mong-Han Huang. Two additional config parameters are required to use this method.
 
