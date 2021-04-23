@@ -132,9 +132,9 @@ def compute_tape(thth, thph, phph, rot_sph):
     """
     exx, eyy, exy, rot = [], [], [], [];
     for i in range(len(thth)):
-        eyy.append(1e9*phph[i])
+        eyy.append(1e9*thth[i])
         exy.append(-1e9*thph[i])
-        exx.append(1e9*thth[i])
+        exx.append(1e9*phph[i])
         rot.append(1e9*rot_sph[i])
     return exx, exy, eyy, rot
 
@@ -147,8 +147,8 @@ def nn_interp(x, y, vals, coord_box, inc):
     """
     xmin, xmax = coord_box[0], coord_box[1];
     ymin, ymax = coord_box[2], coord_box[3];
-    newx = np.arange(xmin, xmax, inc[0])
-    newy = np.arange(ymin, ymax, inc[1])
+    newx = np.arange(xmin, xmax + inc[0]/2, inc[0]);  # needed to match other grids somehow
+    newy = np.arange(ymin, ymax + inc[1], inc[1])
     tempvals = []
 
     nn_interpolator = interp.NearestNDInterpolator((x, y), vals)
