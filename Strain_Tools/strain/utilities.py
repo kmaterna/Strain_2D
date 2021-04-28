@@ -128,3 +128,26 @@ def check_coregistered_grids(range_strain, inc, strain_values_dict):
         assert (xinc == inc[0]), ValueError("xinc of " + method + " doesn't match specs");
         assert (yinc == inc[1]), ValueError("yinc of " + method + " doesn't match specs");
     return;
+
+
+def makeGrid(gridx, gridy, bounds):
+    '''Create a regular grid for kriging'''
+    x = np.arange(bounds[0], bounds[1] + gridx/2, gridx) 
+    y = np.arange(bounds[2], bounds[3] + gridy/2, gridy) 
+    [X, Y] = np.meshgrid(x, y)
+    return x, y, np.array([X.flatten(), Y.flatten()]).T
+
+
+def getVels(velField):
+    '''Read velocities from a NamedTuple'''
+    lon, lat, e, n, se, sn = [], [], [], [], [], [];
+    for item in velField:
+        lon.append(item.elon)
+        lat.append(item.nlat)
+        e.append(item.e)
+        n.append(item.n)
+        se.append(item.se)
+        sn.append(item.sn)
+    return np.array(lon), np.array(lat), np.array(e), np.array(n), np.array(se), np.array(sn)
+
+
