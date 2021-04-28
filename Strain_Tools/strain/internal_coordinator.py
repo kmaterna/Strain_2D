@@ -2,7 +2,7 @@
 Driver program for strain calculation
 """
 import importlib
-from strain import input_manager, output_manager
+from . import input_manager, output_manager
 
 
 def get_model(model_name):

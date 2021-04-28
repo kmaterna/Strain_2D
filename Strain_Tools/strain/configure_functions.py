@@ -1,7 +1,7 @@
 import subprocess, sys, os
 import collections
 import configparser
-from strain import utilities
+from . import utilities
 
 Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range_strain', 'range_data',
                                            'inc', 'outdir', 'method_specific']);
