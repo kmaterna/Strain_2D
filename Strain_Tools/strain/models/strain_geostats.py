@@ -7,8 +7,9 @@ import os
 import numpy as np
 from scipy.spatial.distance import pdist, cdist, squareform
 
-from Strain_Tools.strain.models.strain_2d import Strain_2d
-from Strain_Tools.strain.strain_tensor_toolbox import strain_on_regular_grid
+from strain.models.strain_2d import Strain_2d
+from strain.strain_tensor_toolbox import strain_on_regular_grid
+from strain.utilities import makeGrid, getVels
 
 
 class geostats(Strain_2d):
@@ -28,22 +29,22 @@ class geostats(Strain_2d):
     def __init__(self, params=None, model=None):
         Strain_2d.__init__(
                 self, 
-                params['inc'], 
-                params['range_strain'],
-                params['data_range'],
-                params['outdir'],
+                params.inc, 
+                params.range_strain,
+                params.range_data,
+                params.outdir,
             )
         self._Name = 'geostatistical'
         if (model is not None) and callable(model):
             self._model = model
         else:
-            self._model_type = params['model_type'] 
+            self._model_type = params.method_specific['model_type']
             self.setVariogram(
-                    model_type = params['model_type'], 
-                    sill = np.float64(params['sill']), 
-                    rang = np.float64(params['range']), 
-                    nugget = np.float64(params['nugget']), 
-                    trend = bool(params['trend']),
+                    model_type = self._model_type,
+                    sill = np.float64(params.method_specific['sill']),
+                    rang = np.float64(params.method_specific['range']),
+                    nugget = np.float64(params.method_specific['nugget']),
+                    trend = bool(params.method_specific['trend']),
                 )
         self.setGrid(None)
 
@@ -107,7 +108,7 @@ class geostats(Strain_2d):
         self._values = np.array(data)
         self._data_dim = self._values.ndim
 
-    def setGrid(self, XY=None):
+    def setGrid(self, XY=None, XY_shape=None):
         '''
         Set the query point grid for kriging
 
@@ -116,9 +117,11 @@ class geostats(Strain_2d):
         XY: 2D ndarray  A 2-D array ordered [x y] of query points. 
         '''
         if XY is None:
-            _, _, self._XY = makeGrid(self._grid_inc, self._grid_inc, self._strain_range)
+            self._lons, self._lats, self._XY = makeGrid(self._grid_inc[0], self._grid_inc[1], self._strain_range)
+            self._grid_shape = (len(self._lats), len(self._lons))
         else:
             self._XY = XY
+            self._grid_shape = XY_shape
 
     def krige(self, ktype='ok'):
         ''' 
@@ -146,32 +149,25 @@ class geostats(Strain_2d):
 
     def compute(self, myVelfield):
         '''Compute the interpolated velocity field'''
-        lon, lat, e, n, se, sn = getVels(myVelfield)
-        xy = np.stack([lon, lat], axis=-1)
+
+        dlon, dlat, e, n, se, sn = getVels(myVelfield)
+        xy = np.stack([dlon, dlat], axis=-1)
         self.setPoints(xy=xy, data = e)
         Dest_e, Dsig_e, _ = self.krige()
         self.setPoints(xy=xy, data = n)
         Dest_n, Dsig_n, _ = self.krige()
         
         # Compute strain rates
-        exx, eyy, exy, rot = strain_on_regular_grid(self._grid_inc, self._grid_inc, Dest_e, Dest_n)
+        exx, eyy, exy, rot = strain_on_regular_grid(
+                self._grid_inc[0]*111, 
+                self._grid_inc[1]*111, 
+                Dest_e.reshape(self._grid_shape), 
+                Dest_n.reshape(self._grid_shape)
+            )
 
         # Return the strain rates etc.
-        return lon, lat, rot, exx, exy, eyy
+        return self._lons, self._lats, rot, exx, exy, eyy
         
-
-def getVels(velField):
-    '''Read velocities from a NamedTuple'''
-    lon, lat, e, n, se, sn = [], [], [], [], [], [];
-    for item in velField:
-        lon.append(item.elon)
-        lat.append(item.elat)
-        e.append(item.e)
-        n.append(item.n)
-        se.append(item.se)
-        sn.append(item.sn)
-    return np.array(lon), np.array(lat), np.array(e), np.array(n), np.array(se), np.array(sn)
-
 
 def simple_kriging(SIG, sig0, data, sig2):
     '''
@@ -192,7 +188,7 @@ def simple_kriging(SIG, sig0, data, sig2):
     '''
     A = SIG
     B = sig0
-    lam = np.linalg.lstsq(A,B)
+    lam = np.linalg.lstsq(A,B, rcond=None)
     Dest = np.dot(lam.T, data)
     Dsig=[]
     for k in range(lam.shape[1]):
@@ -223,12 +219,12 @@ def ordinary_kriging(SIG, sig0, data, sig2):
         [np.ones((1,M)), 0],
     ])
     B = np.vstack([sig0, np.ones((1,N))])
-    lam_nu, _, _, _ = np.linalg.lstsq(A,B)
+    lam_nu, _, _, _ = np.linalg.lstsq(A,B, rcond=None)
     lam = lam_nu[:-1,:]; nu = -lam_nu[-1,:]
     Dest = np.dot(lam.T, data)
     Dsig=[]
     for k in range(lam.shape[1]):
-        Dsig.append(np.sqrt(sig2 - np.dot(lam[:,k], sig0[:,k]) + nu))
+        Dsig.append(np.sqrt(sig2 - np.dot(lam[:,k], sig0[:,k]) + nu[k]))
     return Dest, np.array(Dsig), lam, nu
 
 
@@ -253,14 +249,6 @@ def universal_kriging(SIG, sig0, data, sig2, xy, XY):
     lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
     '''
     raise NotImplementedError
-
-
-def makeGrid(gridx, gridy, bounds):
-    '''Create a regular grid for kriging'''
-    x = np.arange(bounds[0], bounds[1], gridx) 
-    y = np.arange(bounds[2], bounds[3], gridy) 
-    [X, Y] = np.meshgrid(x, y)
-    return x, y, np.array([X.flatten(), Y.flatten()]).T
 
 
 def compute_covariance(model, xy, XY=None):

@@ -7,15 +7,15 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'inc', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
-avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  tape\n  visr\n"
+avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  tape\n  visr\n geostats\n"
 help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
-               "  USAGE 1: strain_driver.py config.txt      <-- for running a strain calculation\n" \
-               "  USAGE 2: strain_driver.py --help          <-- for printing help message\n" \
-               "  USAGE 3: strain_driver.py --print_config  <-- for writing example strain_calculation config file\n"
+               "  USAGE 1: strain_rate_compute.py config.txt      <-- for running a strain calculation\n" \
+               "  USAGE 2: strain_rate_compute.py --help          <-- for printing help message\n" \
+               "  USAGE 3: strain_rate_compute.py --print_config  <-- for writing example strain_calculation config file\n"
 
 comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n\n" \
-                     "  USAGE 1: compare_driver config.txt      <-- for running a strain comparison\n" \
-                     "  USAGE 2: compare_driver.py --help        <-- for printing help message\n"
+                     "  USAGE 1: strain_rate_comparison.py config.txt      <-- for running a strain comparison\n" \
+                     "  USAGE 2: strain_rate_comparison.py --help        <-- for printing help message\n"
 
 
 def strain_cmd_parser(cmdargs):

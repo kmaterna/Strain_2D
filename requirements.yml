@@ -3,7 +3,7 @@
 # remove environment : conda env remove -n 2D_Strain 
 # enter  environment : conda activate 2D_Strain
 # exit   environment : conda deactivate
-name: 2D_Strain
+name: Strain_2D
 channels:
  - conda-forge
  - anaconda

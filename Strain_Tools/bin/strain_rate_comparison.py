@@ -4,9 +4,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import sys
-from Strain_2D.Strain_Tools.strain import configure_functions
-from Strain_2D.Strain_Tools.strain import compare_strain_grids
-
+from strain import configure_functions, compare_strain_grids
 
 if __name__ == "__main__":
     MyParams = configure_functions.comparison_cmd_parser(args=sys.argv);

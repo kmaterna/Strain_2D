@@ -10,7 +10,7 @@ def get_model(model_name):
     Return an instance of the model model_name.
     Dynamic module discovery.
     """
-    module_name = 'Strain_2D.Strain_Tools.strain.models.strain_' + model_name.lower()
+    module_name = 'strain.models.strain_' + model_name.lower()
     model_module = importlib.import_module(module_name)
     obj = getattr(model_module, model_name)
     return obj
