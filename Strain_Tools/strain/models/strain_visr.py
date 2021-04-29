@@ -9,14 +9,14 @@
 
 import numpy as np
 from .. import produce_gridded
-from . import strain_2d
+from strain.models.strain_2d import Strain_2d
 import subprocess, sys, os
 
 
-class visr(strain_2d.Strain_2d):
+class visr(Strain_2d):
     """ Visr class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
-        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
         self._Name = 'visr';
         self._tempdir = params.outdir;
         self._distwgt, self._spatwgt, self._smoothincs, self._exec = verify_inputs_visr(params.method_specific);

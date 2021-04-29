@@ -1,7 +1,7 @@
 # create environment : conda env create -f requirements.yml
 # update dependencies: conda env update -f requirements.yml
-# remove environment : conda env remove -n 2D_Strain 
-# enter  environment : conda activate 2D_Strain
+# remove environment : conda env remove -n Strain_2D
+# enter  environment : conda activate Strain_2D
 # exit   environment : conda deactivate
 name: Strain_2D
 channels:

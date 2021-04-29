@@ -16,13 +16,13 @@ import numpy as np
 from scipy.spatial import Delaunay
 from numpy.linalg import inv
 from .. import strain_tensor_toolbox, output_manager, produce_gridded
-from . import strain_2d
+from strain.models.strain_2d import Strain_2d
 
 
-class delaunay_flat(strain_2d.Strain_2d):
+class delaunay_flat(Strain_2d):
     """ Delaunay class for 2d strain rate """
     def __init__(self, params):
-        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir)
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir)
         self._Name = 'delaunay_flat'
 
     def compute(self, myVelfield):

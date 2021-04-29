@@ -5,16 +5,16 @@
 
 
 import numpy as np
-import subprocess, sys
+import subprocess
 from Tectonic_Utils.read_write import netcdf_read_write
 from .. import velocity_io, strain_tensor_toolbox, utilities
-from . import strain_2d
+from strain.models.strain_2d import Strain_2d
 
 
-class gpsgridder(strain_2d.Strain_2d):
+class gpsgridder(Strain_2d):
     """ gps_gridder class for 2d strain rate """
     def __init__(self, params):
-        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
         self._Name = 'gpsgridder'
         self._tempdir = params.outdir;
         self._poisson, self._fd, self._eigenvalue = verify_inputs_gpsgridder(params.method_specific);

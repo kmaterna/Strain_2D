@@ -1,13 +1,13 @@
 import numpy as np
 import scipy.interpolate as interp
-import sys, subprocess
-from . import strain_2d
+import subprocess
+from strain.models.strain_2d import Strain_2d
 
 
-class tape(strain_2d.Strain_2d):
+class tape(Strain_2d):
     """ Tape class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
-        strain_2d.Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
         self._Name = 'tape'
         self._code_dir, self._qmin, self._qmax, self._qsec = verify_inputs_tape(params.method_specific);
 
@@ -15,7 +15,7 @@ class tape(strain_2d.Strain_2d):
         # Setup for Matlab calculation
         configure_file = self._outdir + "surfacevel2strain_config_params.txt"
         velocity_file = self._outdir + "vel_tape.txt";
-        subprocess.call(['mkdir','-p',self._code_dir+'/matlab_output'], shell=False);
+        subprocess.call(['mkdir', '-p', self._code_dir+'/matlab_output'], shell=False);
         write_to_tape_vel_format(myVelfield, velocity_file);
         write_tape_parameter_file(self._data_range, self._code_dir, self._qmin, self._qmax, self._qsec, velocity_file, configure_file);
 
@@ -50,7 +50,6 @@ def verify_inputs_tape(method_specific_dict):
     return code_dir, qmin, qmax, qsec;
 
 
-
 def write_to_tape_vel_format(velfield, outfile):
     """
     Interface with matlab scripts published on Github by Carl Tape under the name surfacevel2strain.
@@ -68,7 +67,7 @@ def write_to_tape_vel_format(velfield, outfile):
 def write_tape_parameter_file(range_data, code_dir, qmin, qmax, qsec, velocity_file, outfile):
     """Write the file that tells you how to operate Tape's compearth code"""
     print("Writing parameter file %s " % outfile);
-    ofile = open(outfile,'w');
+    ofile = open(outfile, 'w');
     ofile.write("Total steps for computing strain with Tape method:\n");
     ofile.write("Manual:   Create directory called compearth/ somewhere in your Software directory.\n");
     ofile.write("Manual:   Inside compearth, git clone Tape's surfacevel2strain repository.\n");
@@ -186,5 +185,3 @@ python:
 >> eng.addpath(self._code_dir+'/matlab', nargout=0)    # matlab folder within source directory
 >> eng.surfacevel2strain(nargout=0)    # start the entire calculation loop. 
 """
-
-

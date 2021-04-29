@@ -7,11 +7,11 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'inc', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
-avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  tape\n  visr\n geostats\n"
+avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  tape\n  visr\n "
 help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
                "  USAGE 1: strain_rate_compute.py config.txt      <-- for running a strain calculation\n" \
                "  USAGE 2: strain_rate_compute.py --help          <-- for printing help message\n" \
-               "  USAGE 3: strain_rate_compute.py --print_config  <-- for writing example strain_calculation config file\n"
+               "  USAGE 3: strain_rate_compute.py --print_config  <-- for writing example config file\n"
 
 comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n\n" \
                      "  USAGE 1: strain_rate_comparison.py config.txt      <-- for running a strain comparison\n" \

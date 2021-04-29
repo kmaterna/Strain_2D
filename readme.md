@@ -8,18 +8,23 @@ This library contains several methods to compute geodetic strain from a GPS velo
 * Tectonic_Utils - https://github.com/kmaterna/Tectonic_Utils (can be installed by pip)
 * Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
 
-To install this library, clone the repo and add the parent directory that contains Strain_2D/ to your $PYTHONPATH. 
- 
+To install this library, clone the repo onto your computer and run ```python setup.py install```.   To handle dependencies, it is easiest to create a conda environment for this software, although it can be done manually too. The easiest method to create an environment after cloning the repo onto your computer looks like: 
+```
+conda env create -f requirements.yml
+conda activate Strain_2D
+python setup.py install
+```   
+
  ### Usage: 
 The program is controlled using a config file that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. You can print a sample config file from the main executable ```strain_rate_compute.py```.  
+
+An example run-string would be: 
+```strain_rate_compute.py config.txt```
 
 Input velocities must be in a text file. They must be a space-separated table with format as follows: 
 ```
 # lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)
 ``` 
- 
-The main executable is strain_rate_compute.py in the Strain_2D/Strain_Tools/bin directory. An example run-string would be: 
-```python [path-to-code]/strain_rate_compute.py config.txt```
 
 Output strain components and derived quantities (invariants, eigenvectors) are written as grd files or text files and plotted in GMT.  
 
@@ -84,10 +89,10 @@ where:
 
 ### Example:
 To reproduce the figure in the README:  
-1. In the example/ directory, run: ```../Strain_Tools/bin/strain_rate_compute.py --print_config``` to print an example config file (similar to the one provided here in the repo).
-2. Run: ```../Strain_Tools/bin/strain_rate_compute.py example_strain_config.txt``` to compute delaunay strain rate using the parameters in the newly-created config file. 
+1. In the example/ directory, run: ```strain_rate_compute.py --print_config``` to print an example config file (similar to the one provided here in the repo).
+2. Run: ```strain_rate_compute.py example_strain_config.txt``` to compute delaunay strain rate using the parameters in the newly-created config file. 
 3. Change the method in the config file to try other methods, and re-run each time for different strain calculations with different parameters.
-4. Run: ```../Strain_Tools/bin/strain_rate_comparison.py example_strain_config.txt ``` to compute average strain rate maps from several results.
+4. Run: ```strain_rate_comparison.py example_strain_config.txt ``` to compute average strain rate maps from several results.
 5. Run: ```Display_output/comparison_rows_example.sh -125/-121/38/42``` to view a GMT plot with several strain rate calculations in Northern California together. 
 
 ![strain](https://github.com/kmaterna/2D_Strain/blob/master/example/Display_output/output_rows.png)

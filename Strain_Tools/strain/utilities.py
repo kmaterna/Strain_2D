@@ -131,7 +131,7 @@ def check_coregistered_grids(range_strain, inc, strain_values_dict):
 
 
 def makeGrid(gridx, gridy, bounds):
-    '''Create a regular grid for kriging'''
+    """Create a regular grid for kriging"""
     x = np.arange(bounds[0], bounds[1] + gridx/2, gridx) 
     y = np.arange(bounds[2], bounds[3] + gridy/2, gridy) 
     [X, Y] = np.meshgrid(x, y)
@@ -139,7 +139,7 @@ def makeGrid(gridx, gridy, bounds):
 
 
 def getVels(velField):
-    '''Read velocities from a NamedTuple'''
+    """Read velocities from a NamedTuple"""
     lon, lat, e, n, se, sn = [], [], [], [], [], [];
     for item in velField:
         lon.append(item.elon)
@@ -149,5 +149,3 @@ def getVels(velField):
         se.append(item.se)
         sn.append(item.sn)
     return np.array(lon), np.array(lat), np.array(e), np.array(n), np.array(se), np.array(sn)
-
-

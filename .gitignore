@@ -8,7 +8,7 @@ early_work/*
 .idea/*
 build
 dist
-tools/*.egg*
+Strain_Tools/*.egg*
 *.swp
 .DS*
 example/Output
