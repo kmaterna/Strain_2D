@@ -8,15 +8,18 @@ This library contains several methods to compute geodetic strain from a GPS velo
 * Tectonic_Utils - https://github.com/kmaterna/Tectonic_Utils (can be installed by pip)
 * Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
 
-To install this library, clone the repo onto your computer and run ```python setup.py install```.   To handle dependencies, it is easiest to create a conda environment for this software, although it can be done manually too. The easiest method to create an environment after cloning the repo onto your computer looks like: 
+First, clone the Strain_2D repository onto your computer and get into the top level directory.  
+
+To handle dependencies, it is easiest to create a conda environment for this software, although that step is not strictly required if you have collected all the dependencies manually. The easiest method to create an environment (after cloning the repo onto your computer and navigating to the top-level directory) looks like: 
 ```
 conda env create -f requirements.yml
 conda activate Strain_2D
-python setup.py install
 ```   
 
+Then, to install this library, run in the top level directory of the repo: ```python setup.py install``` 
+
  ### Usage: 
-The program is controlled using a config file that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. You can print a sample config file from the main executable ```strain_rate_compute.py```.  
+The main executable for this library is ```strain_rate_compute.py```.  The behavior of the program is controlled using a config file that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. You can print a sample config file from the main executable ```strain_rate_compute.py``` under the flag ```--print_config``` (also try ```--help``` for more information).  
 
 An example run-string would be: 
 ```strain_rate_compute.py config.txt```
