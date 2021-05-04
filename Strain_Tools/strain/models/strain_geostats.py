@@ -40,10 +40,19 @@ class geostats(Strain_2d):
         else:
             self._model_type = params.method_specific['model_type']
             self.setVariogram(
+                    component = 'east',
                     model_type = self._model_type,
-                    sill = np.float64(params.method_specific['sill']),
-                    rang = np.float64(params.method_specific['range']),
-                    nugget = np.float64(params.method_specific['nugget']),
+                    sill = np.float64(params.method_specific['sill_east']),
+                    rang = np.float64(params.method_specific['range_east']),
+                    nugget = np.float64(params.method_specific['nugget_east']),
+                    trend = bool(params.method_specific['trend']),
+                )
+            self.setVariogram(
+                    component = 'north',
+                    model_type = self._model_type,
+                    sill = np.float64(params.method_specific['sill_north']),
+                    rang = np.float64(params.method_specific['range_north']),
+                    nugget = np.float64(params.method_specific['nugget_north']),
                     trend = bool(params.method_specific['trend']),
                 )
         self.setGrid(None)
@@ -58,6 +67,7 @@ class geostats(Strain_2d):
 
     def setVariogram(
             self, 
+            component,
             model_type,
             sill,
             rang,
@@ -77,7 +87,11 @@ class geostats(Strain_2d):
         '''
         try:
             _model = eval(model_type)
-            self._model = _model()
+            if component=='east':
+                self._model_east = _model()
+            else:
+                self._model_north = _model()
+
         except AttributeError:
             raise ValueError('Model "{}" has not been implemented'.format(model_type))
         self._model.setParms(
