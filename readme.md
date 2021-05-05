@@ -50,6 +50,11 @@ Four additional config parameters are required to use this method.
 5. <ins>huang</ins>: the weighted nearest neighbor algorithm of Mong-Han Huang. Two additional config parameters are required to use this method.
 
 6.  <ins>tape</ins>: a wavelet-based matlab program from Tape, Muse, Simons, Dong, Webb, "Multiscale estimation of GPS velocity fields," Geophysical Journal International, 2009 (https://github.com/carltape/surfacevel2strain). Needs a matlab installation and some manual run steps.
+
+7.  <ins>geostats</ins>: a method based on traditional geostatistical anlysis, using kriging to do the interpolation. This method requires the user to set one model type and three parameters. The model is the type of correlation structure the user expects to exist in the underlying field. A "Nugget" model is a white-noise model, "Exponential" models a continuous but non-differentiable process, and "Gaussian" is both continuous and differentiable. 
+All models require a nugget, which represents the level of point-wise variance in the observations, which for GNSS velocities is the same as data uncertainty. 
+The Gaussian and Exponential models also require a "sill" and "range" to be specified. The sill characterizes the overall mean variance in the dataset, and should be specified as the total variance of the observations minus the nugget. Note that the nugget can be thought of as the variance of the data uncertainties, and the sill is the variance of the data itself. 
+The range is the (isotropic) spatial correlation length scale. Currently we only implement an isotropic version, although anisotropic and even spatially-varying methods can be used. 
   
 ### Not included methods:
 If you have another strain method that you'd be willing to contribute, I would love to work with you to include it!  More methods results in a more robust estimate of strain rate variability.
