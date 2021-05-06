@@ -119,12 +119,12 @@ def write_example_strain_config(outfile):
     d4["qsec"] = "7";
     d5 = configobj["geostats"];
     d5["model_type"] = "Gaussian";
-    d5["sill_east"] = "9.089296e-5";
+    d5["sill_east"] = "30";
     d5["range_east"] = "1";
-    d5["nugget_east"] = "4.56748e-7";
-    d5["sill_north"] = "9.089296e-5";
+    d5["nugget_east"] = "1";
+    d5["sill_north"] = "30";
     d5["range_north"] = "1";
-    d5["nugget_north"] = "4.56748e-7";
+    d5["nugget_north"] = "1";
     d5["trend"] = "0";
     dcomps = configobj["strain-comparison"];
     dcomps["output_dir"] = "Output/_strain_comparison"
