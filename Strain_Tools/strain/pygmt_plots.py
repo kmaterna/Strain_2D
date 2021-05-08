@@ -1,5 +1,6 @@
 import pygmt
 import numpy as np
+from Tectonic_Utils.read_write import netcdf_read_write
 
 
 def station_vels_to_arrays(station_vels):
@@ -87,7 +88,7 @@ def plot_maxshear(filename, region, outdir, positive_eigs, negative_eigs, outfil
     fig = pygmt.Figure();
     pygmt.makecpt(C="polar", T="0/300/2", G="0/1.0", D="o", H=outdir+"/mycpt.cpt");
     fig.basemap(region=region, projection=proj, B="+t\"Maximum Shear\"");
-    fig.grdimage(filename, region=region, C=outdir+"/mycpt.cpt");
+    fig.grdimage(filename, projection=proj, region=region, C=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue',
               L="n0.12/0.12+c" + str(region[2]) + "+w50", B="1.0");
     elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
@@ -186,5 +187,34 @@ def plot_I2nd_1D(region, polygon_vertices, I2nd, outdir, positive_eigs, negative
     fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black');
     fig.colorbar(D="JCR+w4.0i+v+o0.7i/0i", C=outdir+"/mycpt.cpt", G="-1/5", B=["x1", "y+L\"Log(I2nd)\""]);
     print("Saving I2nd figure as %s." % outfile)
+    fig.savefig(outfile);
+    return;
+
+
+def plot_method_differences(strain_dictionary, average_strains, region, outdir, outfile):
+    """Useful for dilatation and max shear based on values in the color bar"""
+    pygmt.makecpt(C="polar", T="-300/300/2", G="-1.0/1.0", D="o", H=outdir+"/mycpt.cpt");
+    fig = pygmt.Figure();
+    proj = 'M2.2i'
+    numrows = 2;
+    numcols = 2;
+    with fig.subplot(nrows=numrows, ncols=numcols, figsize=("7i", "6i"), frame="lrtb"):
+        for i in range(numrows):  # row number starting from 0
+            for j in range(numcols):  # column number starting from 0
+                index = i * numcols + j  # index number starting from 0
+                with fig.set_panel(panel=index):  # sets the current panel
+                    fig.basemap(region=region, projection=proj, B=["WeSn", "2.0"]);
+                    fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue');
+                    for counter, name in enumerate(strain_dictionary.keys()):
+                        if counter == index:
+                            plotting_data = np.subtract(strain_dictionary[name][2], average_strains);
+                            netcdf_read_write.produce_output_netcdf(strain_dictionary[name][0],
+                                                                    strain_dictionary[name][1], plotting_data,
+                                                                    'per year', outdir + "/temp.grd");
+                            fig.grdimage(outdir+'/temp.grd', projection=proj, region=region, C=outdir+"/mycpt.cpt");
+                            fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue');
+                            fig.text(position="BL", text=name+" minus mean", region=region, D='0/0.1i');
+    fig.colorbar(D="JCR+w4.0i+v+o0.7i/-0.5i", C=outdir+"/mycpt.cpt", G="-300/300", B=["x50", "y+L\"Nanostr/yr\""]);
+    print("Saving Method Differences as %s." % outfile);
     fig.savefig(outfile);
     return;

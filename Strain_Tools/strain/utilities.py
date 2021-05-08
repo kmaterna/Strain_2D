@@ -98,7 +98,7 @@ def check_coregistered_shapes(strain_values_dict):
         v2 = strain_values_dict[method2][2];  # second strain values array
         assert (np.shape(v1) == np.shape(v2)), ValueError(
             "Error! Not all arrays have the same shape!  Cannot compare.");
-    print("All methods have the same shape!");
+    print("All methods have the same shape.");
     return;
 
 

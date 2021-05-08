@@ -7,9 +7,9 @@ def drive(MyParams):
     """
     A driver for taking statistics of several strain computations
     """
-    compare_grid_means(MyParams, "I2nd.nc", log_means_statistics);
     compare_grid_means(MyParams, "max_shear.nc", simple_means_statistics);
     compare_grid_means(MyParams, "dila.nc", simple_means_statistics);
+    compare_grid_means(MyParams, "I2nd.nc", log_means_statistics);
     compare_grid_means(MyParams, "rot.nc", simple_means_statistics);
     compare_grid_means(MyParams, "azimuth.nc", angular_means_statistics, mask=[MyParams.outdir+'/means_I2nd.nc', 3]);
     visualize_grid_means(MyParams);
@@ -29,6 +29,9 @@ def compare_grid_means(MyParams, filename, statistics_function, mask=None):
         my_means = utilities.mask_by_value(my_means, masking_values, mask[1]);
     netcdf_read_write.produce_output_netcdf(lons, lats, my_means, 'per year', MyParams.outdir+"/means_"+filename);
     netcdf_read_write.produce_output_netcdf(lons, lats, my_stds, 'per year', MyParams.outdir+"/deviations_"+filename);
+    if "dila" in filename or "max_shear" in filename:
+        pygmt_plots.plot_method_differences(strain_values_dict, my_means, MyParams.range_strain, MyParams.outdir,
+                                            MyParams.outdir+"/separate_plots_"+filename.split('.')[0]+'.png');
     return;
 
 
