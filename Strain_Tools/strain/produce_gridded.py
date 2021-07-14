@@ -29,6 +29,7 @@ def tri2grid(grid_inc, range_strain, triangle_vertices, rot, exx, exy, eyy):
 
 def make_grid(coordbox, inc):
     """
+    Assumption is a pixel-node-registered grid.
     :param coordbox: [float, float, float, float] corresponding to [W, E, S, N]
     :type coordbox: list
     :param inc: [float, float] corresponding to [xinc, yinc]

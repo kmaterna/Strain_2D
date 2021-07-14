@@ -4,7 +4,7 @@ This library contains several methods to compute geodetic strain from a GPS velo
 
 ### Requirements:
 * Python3, numpy, scipy, matplotlib
-* GMT5, PYGMT
+* GMT5 or higher, PYGMT
 * Tectonic_Utils - https://github.com/kmaterna/Tectonic_Utils (can be installed by pip)
 * Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
 
@@ -29,7 +29,7 @@ Input velocities must be in a text file. They must be a space-separated table wi
 # lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)
 ``` 
 
-Output strain components and derived quantities (invariants, eigenvectors) are written as grd files or text files and plotted in GMT.  
+Output strain components and derived quantities (invariants, eigenvectors) are written as *pixel-node-registered* grd files and/or text files, and plotted in PyGMT.  
 
 
 ### Contributing

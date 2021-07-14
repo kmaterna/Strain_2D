@@ -27,8 +27,8 @@ def compare_grid_means(MyParams, filename, statistics_function, mask=None):
     if mask:
         [_, _, masking_values] = netcdf_read_write.read_any_grd(mask[0]);
         my_means = utilities.mask_by_value(my_means, masking_values, mask[1]);
-    netcdf_read_write.produce_output_netcdf(lons, lats, my_means, 'per year', MyParams.outdir+"/means_"+filename);
-    netcdf_read_write.produce_output_netcdf(lons, lats, my_stds, 'per year', MyParams.outdir+"/deviations_"+filename);
+    netcdf_read_write.write_netcdf4(lons, lats, my_means, MyParams.outdir+"/means_"+filename);
+    netcdf_read_write.write_netcdf4(lons, lats, my_stds, MyParams.outdir+"/deviations_"+filename);
     if "dila" in filename or "max_shear" in filename:
         pygmt_plots.plot_method_differences(strain_values_dict, my_means, MyParams.range_strain, MyParams.outdir,
                                             MyParams.outdir+"/separate_plots_"+filename.split('.')[0]+'.png');

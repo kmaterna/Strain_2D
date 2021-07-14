@@ -11,14 +11,14 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, exx, 'microstrain', MyParams.outdir + 'exx.nc');
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, exy, 'microstrain', MyParams.outdir + 'exy.nc');
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, eyy, 'microstrain', MyParams.outdir + 'eyy.nc');
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, azimuth, 'degrees', MyParams.outdir + 'azimuth.nc');
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, I2nd, 'per yr', MyParams.outdir + 'I2nd.nc');
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, rot, 'per yr', MyParams.outdir + 'rot.nc');
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, dilatation, 'per yr', MyParams.outdir + 'dila.nc');
-    netcdf_read_write.produce_output_netcdf(xdata, ydata, max_shear, 'per yr', MyParams.outdir + 'max_shear.nc');
+    netcdf_read_write.write_netcdf4(xdata, ydata, exx, MyParams.outdir + 'exx.nc');
+    netcdf_read_write.write_netcdf4(xdata, ydata, exy, MyParams.outdir + 'exy.nc');
+    netcdf_read_write.write_netcdf4(xdata, ydata, eyy, MyParams.outdir + 'eyy.nc');
+    netcdf_read_write.write_netcdf4(xdata, ydata, azimuth, MyParams.outdir + 'azimuth.nc');
+    netcdf_read_write.write_netcdf4(xdata, ydata, I2nd, MyParams.outdir + 'I2nd.nc');
+    netcdf_read_write.write_netcdf4(xdata, ydata, rot, MyParams.outdir + 'rot.nc');
+    netcdf_read_write.write_netcdf4(xdata, ydata, dilatation, MyParams.outdir + 'dila.nc');
+    netcdf_read_write.write_netcdf4(xdata, ydata, max_shear, MyParams.outdir + 'max_shear.nc');
     print("Max I2: %f " % (np.amax(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.nanmin(rot), np.nanmax(rot)) );
 

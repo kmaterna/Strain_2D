@@ -43,7 +43,7 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     print("------------------------------\nComputing strain via gpsgridder method.");
     velocity_io.write_gmt_format(myVelfield, "tempgps.txt");
     command = "gmt gpsgridder tempgps.txt" + \
-              " -R" + utilities.get_string_range(range_strain, x_buffer=0.02, y_buffer=0.02) + \
+              " -R" + utilities.get_string_range(range_strain, x_buffer=inc[0]/2, y_buffer=inc[1]/2) + \
               " -I" + utilities.get_string_inc(inc) + \
               " -S" + poisson + \
               " -Fd" + fd + \
@@ -54,6 +54,7 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     # -R = range. -I = interval. -E prints the model and data fits at the input stations (very useful).
     # -S = poisson's ratio. -Fd = fudge factor. -C = eigenvalues below this value will be ignored.
     # -fg = flat earth approximation. -G = output netcdf files (x and y displacements).
+    # -r is pixel node registration
     # You should experiment with Fd and C values to find something that you like (good fit without overfitting).
     # For Northern California, I like -Fd0.01 -C0.005. -R-125/-121/38/42.2
 
