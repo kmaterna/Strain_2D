@@ -146,8 +146,8 @@ def nn_interp(x, y, vals, coord_box, inc):
     """
     xmin, xmax = coord_box[0], coord_box[1];
     ymin, ymax = coord_box[2], coord_box[3];
-    newx = np.arange(xmin, xmax + inc[0]/2, inc[0]);  # needed to match other grids somehow
-    newy = np.arange(ymin, ymax + inc[1], inc[1])
+    newx = np.arange(xmin, xmax + inc[0]/2, inc[0]);  # pixel-node-registered grids
+    newy = np.arange(ymin, ymax + inc[1]/2, inc[1])
     tempvals = []
 
     nn_interpolator = interp.NearestNDInterpolator((x, y), vals)
