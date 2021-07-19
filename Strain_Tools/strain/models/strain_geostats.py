@@ -170,6 +170,8 @@ def krige(xy, XY, data, model, ktype='ok'):
     # Create the data covariance matrix
     SIG = compute_covariance(model, xy)
     SIG = SIG + np.sqrt(np.finfo(float).eps)*np.eye(SIG.shape[0])
+    if not is_pos_def(SIG):
+        raise RuntimeError('SIG matrix is not positive definite, probably meaning it is ill-conditioned')
 
     # create the data/grid covariance and point-wise terms
     sig0 = compute_covariance(model, xy, XY); 
@@ -273,13 +275,13 @@ def universal_kriging(SIG, sig0, data, sig2, xy, XY):
 def compute_covariance(model, xy, XY=None):
     '''Returns the covariance matrix for a given set of data'''
     if xy.size==1:
-        h = 0
+        dist = 0
     elif XY is None:
-        h = squareform(pdist(xy))
+        dist = squareform(pdist(xy))
     else:
-        h = cdist(xy,XY)
+        dist = cdist(xy,XY)
 
-    C = model(h)
+    C = model(dist)
     return C
 
 
@@ -288,28 +290,24 @@ class VariogramModel(ABC):
     def __init__(
         self,
         model_type,
-        use_nugget=False,
       ):
         self._model = model_type
         self._params = {}
-        self._params['sill_east'] = None
-        self._params['range_east'] = None
-        self._params['nugget_east'] = None
-        self._params['sill_north'] = None
-        self._params['range_north'] = None
-        self._params['nugget_north'] = None
-        self._use_nugget = use_nugget
+        self._params['sill'] = None
+        self._params['range'] = None
+        self._params['nugget'] = None
 
     def __repr__(self):
       out_str = '''My name is {}
       My sill is {}
       My range is {}
-      I'm {} a nugget
+      I'm {} a nugget: {}
       '''.format(
           self._model,
           self._params['sill'],
           self._params['range'],
-          ["using" if self._use_nugget else "not using"][0]
+          ["using" if self._params[nugget] is not None else "not using"][0],
+          self._params['nugget']
         )
       return out_str
 
@@ -321,13 +319,6 @@ class VariogramModel(ABC):
         return  self._params['sill'], \
                 self._params['range'], \
                 self._params['nugget']
-
-    def nugget(self):
-      '''This switches the use of nugget'''
-      if self._use_nugget:
-        self._use_nugget = False
-      else:
-        self._use_nugget = True
 
     def setParms(self, **kwargs):
       for key, value in kwargs.items():
@@ -343,7 +334,7 @@ class Nugget(VariogramModel):
     def __call__(self, h):
         if self._params['nugget'] is None:
             raise RuntimeError('You must first specify a nugget')
-        return self._params['nugget']*(h != 0) # params is a scalar for nugget
+        return self._params['nugget']*(h == 0) # params is a scalar for nugget
 
 
 class Gaussian(VariogramModel):
@@ -352,18 +343,17 @@ class Gaussian(VariogramModel):
             sill=None,
             range=None,
             nugget=None,
-            use_nugget = False
         ):
-        VariogramModel.__init__(self, 'Gaussian', use_nugget = use_nugget)
+        VariogramModel.__init__(self, 'Gaussian')
         self.setParms(sill = sill, range = range, nugget = nugget)
 
     def __call__(self, h):
         if self._params['sill'] is None:
             raise RuntimeError('You must first specify the parameters of the {} model'.format(self._model))
-        if not self._use_nugget == 2:
-            return self._params['sill']*(1 - np.exp(-(h**2)/(self._params['range']**2)))
-        elif self._use_nugget == 3:
-            return self._params['sill']*(1 - np.exp(-(h**2)/(self._params['range']**2))) + self._params['nugget']*(h != 0) # add a nugget
+        if not self._params['nugget'] is not None:
+            return self._params['sill']*np.exp(-np.square(h / self._params['range']))
+        else:
+            return self._params['sill']*np.exp(-np.square(h / self._params['range'])) + self._params['nugget']*(h == 0)
 
 
 class Exponential(VariogramModel):
@@ -372,16 +362,27 @@ class Exponential(VariogramModel):
             sill=None,
             range=None,
             nugget=None,
-            use_nugget = False
         ):
-        VariogramModel.__init__(self, 'Exponential', use_nugget = use_nugget)
+        VariogramModel.__init__(self, 'Exponential')
         self.setParms(sill = sill, range = range, nugget = nugget)
 
     def __call__(self, h):
         if self._params is None:
             raise RuntimeError('You must first specify the parameters of the {} model'.format(self._model))
-        if len(self._params) == 2:
-            return self._params['sill']*(1 - np.exp(-h/self._params['range']))
-        elif len(self._params) == 3:
-            return self._params['sill']*(1 - np.exp(-h/self._params['range'])) + self._params['nugget']*(h != 0) # add a nugget
+        if not self._params['nugget'] is not None:
+            return self._params['sill']*np.exp(-h/self._params['range'])
+        else:
+            return self._params['sill']*np.exp(-h/self._params['range']) + self._params['nugget']*(h == 0) # add a nugget
+
+
+def is_pos_def(A):
+    if np.array_equal(A, A.T):
+        try:
+            np.linalg.cholesky(A)
+            return True
+        except np.linalg.LinAlgError:
+            return False
+    else:
+        return False
+
 
