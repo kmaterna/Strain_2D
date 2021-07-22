@@ -64,7 +64,7 @@ This library uses the following units and sign conventions:
 * strain rates (exx, etc): units of nanostrain / year (1e-9 / yr) 
 * Rotation: units of (1e-3 radians)/yr, or radians / Ka
 * Second invariant: units of (nanostrain/yr)^2. These are very unusual units. 
-* Dilatation: units of nanostrain / year. Positive means shortening and negative means extension.
+* Dilatation: units of nanostrain / year. Positive means extension and negative means shortening.
 * Max Shear: units of nanostrain / year
 
 ### Internal Library API
