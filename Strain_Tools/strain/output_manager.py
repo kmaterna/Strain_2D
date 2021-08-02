@@ -22,12 +22,12 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
             "azimuth":  (("y", "x"), azimuth),
             "rotation":  (("y", "x"), rot),
             "I2":  (("y", "x"), I2nd),
-            "dilatation":  (("y", "x"), max_shear),
-            "max_shear":  (("y", "x"), dilatation),
+            "dilatation":  (("y", "x"), dilatation),
+            "max_shear":  (("y", "x"), max_shear),
         },
         coords={
-            "x": xdata,
-            "y": ydata,
+            "x": ('x', xdata),
+            "y": ('y', ydata),
         },
     )
     ds.to_netcdf(os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)))
@@ -51,7 +51,6 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
                               negative_eigs, MyParams.outdir+'max_shear.png');
     pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir, positive_eigs,
                              negative_eigs, MyParams.outdir+'azimuth.png');
-    return;
 
 
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):
@@ -82,7 +81,6 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range
                                    negative_eigs, outdir+'polygon_dilatation.eps');
     pygmt_plots.plot_I2nd_1D(range_strain, polygon_vertices, I2nd, outdir, positive_eigs,
                              negative_eigs, outdir+'polygon_I2nd.eps');
-    return;
 
 
 def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):

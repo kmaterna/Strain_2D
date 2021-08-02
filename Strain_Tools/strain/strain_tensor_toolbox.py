@@ -199,9 +199,10 @@ def compute_derived_quantities(exx, exy, eyy):
     :rtype: list
     """
 
-    I2nd = np.zeros(np.shape(exx));
-    max_shear = np.zeros(np.shape(exx));
-    dilatation = np.zeros(np.shape(exx));
+    I2nd = exx*eyy - np.square(exy)
+    max_shear = np.sqrt(np.square(exx - eyy) + np.square(exy))
+    dilatation = 0.5*(exx + eyy)
+
     azimuth = np.zeros(np.shape(exx));
     [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy);
 
@@ -210,17 +211,11 @@ def compute_derived_quantities(exx, exy, eyy):
         datalength = dshape[0];
         print("Computing strain invariants for 1d dataset with length %d." % datalength);
         for i in range(datalength):
-            dilatation[i] = e1[i] + e2[i];
-            I2nd[i] = np.log10(np.abs(second_invariant(e1[i], 0, e2[i])));
-            max_shear[i] = abs((-e1[i] + e2[i]) / 2);
             azimuth[i] = compute_max_shortening_azimuth(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
     elif len(dshape) == 2:
         print("Computing strain invariants for 2d dataset.");
         for j in range(dshape[0]):
             for i in range(dshape[1]):
-                I2nd[j][i] = np.log10(np.abs(second_invariant(e1[j][i], 0, e2[j][i])));
-                max_shear[j][i] = abs((e1[j][i] - e2[j][i]) / 2);
-                dilatation[j][i] = e1[j][i] + e2[j][i];
                 azimuth[j][i] = compute_max_shortening_azimuth(e1[j][i], e2[j][i], v00[j][i], v01[j][i],
                                                                v10[j][i], v11[j][i]);
     return [I2nd, max_shear, dilatation, azimuth];
