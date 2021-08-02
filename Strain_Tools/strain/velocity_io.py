@@ -124,7 +124,7 @@ def write_multisegment_file(polygon_vertices, quantity, filename):
 
 
 # --------- READ FUNCTION ----------- #
-def read_multiple_strain_files(MyParams, filename):
+def read_multiple_strain_files(MyParams, plot_type):
     """
     Read strain quantities of `filename` into a dictionary
     Each dictionary key is a strain method
@@ -134,13 +134,17 @@ def read_multiple_strain_files(MyParams, filename):
     value : 2D array of floats
     We also guarantee the mutual co-registration of the dictionary elements
     """
-    strain_values_dict = {};
-    for method in MyParams.strain_dict.keys():
-        specific_filename = MyParams.strain_dict[method]+"/"+filename
-        assert(os.path.isfile(specific_filename)), FileNotFoundError("Cannot find file " + specific_filename);
-        if os.path.isfile(specific_filename):
-            [lon, lat, val] = netcdf_read_write.read_any_grd(specific_filename);
-            strain_values_dict[method] = [lon, lat, val];
-    utilities.check_coregistered_grids(MyParams.range_strain, MyParams.inc, strain_values_dict);
-    utilities.check_coregistered_shapes(strain_values_dict);
-    return strain_values_dict;
+    for k, method in enumerate(MyParams.strain_dict.keys()):
+        specific_filename = os.path.join(MyParams.strain_dict[method], "{}_strain.nc".format(method))
+        ds = xr.load_dataset(specific_filename)
+        if k == 0:
+            ds_new = xr.Dataset(
+                data_vars = ds[plot_type],
+                coords = ds.coords,
+            )
+        else:
+            ds_new[method] = ds[plot_type]
+
+    #utilities.check_coregistered_grids(MyParams.range_strain, MyParams.inc, strain_values_dict);
+    #utilities.check_coregistered_shapes(strain_values_dict);
+    return ds_new

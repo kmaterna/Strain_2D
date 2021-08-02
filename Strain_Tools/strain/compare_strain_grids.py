@@ -7,13 +7,12 @@ def drive(MyParams):
     """
     A driver for taking statistics of several strain computations
     """
-    compare_grid_means(MyParams, "max_shear.nc", simple_means_statistics);
-    compare_grid_means(MyParams, "dila.nc", simple_means_statistics);
-    compare_grid_means(MyParams, "I2nd.nc", log_means_statistics);
-    compare_grid_means(MyParams, "rot.nc", simple_means_statistics);
-    compare_grid_means(MyParams, "azimuth.nc", angular_means_statistics, mask=[MyParams.outdir+'/means_I2nd.nc', 3]);
-    visualize_grid_means(MyParams);
-    return;
+    mean_ds = compare_grid_means(MyParams, "max_shear.nc", simple_means_statistics)
+    mean_ds['dilatation'] = compare_grid_means(MyParams, "dilatation.nc", simple_means_statistics)
+    mean_ds['I2'] = compare_grid_means(MyParams, "I2.nc", log_means_statistics)
+    mean_ds['rotation'] = compare_grid_means(MyParams, "rotatation.nc", simple_means_statistics)
+    mean_ds['azimuth'] = compare_grid_means(MyParams, "azimuth.nc", angular_means_statistics, mask=[MyParams.outdir+'/means_I2.nc', 3])
+    visualize_grid_means(MyParams, mean_ds)
 
 
 def compare_grid_means(MyParams, filename, statistics_function, mask=None):
@@ -22,32 +21,33 @@ def compare_grid_means(MyParams, filename, statistics_function, mask=None):
     The function for taking the mean/std is passed in
     `mask` has format [filename, cutoff_value] if you want to mask based on a particular computation result.
     """
-    strain_values_dict = velocity_io.read_multiple_strain_files(MyParams, filename);
-    lons, lats, my_means, my_stds = compute_grid_statistics(strain_values_dict, statistics_function);
-    if mask:
-        [_, _, masking_values] = netcdf_read_write.read_any_grd(mask[0]);
-        my_means = utilities.mask_by_value(my_means, masking_values, mask[1]);
-    netcdf_read_write.write_netcdf4(lons, lats, my_means, MyParams.outdir+"/means_"+filename);
-    netcdf_read_write.write_netcdf4(lons, lats, my_stds, MyParams.outdir+"/deviations_"+filename);
+    strain_values_ds = velocity_io.read_multiple_strain_files(MyParams, filename.split('.')[0]);
+    mean_ds = strain_values_ds.reduce(np.nanmean, keep_attrs=True)
+    std_ds = strain_values_ds.reduce(np.nanstd, keep_attrs=True)
+    mean_ds.to_netcdf(os.path.join(MyParams.outdir, "means_"+filename))
+    std_ds.to_netcdf(os.path.join(MyParams.outdir, "devations_"+filename))
     if "dila" in filename or "max_shear" in filename:
-        pygmt_plots.plot_method_differences(strain_values_dict, my_means, MyParams.range_strain, MyParams.outdir,
-                                            MyParams.outdir+"/separate_plots_"+filename.split('.')[0]+'.png');
-    return;
+        pygmt_plots.plot_method_differences(
+            mean_ds, 
+            MyParams.range_strain, 
+            MyParams.outdir,
+            MyParams.outdir+"/separate_plots_"+filename.split('.')[0]+'.png'
+        )
+    return mean_ds
 
 
-def visualize_grid_means(MyParams):
+def visualize_grid_means(MyParams, ds):
     """ Make pygmt plots of the means of all quantities """
-    pygmt_plots.plot_I2nd(MyParams.outdir + "/means_I2nd.nc", MyParams.range_strain, MyParams.outdir, [], [],
+    pygmt_plots.plot_I2nd(ds['I2'], MyParams.range_strain, MyParams.outdir, [], [],
                           MyParams.outdir + "/means_I2nd.png");
-    pygmt_plots.plot_dilatation(MyParams.outdir + "/means_dila.nc", MyParams.range_strain, MyParams.outdir, [], [],
+    pygmt_plots.plot_dilatation(ds['dilatation'], MyParams.range_strain, MyParams.outdir, [], [],
                                 MyParams.outdir + "/means_dila.png");
-    pygmt_plots.plot_maxshear(MyParams.outdir + "/means_max_shear.nc", MyParams.range_strain, MyParams.outdir, [], [],
+    pygmt_plots.plot_maxshear(ds['max_shear'], MyParams.range_strain, MyParams.outdir, [], [],
                               MyParams.outdir + "/means_max_shear.png");
-    pygmt_plots.plot_azimuth(MyParams.outdir + "/means_azimuth.nc", MyParams.range_strain, MyParams.outdir, [], [],
+    pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir, [], [],
                              MyParams.outdir + "/means_azimuth.png");
-    pygmt_plots.plot_rotation(MyParams.outdir + "/means_rot.nc", [], MyParams.range_strain, MyParams.outdir,
+    pygmt_plots.plot_rotation(ds['rotation'], [], MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir + "/means_rot.png");
-    return;
 
 
 # --------- COMPUTE FUNCTION ----------- #
