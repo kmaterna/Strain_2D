@@ -1,16 +1,19 @@
-from . import utilities, strain_tensor_toolbox, velocity_io, pygmt_plots
-from Tectonic_Utils.read_write import netcdf_read_write
 import numpy as np
+import os
+import xarray as xr
+
+from . import utilities, strain_tensor_toolbox, velocity_io, pygmt_plots
 
 
 def drive(MyParams):
     """
     A driver for taking statistics of several strain computations
     """
-    mean_ds = compare_grid_means(MyParams, "max_shear.nc", simple_means_statistics)
+    mean_ds = xr.Dataset()
+    mean_ds['max_shear'] = compare_grid_means(MyParams, "max_shear.nc", simple_means_statistics)
     mean_ds['dilatation'] = compare_grid_means(MyParams, "dilatation.nc", simple_means_statistics)
     mean_ds['I2'] = compare_grid_means(MyParams, "I2.nc", log_means_statistics)
-    mean_ds['rotation'] = compare_grid_means(MyParams, "rotatation.nc", simple_means_statistics)
+    mean_ds['rotation'] = compare_grid_means(MyParams, "rotation.nc", simple_means_statistics)
     mean_ds['azimuth'] = compare_grid_means(MyParams, "azimuth.nc", angular_means_statistics, mask=[MyParams.outdir+'/means_I2.nc', 3])
     visualize_grid_means(MyParams, mean_ds)
 
@@ -22,12 +25,13 @@ def compare_grid_means(MyParams, filename, statistics_function, mask=None):
     `mask` has format [filename, cutoff_value] if you want to mask based on a particular computation result.
     """
     strain_values_ds = velocity_io.read_multiple_strain_files(MyParams, filename.split('.')[0]);
-    mean_ds = strain_values_ds.reduce(np.nanmean, keep_attrs=True)
-    std_ds = strain_values_ds.reduce(np.nanstd, keep_attrs=True)
+    mean_ds = strain_values_ds.to_array(dim='new').reduce(np.nanmean, dim='new')
+    std_ds = strain_values_ds.to_array(dim='new').reduce(np.nanstd, dim='new')
     mean_ds.to_netcdf(os.path.join(MyParams.outdir, "means_"+filename))
     std_ds.to_netcdf(os.path.join(MyParams.outdir, "devations_"+filename))
     if "dila" in filename or "max_shear" in filename:
         pygmt_plots.plot_method_differences(
+            strain_values_ds,
             mean_ds, 
             MyParams.range_strain, 
             MyParams.outdir,

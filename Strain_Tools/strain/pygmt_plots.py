@@ -207,14 +207,10 @@ def plot_method_differences(strain_dictionary, average_strains, region, outdir, 
                     fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue');
                     for counter, name in enumerate(strain_dictionary.keys()):
                         if counter == index:
-                            plotting_data = np.subtract(strain_dictionary[name][2], average_strains);
-                            netcdf_read_write.produce_output_netcdf(strain_dictionary[name][0],
-                                                                    strain_dictionary[name][1], plotting_data,
-                                                                    'per year', outdir + "/temp.grd");
-                            fig.grdimage(outdir+'/temp.grd', projection=proj, region=region, C=outdir+"/mycpt.cpt");
+                            plotting_data = strain_dictionary[name] - average_strains
+                            fig.grdimage(plotting_data, projection=proj, region=region, C=outdir+"/mycpt.cpt");
                             fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue');
                             fig.text(position="BL", text=name+" minus mean", region=region, D='0/0.1i');
     fig.colorbar(D="JCR+w4.0i+v+o0.7i/-0.5i", C=outdir+"/mycpt.cpt", G="-300/300", B=["x50", "y+L\"Nanostr/yr\""]);
     print("Saving Method Differences as %s." % outfile);
     fig.savefig(outfile);
-    return;

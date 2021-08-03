@@ -1,6 +1,7 @@
-from Tectonic_Utils.read_write import netcdf_read_write
 import collections
 import os
+import xarray as xr
+
 from . import utilities
 
 StationVel = collections.namedtuple('StationVel', ['elon', 'nlat', 'e', 'n', 'u', 'se', 'sn', 'su', 'name']);
@@ -139,7 +140,7 @@ def read_multiple_strain_files(MyParams, plot_type):
         ds = xr.load_dataset(specific_filename)
         if k == 0:
             ds_new = xr.Dataset(
-                data_vars = ds[plot_type],
+                {method: ds[plot_type]},
                 coords = ds.coords,
             )
         else:
