@@ -1,6 +1,5 @@
 import pygmt
 import numpy as np
-from Tectonic_Utils.read_write import netcdf_read_write
 
 
 def station_vels_to_arrays(station_vels):
