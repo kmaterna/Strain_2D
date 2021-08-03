@@ -77,7 +77,7 @@ def plot_I2nd(filename, region, outdir, positive_eigs, negative_eigs, outfile):
     fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]]);
     fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black');
-    fig.colorbar(D="JCR+w4.0i+v+o0.7i/0i", C=outdir+"/mycpt.cpt", G="-1/5", B=["x1", "y+L\"Log(I2)\""]);
+    fig.colorbar(D="JCR+w4.0i+v+o0.7i/0i", C=outdir+"/mycpt.cpt", G="-1/5", B=["x1", "y+L\"Log10(|I2|)\""]);
     print("Saving I2nd figure as %s." % outfile)
     fig.savefig(outfile);
     return;

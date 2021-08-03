@@ -199,10 +199,12 @@ def compute_derived_quantities(exx, exy, eyy):
     :rtype: list
     """
 
-    I2nd = exx*eyy - np.square(exy)
+    # Since exx etc. are numpy arrays, we can use numpy's vectorized math
+    I2nd = np.log10(np.abs(exx*eyy - np.square(exy)))
     max_shear = np.sqrt(np.square(exx - eyy) + np.square(exy))
     dilatation = 0.5*(exx + eyy)
 
+    # Azimuth is tricky so leaving it as a for-loop for now
     azimuth = np.zeros(np.shape(exx));
     [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy);
 

@@ -52,6 +52,7 @@ def visualize_grid_means(MyParams, ds):
                              MyParams.outdir + "/means_azimuth.png");
     pygmt_plots.plot_rotation(ds['rotation'], [], MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir + "/means_rot.png");
+    plt.close('all') # clear the memory cache
 
 
 # --------- COMPUTE FUNCTION ----------- #
