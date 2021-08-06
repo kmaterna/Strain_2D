@@ -30,7 +30,11 @@ class tape(Strain_2d):
         _, _, exy = nn_interp(x, y, exy, self._strain_range, self._grid_inc);
         _, _, eyy = nn_interp(x, y, eyy, self._strain_range, self._grid_inc);
         _, _, rot = nn_interp(x, y, rot, self._strain_range, self._grid_inc); 
-        return [lons, lats, rot, exx, exy, eyy];
+
+        # Not sure whether Tape gives velocities or not
+        Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape), 
+
+        return [lons, lats, Ve, Vn, rot, exx, exy, eyy];
 
 
 def verify_inputs_tape(method_specific_dict):

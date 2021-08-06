@@ -20,10 +20,10 @@ class gpsgridder(Strain_2d):
         self._poisson, self._fd, self._eigenvalue = verify_inputs_gpsgridder(params.method_specific);
 
     def compute(self, myVelfield):
-        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(myVelfield, self._strain_range,
+        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(myVelfield, self._strain_range,
                                                                               self._grid_inc, self._poisson, self._fd,
                                                                               self._eigenvalue, self._tempdir);
-        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def verify_inputs_gpsgridder(method_specific_dict):
@@ -89,4 +89,4 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     rot = abs(np.multiply(rot, 1000));
 
     print("Success computing strain via gpsgridder method.\n");
-    return [xdata, ydata, rot, exx, exy, eyy];
+    return [xdata, ydata, udata.T, vdata.T, rot, exx, exy, eyy];

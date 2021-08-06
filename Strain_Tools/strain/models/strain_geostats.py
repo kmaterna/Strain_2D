@@ -157,16 +157,16 @@ class geostats(Strain_2d):
         self.setPoints(xy=xy, data = n)
         Dest_n, Dsig_n, _ = self.krige()
         
+        Ve = Dest_e.reshape(self._grid_shape)
+        Vn = Dest_n.reshape(self._grid_shape)
+
         # Compute strain rates
         exx, eyy, exy, rot = strain_on_regular_grid(
-                self._grid_inc[0]*111, 
-                self._grid_inc[1]*111, 
-                Dest_e.reshape(self._grid_shape), 
-                Dest_n.reshape(self._grid_shape)
+                self._grid_inc[0]*111, self._grid_inc[1]*111, Ve, Vn
             )
 
         # Return the strain rates etc.
-        return self._lons, self._lats, rot, exx, exy, eyy
+        return self._lons, self._lats, Ve, Vn, rot, exx, exy, eyy
         
 
 def simple_kriging(SIG, sig0, data, sig2):
