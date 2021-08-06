@@ -34,8 +34,17 @@ class delaunay_flat(Strain_2d):
                                                                                   triangle_verts, rot, exx, exy, eyy);
 
         # Here we output convenient things on polygons, since it's intuitive for the user.
-        output_manager.outputs_1d(xcentroid, ycentroid, triangle_verts, rot, exx, exy, eyy, self._strain_range,
-                                  myVelfield, self._outdir);
+        output_manager.outputs_1d(
+            xcentroid, 
+            ycentroid, 
+            triangle_verts, 
+            np.array(rot), 
+            np.array(exx), 
+            np.array(exy),
+            np.array(eyy),
+            self._strain_range,
+            myVelfield, self._outdir
+        );
 
         print("Success computing strain via Delaunay method.\n");
         return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
