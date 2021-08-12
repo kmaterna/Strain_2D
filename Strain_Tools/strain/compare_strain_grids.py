@@ -11,21 +11,34 @@ def drive(MyParams):
     A driver for taking statistics of several strain computations
     """
     mean_ds = xr.Dataset()
-    mean_ds['max_shear'] = compare_grid_means(MyParams, "max_shear.nc", simple_means_statistics)
-    mean_ds['dilatation'] = compare_grid_means(MyParams, "dilatation.nc", simple_means_statistics)
-    mean_ds['I2'] = compare_grid_means(MyParams, "I2.nc", log_means_statistics)
-    mean_ds['rotation'] = compare_grid_means(MyParams, "rotation.nc", simple_means_statistics)
-    mean_ds['azimuth'] = compare_grid_means(MyParams, "azimuth.nc", angular_means_statistics, mask=[MyParams.outdir+'/means_I2.nc', 3])
+    mean_ds['max_shear'] = compare_grid_means(MyParams, "max_shear", simple_means_statistics)
+    mean_ds['dilatation'] = compare_grid_means(MyParams, "dilatation", simple_means_statistics)
+    mean_ds['I2'] = compare_grid_means(MyParams, "I2", log_means_statistics)
+    mean_ds['rotation'] = compare_grid_means(MyParams, "rotation", simple_means_statistics)
+    mean_ds['azimuth'] = compare_grid_means(MyParams, "azimuth", angular_means_statistics, mask=[MyParams.outdir+'/means_I2.nc', 3])
     visualize_grid_means(MyParams, mean_ds)
 
 
-def compare_grid_means(MyParams, filename, statistics_function, mask=None):
+def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
     """
-    A driver for taking the mean of several grid quantities
-    The function for taking the mean/std is passed in
-    `mask` has format [filename, cutoff_value] if you want to mask based on a particular computation result.
+    A driver for comparing strain rate maps
+
+    Parameters
+    ----------
+    MyParams: dict            - Parameter dictionary
+    plot_type: str            - Type of strain quantity to compare 
+    statistics_function: func - standard numpy-compatible reducing function (e.g. mean, median, nanmedian)
+    mask:                     - length-2 list of [filename, cutoff_value] used for thresholding the plot_type
+
+    Returns
+    -------
+    mean_ds: xarray Dataset   - Dataset containing the mean of each variable
+
+    Writes
+    ------
+    mean_ds, std_ds: xarray Dataset - writes these to NETCDF
     """
-    strain_values_ds = velocity_io.read_multiple_strain_files(MyParams, filename.split('.')[0]);
+    strain_values_ds = velocity_io.read_multiple_strain_files(MyParams, plot_type);
     mean_ds = strain_values_ds.to_array(dim='new').reduce(np.nanmean, dim='new')
     std_ds = strain_values_ds.to_array(dim='new').reduce(np.nanstd, dim='new')
     mean_ds.to_netcdf(os.path.join(MyParams.outdir, "means_"+filename))

@@ -127,13 +127,17 @@ def write_multisegment_file(polygon_vertices, quantity, filename):
 # --------- READ FUNCTION ----------- #
 def read_multiple_strain_files(MyParams, plot_type):
     """
-    Read strain quantities of `filename` into a dictionary
-    Each dictionary key is a strain method
-    Each dictionary value is a data structure: [lon, lat, value]
-    lon : list of floats
-    lat : list of floats
-    value : 2D array of floats
-    We also guarantee the mutual co-registration of the dictionary elements
+    Get all the models (e.g. gpsgridder, geostats, huang, etc.) that have computed plot_type of 
+    strain rate and return them as a single xarray Dataset
+
+    Parameters
+    ----------
+    MyParams: dict - Parameter Dictionary containing strain rates in a sub-dict
+    plot_type: str - The type of strain rate quantify to return. Can be max_shear, dilatation, etc.
+    
+    Returns
+    -------
+    ds_new: xarray Dataset - A dataset containing the plot_type variable from each type of model
     """
     for k, method in enumerate(MyParams.strain_dict.keys()):
         specific_filename = os.path.join(MyParams.strain_dict[method], "{}_strain.nc".format(method))
@@ -146,6 +150,4 @@ def read_multiple_strain_files(MyParams, plot_type):
         else:
             ds_new[method] = ds[plot_type]
 
-    #utilities.check_coregistered_grids(MyParams.range_strain, MyParams.inc, strain_values_dict);
-    #utilities.check_coregistered_shapes(strain_values_dict);
     return ds_new
