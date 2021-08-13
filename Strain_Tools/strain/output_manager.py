@@ -1,8 +1,9 @@
 # The output manager for Strain analysis.
 # ----------------- OUTPUTS -------------------------
-
 import numpy as np
-from Tectonic_Utils.read_write import netcdf_read_write
+import os
+from xarray import Dataset
+
 from . import strain_tensor_toolbox, velocity_io, pygmt_plots
 
 
@@ -11,14 +12,26 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
-    netcdf_read_write.write_netcdf4(xdata, ydata, exx, MyParams.outdir + 'exx.nc');
-    netcdf_read_write.write_netcdf4(xdata, ydata, exy, MyParams.outdir + 'exy.nc');
-    netcdf_read_write.write_netcdf4(xdata, ydata, eyy, MyParams.outdir + 'eyy.nc');
-    netcdf_read_write.write_netcdf4(xdata, ydata, azimuth, MyParams.outdir + 'azimuth.nc');
-    netcdf_read_write.write_netcdf4(xdata, ydata, I2nd, MyParams.outdir + 'I2nd.nc');
-    netcdf_read_write.write_netcdf4(xdata, ydata, rot, MyParams.outdir + 'rot.nc');
-    netcdf_read_write.write_netcdf4(xdata, ydata, dilatation, MyParams.outdir + 'dila.nc');
-    netcdf_read_write.write_netcdf4(xdata, ydata, max_shear, MyParams.outdir + 'max_shear.nc');
+
+    # First create an xarray data multi-cube to write
+    ds = Dataset(
+        {
+            "exx": (("y", "x"), exx),
+            "eyy": (("y", "x"), eyy),
+            "exy": (("y", "x"), exy),
+            "azimuth":  (("y", "x"), azimuth),
+            "rotation":  (("y", "x"), rot),
+            "I2":  (("y", "x"), I2nd),
+            "dilatation":  (("y", "x"), dilatation),
+            "max_shear":  (("y", "x"), max_shear),
+        },
+        coords={
+            "x": ('x', xdata),
+            "y": ('y', ydata),
+        },
+    )
+    ds.to_netcdf(os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)))
+
     print("Max I2: %f " % (np.amax(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.nanmin(rot), np.nanmax(rot)) );
 
@@ -28,17 +41,16 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     velocity_io.write_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
 
     # PYGMT PLOTS
-    pygmt_plots.plot_rotation(MyParams.outdir+'rot.nc', myVelfield, MyParams.range_strain, MyParams.outdir,
+    pygmt_plots.plot_rotation(ds['rotation'], myVelfield, MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir+'rotation.png');
-    pygmt_plots.plot_dilatation(MyParams.outdir+'dila.nc', MyParams.range_strain, MyParams.outdir, positive_eigs,
+    pygmt_plots.plot_dilatation(ds['dilatation'], MyParams.range_strain, MyParams.outdir, positive_eigs,
                                 negative_eigs, MyParams.outdir+'dilatation.png');
-    pygmt_plots.plot_I2nd(MyParams.outdir+'I2nd.nc', MyParams.range_strain, MyParams.outdir, positive_eigs,
+    pygmt_plots.plot_I2nd(ds['I2'], MyParams.range_strain, MyParams.outdir, positive_eigs,
                           negative_eigs, MyParams.outdir+'I2nd.png');
-    pygmt_plots.plot_maxshear(MyParams.outdir+'max_shear.nc', MyParams.range_strain, MyParams.outdir, positive_eigs,
+    pygmt_plots.plot_maxshear(ds['max_shear'], MyParams.range_strain, MyParams.outdir, positive_eigs,
                               negative_eigs, MyParams.outdir+'max_shear.png');
-    pygmt_plots.plot_azimuth(MyParams.outdir+'azimuth.nc', MyParams.range_strain, MyParams.outdir, positive_eigs,
+    pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir, positive_eigs,
                              negative_eigs, MyParams.outdir+'azimuth.png');
-    return;
 
 
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):
@@ -69,7 +81,6 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range
                                    negative_eigs, outdir+'polygon_dilatation.eps');
     pygmt_plots.plot_I2nd_1D(range_strain, polygon_vertices, I2nd, outdir, positive_eigs,
                              negative_eigs, outdir+'polygon_I2nd.eps');
-    return;
 
 
 def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):

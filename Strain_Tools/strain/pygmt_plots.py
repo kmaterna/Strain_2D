@@ -1,6 +1,5 @@
 import pygmt
 import numpy as np
-from Tectonic_Utils.read_write import netcdf_read_write
 
 
 def station_vels_to_arrays(station_vels):
@@ -77,7 +76,7 @@ def plot_I2nd(filename, region, outdir, positive_eigs, negative_eigs, outfile):
     fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]]);
     fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black');
-    fig.colorbar(D="JCR+w4.0i+v+o0.7i/0i", C=outdir+"/mycpt.cpt", G="-1/5", B=["x1", "y+L\"Log(I2)\""]);
+    fig.colorbar(D="JCR+w4.0i+v+o0.7i/0i", C=outdir+"/mycpt.cpt", G="-1/5", B=["x1", "y+L\"Log10(|I2|)\""]);
     print("Saving I2nd figure as %s." % outfile)
     fig.savefig(outfile);
     return;
@@ -207,14 +206,10 @@ def plot_method_differences(strain_dictionary, average_strains, region, outdir, 
                     fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue');
                     for counter, name in enumerate(strain_dictionary.keys()):
                         if counter == index:
-                            plotting_data = np.subtract(strain_dictionary[name][2], average_strains);
-                            netcdf_read_write.produce_output_netcdf(strain_dictionary[name][0],
-                                                                    strain_dictionary[name][1], plotting_data,
-                                                                    'per year', outdir + "/temp.grd");
-                            fig.grdimage(outdir+'/temp.grd', projection=proj, region=region, C=outdir+"/mycpt.cpt");
+                            plotting_data = strain_dictionary[name] - average_strains
+                            fig.grdimage(plotting_data, projection=proj, region=region, C=outdir+"/mycpt.cpt");
                             fig.coast(region=region, projection=proj, N='1', W='1.0p,black', S='lightblue');
                             fig.text(position="BL", text=name+" minus mean", region=region, D='0/0.1i');
     fig.colorbar(D="JCR+w4.0i+v+o0.7i/-0.5i", C=outdir+"/mycpt.cpt", G="-300/300", B=["x50", "y+L\"Nanostr/yr\""]);
     print("Saving Method Differences as %s." % outfile);
     fig.savefig(outfile);
-    return;

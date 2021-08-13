@@ -21,74 +21,6 @@ def strain_on_regular_grid(dx, dy, V1, V2):
     return e11, e22, e12, rot
 
 
-def second_invariant(exx, exy, eyy):
-    """
-    :param exx: strain component
-    :type exx: float
-    :param exy: strain component
-    :type exy: float
-    :param eyy: strain component
-    :type eyy: float
-    :returns: second invariant, in units of (strain_component)^2
-    :rtype: float
-    """
-    e2nd = exx * eyy - exy * exy;
-    return e2nd;
-
-
-def eigenvector_eigenvalue(exx, exy, eyy):
-    """
-    :param exx: strain component
-    :type exx: float
-    :param exy: strain component
-    :type exy: float
-    :param eyy: strain component
-    :type eyy: float
-    :returns: [eigenvalue1 eigenvalue2 eigenvectors]
-    :rtype: list
-    """
-    if np.isnan(np.sum([exx, exy, eyy])):
-        v = [[np.nan, np.nan], [np.nan, np.nan]];
-        return [0, 0, v];
-    T = np.array([[exx, exy], [exy, eyy]]);  # the tensor
-    w, v = np.linalg.eig(T);  # The eigenvectors and eigenvalues (principal strains) of the strain rate tensor
-    return [w[0], w[1], v];
-
-
-def max_shear_strain(exx, exy, eyy):
-    """
-    :param exx: strain component
-    :type exx: float
-    :param exy: strain component
-    :type exy: float
-    :param eyy: strain component
-    :type eyy: float
-    :returns: max shear, in units of strain_component
-    :rtype: float
-    """
-    if np.isnan(np.sum([exx, exy, eyy])):
-        return 0;
-    T = np.array([[exx, exy], [exy, eyy]]);  # the tensor
-    w, v = np.linalg.eig(T);  # The eigenvectors and eigenvalues (principal strains) of the strain rate tensor
-    # w = eigenvalues; v = eigenvectors
-    max_shear = (w[0] - w[1]) * 0.5;
-    return max_shear;
-
-
-def compute_displacement_gradients(up, vp, ur, vr, uq, vq, dx, dy):
-    """
-    up, vp : velocity at a reference point P
-    uq, vq, dx : velocity at point Q, which is offset from reference point P by dx in the x direction
-    ur, vr, dy : velocity at point R, which is offset from reference point P by dy in the y direction
-    In practical usage, these are in mm/yr and km.
-    """
-    dudx = (uq - up) / dx;
-    dvdx = (vq - vp) / dx;
-    dudy = (ur - up) / dy;
-    dvdy = (vr - vp) / dy;
-    return [dudx, dvdx, dudy, dvdy];
-
-
 def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
     """
     Given a displacement tensor, compute the relevant parts of the strain and rotation tensors.
@@ -116,37 +48,39 @@ def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
     return [exx, exy, eyy, rot];
 
 
-def compute_max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
+def compute_derived_quantities(exx, exy, eyy):
     """
-    :param e1: eigenvalue 1
-    :type e1: float
-    :param e2: eigenvalue 2
-    :type e2: float
-    :param v00: eigenvector 1
-    :type v00: float
-    :param v01: eigenvector 1
-    :type v01: float
-    :param v10: eigenvector 2
-    :type v10: float
-    :param v11: eigenvector 2
-    :type v11: float
-    :returns: azimuth of maximum shortening axis, in degrees CW from north
-    :rtype: float
+    Given the basic components of the strain tensor, compute the rest of the derived quantities
+    like 2nd invariant, azimuth of maximum strain, dilatation, etc.
+    exx, eyy can be 1d arrays or 2D arrays
+
+    :param exx: strain component, float or 1d array
+    :param exy: strain component, float or 1d array
+    :param eyy: strain component, float or 1d array
+    :rtype: list
     """
-    if e1 < e2:
-        maxv = np.array([v00, v10])
-    else:
-        maxv = np.array([v01, v11])
-    strike = np.arctan2(maxv[1], maxv[0])
-    theta = 90 - m.degrees(strike)
-    if np.isnan(theta):
-        return np.nan;
-    if theta < 0:
-        theta = 180 + theta
-    elif theta > 180:
-        theta = theta - 180
-    assert (theta < 180), ValueError("Error: computing an azimuth over 180 degrees.");
-    return theta
+    # Since exx etc. are numpy arrays, we can use numpy's vectorized math
+    I2nd = np.log10(np.abs(exx*eyy - np.square(exy)))
+    max_shear = np.sqrt(np.square(exx - eyy) + np.square(exy))
+    dilatation = 0.5*(exx + eyy)
+
+    # Azimuth is tricky so leaving it as a for-loop for now
+    azimuth = np.zeros(np.shape(exx));
+    [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy);
+
+    dshape = np.shape(exx);
+    if len(dshape) == 1:
+        datalength = dshape[0];
+        print("Computing strain invariants for 1d dataset with length %d." % datalength);
+        for i in range(datalength):
+            azimuth[i] = compute_max_shortening_azimuth(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
+    elif len(dshape) == 2:
+        print("Computing strain invariants for 2d dataset.");
+        for j in range(dshape[0]):
+            for i in range(dshape[1]):
+                azimuth[j][i] = compute_max_shortening_azimuth(e1[j][i], e2[j][i], v00[j][i], v01[j][i],
+                                                               v10[j][i], v11[j][i]);
+    return [I2nd, max_shear, dilatation, azimuth];
 
 
 def compute_eigenvectors(exx, exy, eyy):
@@ -187,43 +121,56 @@ def compute_eigenvectors(exx, exy, eyy):
     return [e1, e2, v00, v01, v10, v11];
 
 
-def compute_derived_quantities(exx, exy, eyy):
+def eigenvector_eigenvalue(exx, exy, eyy):
     """
-    Given the basic components of the strain tensor, compute the rest of the derived quantities
-    like 2nd invariant, azimuth of maximum strain, dilatation, etc.
-    exx, eyy can be 1d arrays or 2D arrays
-
-    :param exx: strain component, float or 1d array
-    :param exy: strain component, float or 1d array
-    :param eyy: strain component, float or 1d array
+    :param exx: strain component
+    :type exx: float
+    :param exy: strain component
+    :type exy: float
+    :param eyy: strain component
+    :type eyy: float
+    :returns: [eigenvalue1 eigenvalue2 eigenvectors]
     :rtype: list
     """
+    if np.isnan(np.sum([exx, exy, eyy])):
+        v = [[np.nan, np.nan], [np.nan, np.nan]];
+        return [0, 0, v];
+    T = np.array([[exx, exy], [exy, eyy]]);  # the tensor
+    w, v = np.linalg.eig(T);  # The eigenvectors and eigenvalues (principal strains) of the strain rate tensor
+    return [w[0], w[1], v];
 
-    I2nd = np.zeros(np.shape(exx));
-    max_shear = np.zeros(np.shape(exx));
-    dilatation = np.zeros(np.shape(exx));
-    azimuth = np.zeros(np.shape(exx));
-    [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy);
 
-    dshape = np.shape(exx);
-    if len(dshape) == 1:
-        datalength = dshape[0];
-        print("Computing strain invariants for 1d dataset with length %d." % datalength);
-        for i in range(datalength):
-            dilatation[i] = e1[i] + e2[i];
-            I2nd[i] = np.log10(np.abs(second_invariant(e1[i], 0, e2[i])));
-            max_shear[i] = abs((-e1[i] + e2[i]) / 2);
-            azimuth[i] = compute_max_shortening_azimuth(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
-    elif len(dshape) == 2:
-        print("Computing strain invariants for 2d dataset.");
-        for j in range(dshape[0]):
-            for i in range(dshape[1]):
-                I2nd[j][i] = np.log10(np.abs(second_invariant(e1[j][i], 0, e2[j][i])));
-                max_shear[j][i] = abs((e1[j][i] - e2[j][i]) / 2);
-                dilatation[j][i] = e1[j][i] + e2[j][i];
-                azimuth[j][i] = compute_max_shortening_azimuth(e1[j][i], e2[j][i], v00[j][i], v01[j][i],
-                                                               v10[j][i], v11[j][i]);
-    return [I2nd, max_shear, dilatation, azimuth];
+def compute_max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
+    """
+    :param e1: eigenvalue 1
+    :type e1: float
+    :param e2: eigenvalue 2
+    :type e2: float
+    :param v00: eigenvector 1
+    :type v00: float
+    :param v01: eigenvector 1
+    :type v01: float
+    :param v10: eigenvector 2
+    :type v10: float
+    :param v11: eigenvector 2
+    :type v11: float
+    :returns: azimuth of maximum shortening axis, in degrees CW from north
+    :rtype: float
+    """
+    if e1 < e2:
+        maxv = np.array([v00, v10])
+    else:
+        maxv = np.array([v01, v11])
+    strike = np.arctan2(maxv[1], maxv[0])
+    theta = 90 - m.degrees(strike)
+    if np.isnan(theta):
+        return np.nan;
+    if theta < 0:
+        theta = 180 + theta
+    elif theta > 180:
+        theta = theta - 180
+    assert (theta < 180), ValueError("Error: computing an azimuth over 180 degrees.");
+    return theta
 
 
 def angle_mean_math(azimuth_values):
