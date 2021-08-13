@@ -62,7 +62,7 @@ def compute_visr(myVelfield, strain_range, inc, distwgt, spatwgt, smoothincs, ex
     print("Success computing strain via Visr method.\n");
 
     # I know visr allows for velocity calculation, but dropping this in here now as a placeholder
-    Ve, Vn = np.nan*np.empty((4,4)), np.nan*np.empty((4,4))
+    Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape)
 
     return [xdata, ydata, Ve, Vn, rot, exx, exy, eyy];
 
