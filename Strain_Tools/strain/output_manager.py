@@ -32,7 +32,7 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     )
     ds.to_netcdf(os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)))
 
-    print("Max I2: %f " % (np.amax(I2nd)));
+    print("Max I2: %f " % (np.nanmax(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.nanmin(rot), np.nanmax(rot)) );
 
     # get grid eigenvectors for plotting

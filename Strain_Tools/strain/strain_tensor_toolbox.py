@@ -7,7 +7,7 @@ import math as m
 
 
 def strain_on_regular_grid(dx, dy, V1, V2):
-    '''Compute strain rate on a regular grid'''
+    """Compute strain rate on a regular grid"""
     e11, dV1dx2 = np.gradient(V1, dx, dy)
     dV2dx1, e22 = np.gradient(V2, dx, dy)
 

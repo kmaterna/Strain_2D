@@ -12,8 +12,10 @@ class Tests(unittest.TestCase):
         ur, vr = -1, -1;
         uq, vq = 0, 0;
         xinc, yinc = 1, 1;
-        [dudx, dvdx, dudy, dvdy] = strain_tensor_toolbox.compute_displacement_gradients(up, vp, ur, vr, uq, vq, xinc,
-                                                                                        yinc);
+        dudx = (uq-up) / xinc;
+        dvdx = (vq-vp) / xinc;
+        dudy = (ur-up) / yinc;
+        dvdy = (vr-vp) / yinc;
         [exx, exy, eyy, rotation] = strain_tensor_toolbox.compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy);
         print("Testing solid body rotation.")
         print("exx, exy, eyy: %f %f %f" % (exx, exy, eyy));
