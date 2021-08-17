@@ -7,7 +7,7 @@ from xarray import Dataset
 from . import strain_tensor_toolbox, velocity_io, pygmt_plots
 
 
-def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
+def outputs_2d(xdata, ydata, Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
     print("------------------------------\nWriting 2d outputs:");
     velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
@@ -16,6 +16,8 @@ def outputs_2d(xdata, ydata, rot, exx, exy, eyy, MyParams, myVelfield):
     # First create an xarray data multi-cube to write
     ds = Dataset(
         {
+            "Ve": (("y", "x"), Ve),
+            "Vn": (("y", "x"), Vn),
             "exx": (("y", "x"), exx),
             "eyy": (("y", "x"), eyy),
             "exy": (("y", "x"), exy),

@@ -72,8 +72,11 @@ class delaunay(Strain_2d):
         # output_manager.outputs_1d(xcentroid, ycentroid, triangle_verts, rot, exx, exy, eyy, self._strain_range,
         #                           myVelfield, self._outdir);
 
+        # Velocities aren't used in Delaunay
+        Ve, Vn = np.nan*np.empty(exx_grd.shape), np.nan*np.empty(exx_grd.shape)
+
         print("Success computing strain via Delaunay method.\n");
-        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def compute_with_delaunay_polygons(myVelfield):

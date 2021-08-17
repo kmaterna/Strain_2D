@@ -14,10 +14,10 @@ class huang(Strain_2d):
         self._radiuskm, self._nstations = verify_inputs_huang(params.method_specific);
 
     def compute(self, myVelfield):
-        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_huang(myVelfield, self._strain_range,
+        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_huang(myVelfield, self._strain_range,
                                                                          self._grid_inc, self._radiuskm,
                                                                          self._nstations);
-        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def verify_inputs_huang(method_specific_dict):
@@ -141,7 +141,11 @@ def compute_huang(myVelfield, range_strain, inc, radiuskm, nstations):
 
     print("Success computing strain via Huang method.\n");
 
-    return [xlons, ylats, rot, exx, exy, eyy];
+    # I know you can get velocities out of this code but dropping this in now as a placeholder
+    Ve = np.nan*np.empty(exx.shape)
+    Vn = np.nan*np.empty(exx.shape)
+
+    return [xlons, ylats, Ve, Vn, rot, exx, exy, eyy];
 
 
 def velfield_to_huang_non_utm(myVelfield):
