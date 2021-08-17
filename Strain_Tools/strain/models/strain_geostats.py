@@ -161,9 +161,8 @@ class geostats(Strain_2d):
         Vn = Dest_n.reshape(self._grid_shape)
 
         # Compute strain rates
-        exx, eyy, exy, rot = strain_on_regular_grid(
-                self._grid_inc[0]*111, self._grid_inc[1]*111, Ve, Vn
-            )
+        dx, dy =  self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
+        exx, eyy, exy, rot = strain_on_regular_grid(dx, dy, Ve, Vn)
 
         # Return the strain rates etc.
         return self._lons, self._lats, Ve, Vn, rot, exx, exy, eyy
