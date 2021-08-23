@@ -22,10 +22,10 @@ class visr(Strain_2d):
         self._distwgt, self._spatwgt, self._smoothincs, self._exec = verify_inputs_visr(params.method_specific);
 
     def compute(self, myVelfield):
-        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(myVelfield, self._strain_range, self._grid_inc,
+        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(myVelfield, self._strain_range, self._grid_inc,
                                                                         self._distwgt, self._spatwgt,
                                                                         self._smoothincs, self._exec, self._tempdir);
-        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def verify_inputs_visr(method_specific_dict):
@@ -60,7 +60,11 @@ def compute_visr(myVelfield, strain_range, inc, distwgt, spatwgt, smoothincs, ex
     subprocess.call(['mv', strain_data_file, tempdir], shell=False);
     subprocess.call(['mv', strain_output_file, tempdir], shell=False);
     print("Success computing strain via Visr method.\n");
-    return [xdata, ydata, rot, exx, exy, eyy];
+
+    # I know visr allows for velocity calculation, but dropping this in here now as a placeholder
+    Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape)
+
+    return [xdata, ydata, Ve, Vn, rot, exx, exy, eyy];
 
 
 def write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, range_strain, inc, distwgt, spatwgt, smoothincs):

@@ -20,10 +20,10 @@ class gpsgridder(Strain_2d):
         self._poisson, self._fd, self._eigenvalue = verify_inputs_gpsgridder(params.method_specific);
 
     def compute(self, myVelfield):
-        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(myVelfield, self._strain_range,
+        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(myVelfield, self._strain_range,
                                                                               self._grid_inc, self._poisson, self._fd,
                                                                               self._eigenvalue, self._tempdir);
-        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def verify_inputs_gpsgridder(method_specific_dict):
@@ -77,16 +77,7 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     xinc = xinc * 111.000 * np.cos(np.deg2rad(range_strain[2]));  # in km (not degrees)
     yinc = yinc * 111.000;   # in km (not degrees)
 
-    [exx, eyy, exy, rot] = strain_tensor_toolbox.strain_on_regular_grid(xinc, yinc, udata, vdata)
-    # Lastly we multiply by 1000 for units
-    exx = exx.T;
-    eyy = eyy.T;
-    exy = exy.T;
-    rot = rot.T;
-    exx = np.multiply(exx, 1000);
-    exy = np.multiply(exy, 1000);
-    eyy = np.multiply(eyy, 1000);
-    rot = abs(np.multiply(rot, 1000));
+    [exx, eyy, exy, rot] = strain_tensor_toolbox.strain_on_regular_grid(xinc, yinc, udata * 1000, vdata * 1000)
 
     print("Success computing strain via gpsgridder method.\n");
-    return [xdata, ydata, rot, exx, exy, eyy];
+    return [xdata, ydata, udata.T, vdata.T, abs(rot.T), exx.T, exy.T, eyy.T];
