@@ -7,7 +7,13 @@ import math as m
 
 
 def strain_on_regular_grid(dx, dy, V1, V2):
-    """Compute strain rate on a regular grid"""
+    """Compute strain rate on a regular grid.
+    :param dx: 1d array
+    :param dy: 1d array
+    :param V1: 2d array of velocities in x-direction
+    :param V2: 2d array of velocities in y-direction
+    :returns: 2d arrays of derived quantities
+    """
     e11, dV1dx2 = np.gradient(V1, dx, dy)
     dV2dx1, e22 = np.gradient(V2, dx, dy)
 
@@ -24,7 +30,6 @@ def strain_on_regular_grid(dx, dy, V1, V2):
 def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
     """
     Given a displacement tensor, compute the relevant parts of the strain and rotation tensors.
-    Also converts to nanostrain per year.
     Rot is the off-diagonal element of the rotation tensor
     Rot has native units radians/year. Here we return radians per 1000 yrs (easier to interpret numbers)
     http://www.engr.colostate.edu/~thompson/hPage/CourseMat/Tutorials/Solid_Mechanics/rotations.pdf
@@ -40,11 +45,10 @@ def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
     :returns: strain and rotation components
     :rtype: list
     """
-    exx = dudx * 1000;
-    exy = (0.5 * (dvdx + dudy)) * 1000;
-    eyy = dvdy * 1000;
+    exx = dudx;
+    exy = (0.5 * (dvdx + dudy));
+    eyy = dvdy;
     rot = (0.5 * (dvdx - dudy));
-    rot = rot * 1000.0;
     return [exx, exy, eyy, rot];
 
 
@@ -54,15 +58,15 @@ def compute_derived_quantities(exx, exy, eyy):
     like 2nd invariant, azimuth of maximum strain, dilatation, etc.
     exx, eyy can be 1d arrays or 2D arrays
 
-    :param exx: strain component, float or 1d array
-    :param exy: strain component, float or 1d array
-    :param eyy: strain component, float or 1d array
+    :param exx: strain component, float or 1d array or 2d array
+    :param exy: strain component, float or 1d array or 2d array
+    :param eyy: strain component, float or 1d array or 2d array
     :rtype: list
     """
     # Since exx etc. are numpy arrays, we can use numpy's vectorized math
     I2nd = np.log10(np.abs(exx*eyy - np.square(exy)))
     max_shear = np.sqrt(np.square(exx - eyy) + np.square(exy))
-    dilatation = 0.5*(exx + eyy)
+    dilatation = exx + eyy
 
     # Azimuth is tricky so leaving it as a for-loop for now
     azimuth = np.zeros(np.shape(exx));
@@ -92,32 +96,23 @@ def compute_eigenvectors(exx, exy, eyy):
     :param eyy: strain component, float or 1d array
     :rtype: list
     """
-    e1 = np.zeros(np.shape(exx));
-    e2 = np.zeros(np.shape(exx));  # eigenvalues
-    v00 = np.zeros(np.shape(exx));
-    v01 = np.zeros(np.shape(exx));
-    v10 = np.zeros(np.shape(exx));
-    v11 = np.zeros(np.shape(exx));  # eigenvectors
+    e1, e2 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx));  # eigenvalues
+    v00, v01 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx));
+    v10, v11 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx));  # eigenvectors
     dshape = np.shape(exx);
     if len(dshape) == 1:
         for i in range(len(exx)):
             [e11, e22, v] = eigenvector_eigenvalue(exx[i], exy[i], eyy[i]);
-            e1[i] = e11;  # the convention of this code returns negative eigenvalues compared to my other codes.
-            e2[i] = e22;
-            v00[i] = v[0][0];
-            v10[i] = v[1][0];
-            v01[i] = v[0][1];
-            v11[i] = v[1][1];
+            e1[i], e2 = e11, e22;  # convention of this code returns negative eigenvalues compared to my other codes
+            v00[i], v10[i] = v[0][0], v[1][0];
+            v01[i], v11[i] = v[0][1], v[1][1];
     elif len(dshape) == 2:
         for j in range(dshape[0]):
             for i in range(dshape[1]):
                 [e11, e22, v] = eigenvector_eigenvalue(exx[j][i], exy[j][i], eyy[j][i]);
-                e1[j][i] = e11;
-                e2[j][i] = e22;
-                v00[j][i] = v[0][0];
-                v01[j][i] = v[0][1];
-                v10[j][i] = v[1][0];
-                v11[j][i] = v[1][1];
+                e1[j][i], e2[j][i] = e11, e22;
+                v00[j][i], v01[j][i] = v[0][0], v[0][1];
+                v10[j][i], v11[j][i] = v[1][0], v[1][1];
     return [e1, e2, v00, v01, v10, v11];
 
 

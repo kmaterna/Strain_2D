@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 from Strain_Tools.strain import strain_tensor_toolbox, configure_functions, velocity_io
 from Strain_Tools.strain.models import strain_delaunay_flat, strain_delaunay
 
@@ -6,16 +7,22 @@ from Strain_Tools.strain.models import strain_delaunay_flat, strain_delaunay
 class Tests(unittest.TestCase):
 
     def test_solid_body_rotation(self):
-        # This example is solid body rotation.
-        # Does solid body rotation come out?
-        up, vp = 0, -1;
-        ur, vr = -1, -1;
+        """
+        This example is solid body rotation. Does solid body rotation come out?
+        Diagram of vector setup, depicting a solid-body counter-clockwise rotation:
+        <.R
+         |
+         |       ^
+         .Q - - .P
+        """
+        up, vp = 0, 1;
+        ur, vr = -1, 0;
         uq, vq = 0, 0;
         xinc, yinc = 1, 1;
-        dudx = (uq-up) / xinc;
-        dvdx = (vq-vp) / xinc;
-        dudy = (ur-up) / yinc;
-        dvdy = (vr-vp) / yinc;
+        dudx = (up-uq) / xinc;
+        dvdx = (vp-vq) / xinc;
+        dudy = (ur-uq) / yinc;
+        dvdy = (vr-vq) / yinc;
         [exx, exy, eyy, rotation] = strain_tensor_toolbox.compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy);
         print("Testing solid body rotation.")
         print("exx, exy, eyy: %f %f %f" % (exx, exy, eyy));
@@ -23,7 +30,32 @@ class Tests(unittest.TestCase):
         self.assertEqual(exx, 0);
         self.assertEqual(exy, 0);
         self.assertEqual(eyy, 0);
-        self.assertEqual(rotation, 1000);
+        self.assertEqual(rotation, 1);
+        return;
+
+    def test_simple_shear(self):
+        """
+        This example is simple shear, which has equal parts rotation and shear.
+        For diagram, see Turcotte and Schubert Figure 2-23b with point P as origin, points Q and R as mobile
+        """
+        theta = 0.1  # in radians
+        up, vp = 0, 0;
+        ur, vr = np.sin(theta), 0;
+        uq, vq = 0, 0;
+        xinc, yinc = 1, 1;
+        dudx = (uq-up) / xinc;
+        dvdx = (vq-vp) / xinc;
+        dudy = (ur-up) / yinc;
+        dvdy = (vr-vp) / yinc;
+        [exx, exy, eyy, rotation] = strain_tensor_toolbox.compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy);
+        print("Testing simple shear.")
+        print("exx, exy, eyy: %f %f %f" % (exx, exy, eyy));
+        print("rotation: %f" % rotation);
+        strain_quantity = 0.04991671;  # the computed answer
+        self.assertEqual(exx, 0);
+        self.assertAlmostEqual(exy, strain_quantity);
+        self.assertEqual(eyy, 0);
+        self.assertAlmostEqual(rotation, -strain_quantity);
         return;
 
     def test_reading_config(self):

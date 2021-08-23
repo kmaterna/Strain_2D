@@ -16,7 +16,7 @@ import numpy as np
 from scipy.spatial import Delaunay
 from numpy.linalg import inv
 from .. import strain_tensor_toolbox, output_manager, produce_gridded
-from strain.models.strain_2d import Strain_2d
+from Strain_Tools.strain.models.strain_2d import Strain_2d
 
 
 class delaunay_flat(Strain_2d):
@@ -119,10 +119,11 @@ def compute_with_delaunay_polygons(myVelfield):
         # # Compute a number of values based on tensor properties.
         # [e11, e22, v] = strain_tensor_toolbox.eigenvector_eigenvalue(exx, exy, eyy);
 
-        exx.append(exx_triangle);
-        exy.append(exy_triangle);
-        eyy.append(eyy_triangle);
-        rot.append(abs(rotation_triangle));
+        # Convert to nanostrain
+        exx.append(np.multiply(exx_triangle, 1000));
+        exy.append(np.multiply(exy_triangle, 1000));
+        eyy.append(np.multiply(eyy_triangle, 1000));
+        rot.append(abs(np.multiply(rotation_triangle, 1000)));
 
     print("Success computing strain via delaunay flat-earth method.\n");
 
