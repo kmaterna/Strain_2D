@@ -19,12 +19,11 @@ def read_stationvels(input_file):
     myVelfield = [];
     ifile = open(input_file, 'r');
     for line in ifile:
-        if len(line.split()) == 0:
-            continue;
-        if line.split()[0] == "#":
-            continue;
         temp = line.split();
-        lon = float(temp[0]);
+        try:
+            lon = float(temp[0]);
+        except ValueError:
+            continue
         lat = float(temp[1]);
         VE = float(temp[2]);
         VN = float(temp[3]);
