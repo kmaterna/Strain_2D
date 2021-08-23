@@ -89,14 +89,15 @@ class your_strain_method(strain_2d.Strain_2d):
         return
 
     def compute(self, myVelfield):
-        [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd] = your_strain_method_compute(myVelfield... etc);
-        return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = your_strain_method_compute(myVelfield... etc);
+        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 ```
 
 where:
 * myVelfield is a 1D list of StationVel objects (very easy to use).
 * lons is a 1D array of longitudes, in increasing order 
 * lats is a 1D array of latitudes, in increasing order
+* Ve and Vn are 2D arrays of geodetic velocities, if the method computed interpolated velocities (not every method does this)
 * rot_grd, exx_grd, exy_grd, eyy_grd are 2D arrays that correspond to lons/lats grids
     * exx/exy/eyy have units of nanostrain
     * rot has units of radians/Ka
