@@ -47,7 +47,7 @@ Four additional config parameters are required to use this method.
 
 4.  <ins>gpsgridder</ins>: based on a thin-sheet elastic interpolation scheme from Sandwell, D. T., and P. Wessel (2016), Interpolation of 2-D vector data using constraints from elasticity, GRL.  The implementation of the code is in GMT. Three additional config parameters are required to use this method. 
 
-5. <ins>huang</ins>: the weighted nearest neighbor algorithm of Mong-Han Huang. Two additional config parameters are required to use this method.
+5. <ins>huang</ins>: the weighted nearest neighbor algorithm of Mong-Han Huang and implemented in Handwerger, A. L., Huang, M. H., Fielding, E. J., Booth, A. M., & Bürgmann, R. (2019). A shift from drought to extreme rainfall drives a stable landslide to catastrophic failure. Scientific reports, 9(1), 1-12. Two additional config parameters are required to use this method.
 
 6.  <ins>tape</ins>: a wavelet-based matlab program from Tape, Muse, Simons, Dong, Webb, "Multiscale estimation of GPS velocity fields," Geophysical Journal International, 2009 (https://github.com/carltape/surfacevel2strain). Needs a matlab installation and some manual run steps.
 
@@ -68,7 +68,7 @@ This library uses the following units and sign conventions:
 * station velocities: units of mm/yr in the internal format
 * strain rates (exx, exy, eyy):
     * exx = dudx
-    * exy = 0.5 * (dvdx + dudy) .  Tensor shear strain rate (**not engineering shear strain rate**)
+    * exy = 0.5 * (dvdx + dudy) .  Tensor shear strain rate (*not engineering shear strain rate*)
     * units: nanostrain / yr (1e-9 / yr)
 * Rotation:
     * W = 0.5 * (dvdx - dudy)
@@ -80,11 +80,11 @@ This library uses the following units and sign conventions:
     * Dilatation = exx + eyy
     * units: nanostrain / year  
 * Max Shear: 
-    * e_max = sqrt((exx - eyy)^2 + exy^2) .  Tensor shear strain rate (**not engineering shear strain rate**)
+    * e_max = sqrt((exx - eyy)^2 + exy^2) .  Tensor shear strain rate (*not engineering shear strain rate*)
     * units: nanostrain / year
 
 ### Internal Library API
-If you're interested in contributing your own type of strain computation, I am happy to add new methods to the library.  You would need to build a Python 'compute' function that matches the API of the other compute functions in the repository (see models/strain_2d.py for template). 
+If you're interested in contributing your own type of strain computation, I am happy to add new methods to the library.  You would need to build a Python 'compute' function that matches the API of the other compute functions in the repository (see strain/models/strain_2d.py for template). 
 
 ```
 class your_strain_method(strain_2d.Strain_2d):
