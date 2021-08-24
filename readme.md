@@ -1,6 +1,10 @@
 
 ## 2D Strain Rate Calculators
-This library contains several methods to compute geodetic strain from a GPS velocity field.  It is intended to be used as a means to compare various strain modeling techniques on the same input data (see https://files.scec.org/s3fs-public/0930_Sandwell_UCERF_strain.pdf for an example showing the variability of strain modeling techniques). Several of the strain methods are borrowed from other authors, github repositories, and papers.  Credit should be given to the original authors accordingly.  
+[![Language](https://img.shields.io/badge/python-3%2B-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/kmaterna/Strain_2D/blob/dev/license.md)
+[![DOI](https://zenodo.org/badge/190659682.svg)](https://zenodo.org/badge/latestdoi/190659682)
+
+This library contains several methods to compute geodetic strain from a GPS velocity field.  It is intended to be used as a means to compare various strain modeling techniques on the same input data (see https://files.scec.org/s3fs-public/0930_Sandwell_UCERF_strain.pdf for an example showing the variability of strain modeling techniques). Several of the strain methods are borrowed from other authors, github repositories, and papers.  If you use the contributed strain techniques, credit should be given to the original authors accordingly.  
 
 ### Requirements:
 * Python3, numpy, scipy, matplotlib
@@ -116,4 +120,13 @@ To reproduce the figure in the README:
 5. Run: ```Display_output/comparison_rows_example.sh -125/-121/38/42``` to view a GMT plot with several strain rate calculations in Northern California together. 
 
 ![strain](https://github.com/kmaterna/2D_Strain/blob/master/example/Display_output/output_rows.png)
+
+### Citing
+[![DOI](https://zenodo.org/badge/190659682.svg)](https://zenodo.org/badge/latestdoi/190659682)
+
+If you use this library in your research, you can cite this repository using its DOI and associated version number. An example citation is as follows:
+
+Materna, K., J. Maurer, and L. Sandoe (2021). Strain-2D (version 1.0.0). https://github.com/kmaterna/Strain_2D. Archived at DOI: 10.5281/zenodo.5240908
+
+Further citation information will be updated in the future. 
 
