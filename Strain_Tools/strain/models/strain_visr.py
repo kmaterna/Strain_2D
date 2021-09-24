@@ -8,7 +8,7 @@
 
 
 import numpy as np
-from .. import produce_gridded
+from .. import utilities
 from strain.models.strain_2d import Strain_2d
 import subprocess, sys, os
 
@@ -163,7 +163,7 @@ def make_output_grids_from_strain_out(infile, range_strain, inc):
         print("ERROR! No valid strains have been computed. Try again.")
         sys.exit(0);
 
-    lons, lats, zgrid = produce_gridded.make_grid(range_strain, inc);
+    lons, lats, zgrid = utilities.make_grid(range_strain, inc);
 
     # Loop through x and y lists, find the index of coordinates in xaxis and yaxis sets, place them into 2d arrays.
     rot_grd = np.zeros(np.shape(zgrid));

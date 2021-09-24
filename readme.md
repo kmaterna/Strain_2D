@@ -33,8 +33,23 @@ Input velocities must be in a text file. They must be a space-separated table wi
 # lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)
 ``` 
 
-Output strain components and derived quantities (invariants, eigenvectors) are written as *pixel-node-registered* grd files and/or text files, and plotted in PyGMT.  
+### Outputs: 
+Output strain components and derived quantities (invariants, eigenvectors) are written as *pixel-node-registered* netCDF files and/or text files, and plotted in PyGMT.  
 
+To see what's inside the large netCDF file, you can call: 
+```bash
+#!/bin/bash 
+infile="gpsgridder_strain.nc"  # any output .nc file
+ncdump -h $infile
+```
+
+To convert one layer of the netCDF file (such as dilatation) into a valid pixel-node-registered grdfile, you can extact with GDAL if you have it.
+```bash
+#!/bin/bash 
+outfile="dilatation.grd"
+gmt_range="-121.01/-113.99/30.99/37.01"   #  technically half a pixel outside of each bound, for pixel-node-registration
+gmt grdedit $infile=gd?HDF5:"$infile"://dilatation -R$gmt_range -T -G$outfile   # send layer out pixel-node-registered grdfile, using GDAL. 
+``` 
 
 ### Contributing
 If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications. See the section on API below if you'd like to contribute a method. 

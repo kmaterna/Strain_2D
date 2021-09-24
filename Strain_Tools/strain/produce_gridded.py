@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.path
+from . import utilities
 
 def tri2grid(grid_inc, range_strain, triangle_vertices, rot, exx, exy, eyy):
     """
@@ -15,7 +16,7 @@ def tri2grid(grid_inc, range_strain, triangle_vertices, rot, exx, exy, eyy):
     :param exy: 1D array
     :param eyy: 1D array
     """
-    lons, lats, _ = make_grid(range_strain, grid_inc);
+    lons, lats, _ = utilities.make_grid(range_strain, grid_inc);
     print("Producing gridded dataset of: Exx")
     exx_grd = find_in_triangles(triangle_vertices, exx, lons, lats);
     print("Producing gridded dataset of: Exy")
@@ -25,25 +26,6 @@ def tri2grid(grid_inc, range_strain, triangle_vertices, rot, exx, exy, eyy):
     print("Producing gridded dataset of: Rot")
     rot_grd = find_in_triangles(triangle_vertices, rot, lons, lats);
     return lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd;
-
-
-def make_grid(coordbox, inc):
-    """
-    Assumption is a pixel-node-registered grid.
-    :param coordbox: [float, float, float, float] corresponding to [W, E, S, N]
-    :type coordbox: list
-    :param inc: [float, float] corresponding to [xinc, yinc]
-    :type inc: list
-    :returns: 1d array of lons, 1d array of lats, 2d array of zeros
-    """
-    lonmin = coordbox[0]
-    lonmax = coordbox[1]
-    latmin = coordbox[2]
-    latmax = coordbox[3]
-    lons = np.arange(lonmin, lonmax+0.00001, inc[0])
-    lats = np.arange(latmin, latmax+0.00001, inc[1])
-    grid = np.zeros((len(lats), len(lons)));
-    return lons, lats, grid
 
 
 def find_in_triangles(triangles, values, lons, lats):

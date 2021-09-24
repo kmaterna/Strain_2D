@@ -130,12 +130,33 @@ def check_coregistered_grids(range_strain, inc, strain_values_dict):
     return;
 
 
+# --------- GRID AND NAMED TUPLE UTILITIES ------------------ #
+
 def makeGrid(gridx, gridy, bounds):
     """Create a regular grid for kriging"""
     x = np.arange(bounds[0], bounds[1] + gridx/2, gridx) 
     y = np.arange(bounds[2], bounds[3] + gridy/2, gridy) 
     [X, Y] = np.meshgrid(x, y)
     return x, y, np.array([X.flatten(), Y.flatten()]).T
+
+
+def make_grid(coordbox, inc):
+    """
+    Assumption is a pixel-node-registered grid.
+    :param coordbox: [float, float, float, float] corresponding to [W, E, S, N]
+    :type coordbox: list
+    :param inc: [float, float] corresponding to [xinc, yinc]
+    :type inc: list
+    :returns: 1d array of lons, 1d array of lats, 2d array of zeros
+    """
+    lonmin = coordbox[0]
+    lonmax = coordbox[1]
+    latmin = coordbox[2]
+    latmax = coordbox[3]
+    lons = np.arange(lonmin, lonmax+0.00001, inc[0])
+    lats = np.arange(latmin, latmax+0.00001, inc[1])
+    grid = np.zeros((len(lats), len(lons)));
+    return lons, lats, grid
 
 
 def getVels(velField):
