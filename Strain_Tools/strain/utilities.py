@@ -85,48 +85,47 @@ def mask_by_value(grid1, grid_maskingbasis, cutoff_value):
 
 # --------- DEFENSIVE PROGRAMMING FOR COMPARING MULTIPLE GRIDS ------------------ #
 
-def check_coregistered_shapes(strain_values_dict):
+def check_coregistered_shapes(strain_values_ds):
     """
     Make sure arrays are of the same dimensions before attempting to produce any statistics
 
-    :param strain_values_dict: group of strain values from different calculations
+    :param strain_values_ds: xarray.DataSet of strain values from different calculations
     :returns: None
     """
-    method1 = list(strain_values_dict.keys())[0];
-    for method2 in strain_values_dict.keys():
-        v1 = strain_values_dict[method1][2];  # strain values array
-        v2 = strain_values_dict[method2][2];  # second strain values array
-        assert (np.shape(v1) == np.shape(v2)), ValueError(
-            "Error! Not all arrays have the same shape!  Cannot compare.");
+    x = np.array(strain_values_ds['x']);
+    y = np.array(strain_values_ds['y']);
+    for varname, da in strain_values_ds.data_vars.items():
+        nparray = np.array(strain_values_ds[varname]);
+        arrayshape = np.shape(nparray);
+        assert (arrayshape == (len(y), len(x)), ValueError(
+            "Error! Not all arrays have the same shape!  Cannot compare."));
     print("All methods have the same shape.");
     return;
 
 
-def check_coregistered_grids(range_strain, inc, strain_values_dict):
+def check_coregistered_grids(strain_values_ds, Params):
     """
     Check a number of grids for ranges and increment consistent with parameter ranges and increments
     Within a certain number of decimal places
 
-    :param range_strain: list
-    :param inc: list
-    :param strain_values_dict: group of strain values from different calculations
+    :param strain_values_ds: xarray.DataSet of strain values from different calculations
+    :param Params: namedtuple containing range_strain and inc (lists of floats)
     :returns: None
     """
-    range_strain = np.round(range_strain, 6);
-    inc = np.round(inc, 6);
-    for method in strain_values_dict.keys():
-        assert (range_strain[0] == np.round(strain_values_dict[method][0][0], 6)), ValueError(
-            "Lon of " + method + " doesn't match specs");
-        assert (range_strain[1] == np.round(strain_values_dict[method][0][-1], 6)), ValueError(
-            "Lon of " + method + " doesn't match specs");
-        assert (range_strain[2] == np.round(strain_values_dict[method][1][0], 6)), ValueError(
-            "Lat of " + method + " doesn't match specs");
-        assert (range_strain[3] == np.round(strain_values_dict[method][1][-1], 6)), ValueError(
-            "Lat of " + method + " doesn't match specs");
-        xinc = np.round(strain_values_dict[method][0][1] - strain_values_dict[method][0][0], 6);
-        yinc = np.round(strain_values_dict[method][1][1] - strain_values_dict[method][1][0], 6);
-        assert (xinc == inc[0]), ValueError("xinc of " + method + " doesn't match specs");
-        assert (yinc == inc[1]), ValueError("yinc of " + method + " doesn't match specs");
+    range_strain = np.round(Params.range_strain, 6);
+    inc = np.round(Params.inc, 6);
+    assert (range_strain[0] == np.round(strain_values_ds['x'][0], 6)), ValueError(
+        "Lon of "+str(strain_values_ds['x'][0])+" doesn't match specs");
+    assert (range_strain[1] == np.round(strain_values_ds['x'][-1], 6)), ValueError(
+        "Lon of " + str(strain_values_ds['x'][-1]) + " doesn't match specs");
+    assert (range_strain[2] == np.round(strain_values_ds['y'][0], 6)), ValueError(
+        "Lat of " + str(strain_values_ds['y'][0]) + " doesn't match specs");
+    assert (range_strain[3] == np.round(strain_values_ds['y'][-1], 6)), ValueError(
+        "Lat of " + str(strain_values_ds['y'][-1]) + " doesn't match specs");
+    xinc = np.round(strain_values_ds['x'][1] - strain_values_ds['x'][0], 6);
+    yinc = np.round(strain_values_ds['y'][1] - strain_values_ds['y'][0], 6);
+    assert (xinc == inc[0]), ValueError("xinc of " + str(xinc) + " doesn't match specs");
+    assert (yinc == inc[1]), ValueError("yinc of " + str(yinc) + " doesn't match specs");
     return;
 
 

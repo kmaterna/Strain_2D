@@ -199,7 +199,7 @@ def plot_I2nd_1D(region, polygon_vertices, I2nd, outdir, positive_eigs, negative
     return;
 
 
-def plot_method_differences(strain_dictionary, average_strains, region, outdir, outfile):
+def plot_method_differences(strain_values_ds, average_strains, region, outdir, outfile):
     """Useful for dilatation and max shear based on values in the color bar"""
     pygmt.makecpt(cmap="polar", series="-300/300/2", truncate="-1.0/1.0", background="o", output=outdir+"/mycpt.cpt");
     fig = pygmt.Figure();
@@ -213,13 +213,13 @@ def plot_method_differences(strain_dictionary, average_strains, region, outdir, 
                 with fig.set_panel(panel=index):  # sets the current panel
                     fig.basemap(region=region, projection=proj, frame=["WeSn", "2.0"]);
                     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue');
-                    for counter, name in enumerate(strain_dictionary.keys()):
+                    for counter, (varname, da) in enumerate(strain_values_ds.data_vars.items()):
                         if counter == index:
-                            plotting_data = strain_dictionary[name] - average_strains
+                            plotting_data = np.subtract(da, average_strains["mean"]);  # testing
                             fig.grdimage(plotting_data, projection=proj, region=region, cmap=outdir+"/mycpt.cpt");
                             fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black',
                                       water='lightblue');
-                            fig.text(position="BL", text=name+" minus mean", region=region, offset='0/0.1i');
+                            fig.text(position="BL", text=varname+" minus mean", region=region, offset='0/0.1i');
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/-0.5i", cmap=outdir+"/mycpt.cpt", truncate="-300/300",
                  frame=["x50", "y+L\"Nanostr/yr\""]);
     print("Saving Method Differences as %s." % outfile);

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+import os, sys
 import xarray as xr
 
 from . import utilities, strain_tensor_toolbox, velocity_io, pygmt_plots
@@ -10,13 +10,14 @@ def drive(MyParams):
     """
     A driver for taking statistics of several strain computations
     """
-    mean_ds = xr.Dataset()
-    mean_ds['max_shear'] = compare_grid_means(MyParams, "max_shear", simple_means_statistics)
-    mean_ds['dilatation'] = compare_grid_means(MyParams, "dilatation", simple_means_statistics)
-    mean_ds['I2'] = compare_grid_means(MyParams, "I2", log_means_statistics)
-    mean_ds['rotation'] = compare_grid_means(MyParams, "rotation", simple_means_statistics)
-    mean_ds['azimuth'] = compare_grid_means(MyParams, "azimuth", angular_means_statistics, mask=[MyParams.outdir+'/means_I2.nc', 3])
-    visualize_grid_means(MyParams, mean_ds)
+    mean_dss = xr.Dataset()
+    mean_dss['max_shear'] = compare_grid_means(MyParams, "max_shear", simple_means_statistics)
+    mean_dss['dilatation'] = compare_grid_means(MyParams, "dilatation", simple_means_statistics)
+    mean_dss['I2'] = compare_grid_means(MyParams, "I2", log_means_statistics)
+    mean_dss['rotation'] = compare_grid_means(MyParams, "rotation", simple_means_statistics)
+    mean_dss['azimuth'] = compare_grid_means(MyParams, "azimuth", angular_means_statistics,
+                                             mask=[MyParams.outdir+'/means_I2.nc', 3])
+    visualize_grid_means(MyParams, mean_dss)
 
 
 def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
@@ -38,21 +39,26 @@ def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
     ------
     mean_ds, std_ds: xarray Dataset - writes these to NETCDF
     """
-    strain_values_ds = velocity_io.read_multiple_strain_files(MyParams, plot_type);
-    mean_ds = strain_values_ds.to_array(dim='new').reduce(np.nanmean, dim='new')
-    std_ds = strain_values_ds.to_array(dim='new').reduce(np.nanstd, dim='new')
-    mean_ds.to_netcdf(os.path.join(MyParams.outdir, "means_"+filename))
-    std_ds.to_netcdf(os.path.join(MyParams.outdir, "devations_"+filename))
-    if "dila" in filename or "max_shear" in filename:
+    strain_values_ds = velocity_io.read_multiple_strain_netcdfs(MyParams, plot_type);
+    utilities.check_coregistered_shapes(strain_values_ds);
+    utilities.check_coregistered_grids(strain_values_ds, MyParams);
+    # here we extract each grid of plot_type into an xarray.Dataset
+
+    # This was intended to reduce time, but not every quantity uses a simple mean, so we can't do this.
+    # mean_ds = strain_values_ds.to_array(dim='new').reduce(np.nanmean, dim='new')
+    # std_ds = strain_values_ds.to_array(dim='new').reduce(np.nanstd, dim='new')
+    mean_ds, stds_ds = compute_grid_statistics(strain_values_ds, statistics_function);
+    mean_ds.to_netcdf(os.path.join(MyParams.outdir, "means_"+plot_type+".nc"))
+    stds_ds.to_netcdf(os.path.join(MyParams.outdir, "stds_" + plot_type + ".nc"))
+    if "dila" in plot_type or "max_shear" in plot_type:
         pygmt_plots.plot_method_differences(
             strain_values_ds,
-            mean_ds, 
+            mean_ds,
             MyParams.range_strain, 
             MyParams.outdir,
-            MyParams.outdir+"/separate_plots_"+filename.split('.')[0]+'.png'
+            MyParams.outdir+"/separate_plots_"+plot_type.split('.')[0]+'.png'
         )
-    return mean_ds
-
+    return mean_ds["mean"]
 
 def visualize_grid_means(MyParams, ds):
     """ Make pygmt plots of the means of all quantities """
@@ -66,32 +72,53 @@ def visualize_grid_means(MyParams, ds):
                              MyParams.outdir + "/means_azimuth.png");
     pygmt_plots.plot_rotation(ds['rotation'], [], MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir + "/means_rot.png");
-    plt.close('all') # clear the memory cache
+    plt.close('all')  # clear the memory cache
 
 
 # --------- COMPUTE FUNCTION ----------- #
 
-def compute_grid_statistics(strain_values_dict, statistic_function):
+def compute_grid_statistics(strain_values_ds, statistic_function):
     """
-    A function that takes statistics on several mutually co-registered grids.
+    A function that takes statistics on several mutually co-registered grids in an xarray.DataSet.
     This function basically runs a loop.
     The inner function must return a mean-like value and a standard-deviation-like value
-    The strain_values_dict has values that look like [lon, lat, data]
+    Returns a dataset
     """
-    first_key = list(strain_values_dict.keys())[0]
-    x = strain_values_dict[first_key][0];
-    y = strain_values_dict[first_key][1];
+
+    x = np.array(strain_values_ds['x']);
+    y = np.array(strain_values_ds['y']);
+    num_grids = len(strain_values_ds.data_vars.items());
+
+    # Unpacking into 3D numpy array
+    comparative_strain_values = np.zeros((len(y), len(x), num_grids));
+    for i, (varname, da) in enumerate(strain_values_ds.data_vars.items()):
+        comparative_strain_values[:, :, i] = np.array(da);
+
     mean_vals = np.nan * np.ones([len(y), len(x)])
     sd_vals = np.nan * np.ones([len(y), len(x)])
     for j in range(len(y)):
         for i in range(len(x)):
-            val_list = [];
-            for method in strain_values_dict.keys():
-                val_list.append(strain_values_dict[method][2][j][i]);
-            mean_val, sd_val = statistic_function(val_list);
-            mean_vals[j][i] = mean_val
-            sd_vals[j][i] = sd_val;
-    return x, y, mean_vals, sd_vals;
+            mean_vals[j][i], sd_vals[j][i] = statistic_function(comparative_strain_values[j][i][:]);
+
+    # Repacking result into DS
+    mean_ds = xr.Dataset(
+        {
+            "mean": (("y", "x"), mean_vals)        },
+        coords={
+            "x": ('x', x),
+            "y": ('y', y),
+        },
+    )
+    stds_ds = xr.Dataset(
+        {
+            "stds": (("y", "x"), sd_vals)
+        },
+        coords={
+            "x": ('x', x),
+            "y": ('y', y),
+        },
+    )
+    return mean_ds, stds_ds;
 
 
 def simple_means_statistics(value_list):

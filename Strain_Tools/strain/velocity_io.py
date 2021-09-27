@@ -1,8 +1,9 @@
 import collections
 import os
 import xarray as xr
+import numpy as np
+import copy
 
-from . import utilities
 
 StationVel = collections.namedtuple('StationVel', ['elon', 'nlat', 'e', 'n', 'u', 'se', 'sn', 'su', 'name']);
 
@@ -123,8 +124,8 @@ def write_multisegment_file(polygon_vertices, quantity, filename):
     return;
 
 
-# --------- READ FUNCTION ----------- #
-def read_multiple_strain_files(MyParams, plot_type):
+# --------- READ FUNCTION FOR MULTIPLE STRAIN NETCDFS ----------- #
+def read_multiple_strain_netcdfs(MyParams, plot_type):
     """
     Get all the models (e.g. gpsgridder, geostats, huang, etc.) that have computed plot_type of 
     strain rate and return them as a single xarray Dataset
@@ -138,15 +139,14 @@ def read_multiple_strain_files(MyParams, plot_type):
     -------
     ds_new: xarray Dataset - A dataset containing the plot_type variable from each type of model
     """
+    building_dict = {}
     for k, method in enumerate(MyParams.strain_dict.keys()):
         specific_filename = os.path.join(MyParams.strain_dict[method], "{}_strain.nc".format(method))
         ds = xr.load_dataset(specific_filename)
-        if k == 0:
-            ds_new = xr.Dataset(
-                {method: ds[plot_type]},
-                coords = ds.coords,
-            )
-        else:
-            ds_new[method] = ds[plot_type]
+        building_dict[method] = copy.deepcopy(ds[plot_type]);
+        print(method, np.nanmean(building_dict[method]), np.nanmean(copy.deepcopy(ds[plot_type])));
 
+    ds_new = xr.Dataset(building_dict, coords=ds.coords)
+    for method in MyParams.strain_dict.keys():
+        print(method, np.shape(ds_new[method]), np.nanmean(ds_new[method]))
     return ds_new
