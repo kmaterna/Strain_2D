@@ -3,8 +3,8 @@ import collections
 import configparser
 from . import utilities
 
-Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range_strain', 'range_data',
-                                           'inc', 'outdir', 'method_specific']);
+Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range_strain', 'range_data', 'inc',
+                                           'xdata', 'ydata', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
 avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  tape\n  visr\n "
@@ -62,13 +62,15 @@ def read_strain_config(configfile):
     for item in specific_keys:
         method_specific[item] = config.get(strain_method, item);
 
-    # Cleanup
+    # Cleanup and Grid Specification
     output_dir = output_dir + '/' + strain_method + '/'
     range_strain = utilities.get_float_range(range_strain);
     range_data = utilities.get_float_range(range_data);
     inc = utilities.get_float_inc(inc);
+    xdata, ydata, _ = utilities.make_grid(range_strain, inc);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
-                      range_data=range_data, inc=inc, outdir=output_dir, method_specific=method_specific);
+                      range_data=range_data, inc=inc, xdata=xdata, ydata=ydata,
+                      outdir=output_dir, method_specific=method_specific);
 
     print("\n------------------------------");
     print("Hello! We are...");

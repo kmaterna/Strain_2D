@@ -9,7 +9,7 @@ from scipy.spatial.distance import pdist, cdist, squareform
 
 from strain.models.strain_2d import Strain_2d
 from strain.strain_tensor_toolbox import strain_on_regular_grid
-from strain.utilities import makeGrid, getVels
+from strain.utilities import getVels
 
 
 class geostats(Strain_2d):
@@ -32,6 +32,8 @@ class geostats(Strain_2d):
                 params.inc, 
                 params.range_strain,
                 params.range_data,
+                params.xdata,
+                params.ydata,
                 params.outdir,
             )
         self._Name = 'geostatistical'
@@ -123,8 +125,10 @@ class geostats(Strain_2d):
         XY: 2D ndarray  A 2-D array ordered [x y] of query points. 
         '''
         if XY is None:
-            self._lons, self._lats, self._XY = makeGrid(self._grid_inc[0], self._grid_inc[1], self._strain_range)
+            self._lons, self._lats = self._xdata, self._ydata
             self._grid_shape = (len(self._lats), len(self._lons))
+            [X, Y] = np.meshgrid(self._lons, self._lats)
+            self._XY = np.array([X.flatten(), Y.flatten()]).T
         else:
             self._XY = XY
             self._grid_shape = XY_shape

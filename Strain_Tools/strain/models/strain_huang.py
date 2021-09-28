@@ -9,15 +9,15 @@ from strain.models.strain_2d import Strain_2d
 class huang(Strain_2d):
     """ Huang class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
-        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
+                           params.outdir);
         self._Name = 'huang'
         self._radiuskm, self._nstations = verify_inputs_huang(params.method_specific);
 
     def compute(self, myVelfield):
-        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_huang(myVelfield, self._strain_range,
-                                                                         self._grid_inc, self._radiuskm,
-                                                                         self._nstations);
-        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_huang(myVelfield, self._xdata, self._ydata,
+                                                                     self._radiuskm, self._nstations);
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def verify_inputs_huang(method_specific_dict):
@@ -31,12 +31,10 @@ def verify_inputs_huang(method_specific_dict):
     return radiuskm, nstations;
 
 
-def compute_huang(myVelfield, range_strain, inc, radiuskm, nstations):
+def compute_huang(myVelfield, xlons, ylats, radiuskm, nstations):
     print("------------------------------\nComputing strain via Huang method.");
 
     # Set up grids for the computation
-    ylats = np.arange(range_strain[2], range_strain[3]+0.00001, inc[1]);
-    xlons = np.arange(range_strain[0], range_strain[1]+0.00001, inc[0]);
     gx = len(xlons);  # number of x - grid
     gy = len(ylats);  # number of y - grid
 
@@ -145,7 +143,7 @@ def compute_huang(myVelfield, range_strain, inc, radiuskm, nstations):
     Ve = np.nan*np.empty(exx.shape)
     Vn = np.nan*np.empty(exx.shape)
 
-    return [xlons, ylats, Ve, Vn, rot, exx, exy, eyy];
+    return [Ve, Vn, rot, exx, exy, eyy];
 
 
 def velfield_to_huang_non_utm(myVelfield):

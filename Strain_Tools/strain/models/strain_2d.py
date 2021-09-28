@@ -10,6 +10,8 @@ class Strain_2d(ABC):
           xinc, yinc in degrees for the rectilinear grid on which strain is calculated
     strain_range: list of [float, float, float, float]
           west, east, south, north edges of bounding box for grid on which strain is calculated
+    xdata: 1d array of lon numbers
+    ydata: 1d array of lat numbers
     data_range: list of [float, float, float, float]
           west, east, south, north edges of box that contains geodetic data (potentially larger than strain_range)
 
@@ -18,12 +20,14 @@ class Strain_2d(ABC):
     compute(): required method that takes a velocity field and will eventually compute strain
     only provided as a template here
     """
-    def __init__(self, grid_inc, strain_range, data_range, outdir):
+    def __init__(self, grid_inc, strain_range, data_range, xdata, ydata, outdir):
         # Initialize general parameters
         self._Name = None
         self._grid_inc = grid_inc
         self._strain_range = strain_range
         self._data_range = data_range
+        self._xdata = xdata
+        self._ydata = ydata
         self._outdir = outdir
 
     def Method(self):

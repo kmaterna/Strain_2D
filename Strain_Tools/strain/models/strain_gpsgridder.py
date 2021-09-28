@@ -14,16 +14,17 @@ from strain.models.strain_2d import Strain_2d
 class gpsgridder(Strain_2d):
     """ gps_gridder class for 2d strain rate """
     def __init__(self, params):
-        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
+                           params.outdir);
         self._Name = 'gpsgridder'
         self._tempdir = params.outdir;
         self._poisson, self._fd, self._eigenvalue = verify_inputs_gpsgridder(params.method_specific);
 
     def compute(self, myVelfield):
-        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(myVelfield, self._strain_range,
-                                                                              self._grid_inc, self._poisson, self._fd,
-                                                                              self._eigenvalue, self._tempdir);
-        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(myVelfield, self._strain_range,
+                                                                          self._grid_inc, self._poisson, self._fd,
+                                                                          self._eigenvalue, self._tempdir);
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def verify_inputs_gpsgridder(method_specific_dict):
@@ -67,7 +68,7 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     # Get ready to do strain calculation.
     file1 = tempoutdir+"nc_u.nc";
     file2 = tempoutdir+"nc_v.nc";
-    [xdata, ydata, udata] = netcdf_read_write.read_any_grd(file1);
+    [_xdata, _ydata, udata] = netcdf_read_write.read_any_grd(file1);
     [_, _, vdata] = netcdf_read_write.read_any_grd(file2);
     udata = udata.T;
     vdata = vdata.T;
@@ -80,4 +81,4 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     [exx, eyy, exy, rot] = strain_tensor_toolbox.strain_on_regular_grid(xinc, yinc, udata * 1000, vdata * 1000)
 
     print("Success computing strain via gpsgridder method.\n");
-    return [xdata, ydata, udata.T, vdata.T, abs(rot.T), exx.T, exy.T, eyy.T];
+    return [udata.T, vdata.T, abs(rot.T), exx.T, exy.T, eyy.T];

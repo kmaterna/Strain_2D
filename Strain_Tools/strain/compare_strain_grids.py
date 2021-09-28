@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import os, sys
+import os
 import xarray as xr
 
 from . import utilities, strain_tensor_toolbox, velocity_io, pygmt_plots
@@ -41,7 +41,6 @@ def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
     """
     strain_values_ds = velocity_io.read_multiple_strain_netcdfs(MyParams, plot_type);
     utilities.check_coregistered_shapes(strain_values_ds);
-    utilities.check_coregistered_grids(strain_values_ds, MyParams);
     # here we extract each grid of plot_type into an xarray.Dataset
 
     # This was intended to reduce time, but not every quantity uses a simple mean, so we can't do this.

@@ -7,7 +7,8 @@ from strain.models.strain_2d import Strain_2d
 class tape(Strain_2d):
     """ Tape class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
-        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
+                           params.outdir);
         self._Name = 'tape'
         self._code_dir, self._qmin, self._qmax, self._qsec = verify_inputs_tape(params.method_specific);
 
@@ -26,15 +27,15 @@ class tape(Strain_2d):
         # Parse the results
         x, y, tt, tp, pp, rot = input_tape(output_tag+"_strain.dat", output_tag+"_Dtensor_6entries.dat", output_tag+"_Wtensor_3entries.dat");
         exx, exy, eyy, rot = compute_tape(tt, tp, pp, rot);
-        lons, lats, exx = nn_interp(x, y, exx, self._strain_range, self._grid_inc);
-        _, _, exy = nn_interp(x, y, exy, self._strain_range, self._grid_inc);
-        _, _, eyy = nn_interp(x, y, eyy, self._strain_range, self._grid_inc);
-        _, _, rot = nn_interp(x, y, rot, self._strain_range, self._grid_inc); 
+        _, _, exx = nn_interp(x, y, exx, self._xdata, self._ydata);
+        _, _, exy = nn_interp(x, y, exy, self._xdata, self._ydata);
+        _, _, eyy = nn_interp(x, y, eyy, self._xdata, self._ydata);
+        _, _, rot = nn_interp(x, y, rot, self._xdata, self._ydata);
 
         # Not sure whether Tape gives velocities or not
         Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape), 
 
-        return [lons, lats, Ve, Vn, rot, exx, exy, eyy];
+        return [Ve, Vn, rot, exx, exy, eyy];
 
 
 def verify_inputs_tape(method_specific_dict):
@@ -142,18 +143,15 @@ def compute_tape(thth, thph, phph, rot_sph):
     return exx, exy, eyy, rot
 
 
-def nn_interp(x, y, vals, coord_box, inc):
+def nn_interp(x, y, vals, newx, newy):
     """
-    Performs scipy nearest-neighbor interpolation on the data
+    Performs scipy nearest-neighbor interpolation on the data to a new regular grid of (newx, newy)
+    newx, newy are both 1D arrays.
     Assumes Tape scripts were run on a finer grid (try npts = 250)
-    the mins, maxes, and incriment should match that of other methods for easy comparison.
+    the mins, maxes, and increment should match that of other methods for easy comparison.
     """
-    xmin, xmax = coord_box[0], coord_box[1];
-    ymin, ymax = coord_box[2], coord_box[3];
-    newx = np.arange(xmin, xmax + inc[0]/2, inc[0]);  # pixel-node-registered grids
-    newy = np.arange(ymin, ymax + inc[1]/2, inc[1])
-    tempvals = []
 
+    tempvals = []
     nn_interpolator = interp.NearestNDInterpolator((x, y), vals)
     for i in range(len(newx)):
         for j in range(len(newy)):

@@ -7,7 +7,7 @@ from xarray import Dataset
 from . import strain_tensor_toolbox, velocity_io, pygmt_plots
 
 
-def outputs_2d(xdata, ydata, Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
+def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
     print("------------------------------\nWriting 2d outputs:");
     velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
@@ -28,17 +28,18 @@ def outputs_2d(xdata, ydata, Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
             "max_shear":  (("y", "x"), max_shear),
         },
         coords={
-            "x": ('x', xdata),
-            "y": ('y', ydata),
+            "x": ('x', MyParams.xdata),
+            "y": ('y', MyParams.ydata),
         },
     )
+    print("Writing file %s " % os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)));
     ds.to_netcdf(os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)))
 
     print("Max I2: %f " % (np.nanmax(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.nanmin(rot), np.nanmax(rot)) );
 
     # get grid eigenvectors for plotting
-    [positive_eigs, negative_eigs] = get_grid_eigenvectors(xdata, ydata, e1, e2, v00, v01, v10, v11);
+    [positive_eigs, negative_eigs] = get_grid_eigenvectors(MyParams.xdata, MyParams.ydata, e1, e2, v00, v01, v10, v11);
     velocity_io.write_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt');
     velocity_io.write_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
 

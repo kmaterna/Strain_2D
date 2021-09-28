@@ -49,6 +49,7 @@ To convert one layer of the netCDF file (such as dilatation) into a valid pixel-
 outfile="dilatation.grd"
 gmt_range="-121.01/-113.99/30.99/37.01"   #  technically half a pixel outside of each bound, for pixel-node-registration
 gmt grdedit $infile=gd?HDF5:"$infile"://dilatation -R$gmt_range -T -G$outfile   # send layer out pixel-node-registered grdfile, using GDAL. 
+gmt grdedit $outfile -Ev   # top-bottom flip for latitude increasing vs column number increasing
 ``` 
 
 ### Contributing
@@ -113,8 +114,8 @@ class your_strain_method(strain_2d.Strain_2d):
         return
 
     def compute(self, myVelfield):
-        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = your_strain_method_compute(myVelfield... etc);
-        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = your_strain_method_compute(myVelfield... etc);
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 ```
 
 where:

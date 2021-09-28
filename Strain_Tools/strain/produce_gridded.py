@@ -2,21 +2,19 @@
 
 import numpy as np
 import matplotlib.path
-from . import utilities
 
-def tri2grid(grid_inc, range_strain, triangle_vertices, rot, exx, exy, eyy):
+def tri2grid(lons, lats, triangle_vertices, rot, exx, exy, eyy):
     """
     Bring delaunay 1-D quantities into the same 2-D form as the other methods
 
-    :param grid_inc: list
-    :param range_strain: list
+    :param lons: list
+    :param lats: list
     :param triangle_vertices: list
     :param rot: 1D array
     :param exx: 1D array
     :param exy: 1D array
     :param eyy: 1D array
     """
-    lons, lats, _ = utilities.make_grid(range_strain, grid_inc);
     print("Producing gridded dataset of: Exx")
     exx_grd = find_in_triangles(triangle_vertices, exx, lons, lats);
     print("Producing gridded dataset of: Exy")
@@ -25,7 +23,7 @@ def tri2grid(grid_inc, range_strain, triangle_vertices, rot, exx, exy, eyy):
     eyy_grd = find_in_triangles(triangle_vertices, eyy, lons, lats);
     print("Producing gridded dataset of: Rot")
     rot_grd = find_in_triangles(triangle_vertices, rot, lons, lats);
-    return lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd;
+    return rot_grd, exx_grd, exy_grd, eyy_grd;
 
 
 def find_in_triangles(triangles, values, lons, lats):

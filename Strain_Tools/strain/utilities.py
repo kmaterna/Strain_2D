@@ -103,41 +103,7 @@ def check_coregistered_shapes(strain_values_ds):
     return;
 
 
-def check_coregistered_grids(strain_values_ds, Params):
-    """
-    Check a number of grids for ranges and increment consistent with parameter ranges and increments
-    Within a certain number of decimal places
-
-    :param strain_values_ds: xarray.DataSet of strain values from different calculations
-    :param Params: namedtuple containing range_strain and inc (lists of floats)
-    :returns: None
-    """
-    range_strain = np.round(Params.range_strain, 6);
-    inc = np.round(Params.inc, 6);
-    assert (range_strain[0] == np.round(strain_values_ds['x'][0], 6)), ValueError(
-        "Lon of "+str(strain_values_ds['x'][0])+" doesn't match specs");
-    assert (range_strain[1] == np.round(strain_values_ds['x'][-1], 6)), ValueError(
-        "Lon of " + str(strain_values_ds['x'][-1]) + " doesn't match specs");
-    assert (range_strain[2] == np.round(strain_values_ds['y'][0], 6)), ValueError(
-        "Lat of " + str(strain_values_ds['y'][0]) + " doesn't match specs");
-    assert (range_strain[3] == np.round(strain_values_ds['y'][-1], 6)), ValueError(
-        "Lat of " + str(strain_values_ds['y'][-1]) + " doesn't match specs");
-    xinc = np.round(strain_values_ds['x'][1] - strain_values_ds['x'][0], 6);
-    yinc = np.round(strain_values_ds['y'][1] - strain_values_ds['y'][0], 6);
-    assert (xinc == inc[0]), ValueError("xinc of " + str(xinc) + " doesn't match specs");
-    assert (yinc == inc[1]), ValueError("yinc of " + str(yinc) + " doesn't match specs");
-    return;
-
-
 # --------- GRID AND NAMED TUPLE UTILITIES ------------------ #
-
-def makeGrid(gridx, gridy, bounds):
-    """Create a regular grid for kriging"""
-    x = np.arange(bounds[0], bounds[1] + gridx/2, gridx) 
-    y = np.arange(bounds[2], bounds[3] + gridy/2, gridy) 
-    [X, Y] = np.meshgrid(x, y)
-    return x, y, np.array([X.flatten(), Y.flatten()]).T
-
 
 def make_grid(coordbox, inc):
     """
@@ -148,10 +114,8 @@ def make_grid(coordbox, inc):
     :type inc: list
     :returns: 1d array of lons, 1d array of lats, 2d array of zeros
     """
-    lonmin = coordbox[0]
-    lonmax = coordbox[1]
-    latmin = coordbox[2]
-    latmax = coordbox[3]
+    lonmin, lonmax = coordbox[0], coordbox[1]
+    latmin, latmax = coordbox[2], coordbox[3]
     lons = np.arange(lonmin, lonmax+0.00001, inc[0])
     lats = np.arange(latmin, latmax+0.00001, inc[1])
     grid = np.zeros((len(lats), len(lons)));

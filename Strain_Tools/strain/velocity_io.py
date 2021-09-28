@@ -1,8 +1,6 @@
 import collections
 import os
 import xarray as xr
-import numpy as np
-import copy
 
 
 StationVel = collections.namedtuple('StationVel', ['elon', 'nlat', 'e', 'n', 'u', 'se', 'sn', 'su', 'name']);
@@ -132,8 +130,8 @@ def read_multiple_strain_netcdfs(MyParams, plot_type):
 
     Parameters
     ----------
-    MyParams: dict - Parameter Dictionary containing strain rates in a sub-dict
-    plot_type: str - The type of strain rate quantify to return. Can be max_shear, dilatation, etc.
+    MyParams: dict - Parameter Dictionary containing strain rate methods/directories in a sub-dict
+    plot_type: str - The type of strain rate quantity to return. Can be max_shear, dilatation, etc.
     
     Returns
     -------
@@ -143,10 +141,7 @@ def read_multiple_strain_netcdfs(MyParams, plot_type):
     for k, method in enumerate(MyParams.strain_dict.keys()):
         specific_filename = os.path.join(MyParams.strain_dict[method], "{}_strain.nc".format(method))
         ds = xr.load_dataset(specific_filename)
-        building_dict[method] = copy.deepcopy(ds[plot_type]);
-        print(method, np.nanmean(building_dict[method]), np.nanmean(copy.deepcopy(ds[plot_type])));
+        building_dict[method] = ds[plot_type];
 
     ds_new = xr.Dataset(building_dict, coords=ds.coords)
-    for method in MyParams.strain_dict.keys():
-        print(method, np.shape(ds_new[method]), np.nanmean(ds_new[method]))
     return ds_new

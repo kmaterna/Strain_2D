@@ -57,7 +57,8 @@ from strain.models.strain_2d import Strain_2d
 class delaunay(Strain_2d):
     """ Delaunay class for 2d strain rate """
     def __init__(self, params):
-        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir)
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
+                           params.outdir)
         self._Name = 'delaunay'
 
     def compute(self, myVelfield):
@@ -65,7 +66,7 @@ class delaunay(Strain_2d):
 
         [xcentroid, ycentroid, triangle_verts, rot, exx, exy, eyy] = compute_with_delaunay_polygons(myVelfield);
 
-        lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.tri2grid(self._grid_inc, self._strain_range,
+        rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.tri2grid(self._xdata, self._ydata,
                                                                                   triangle_verts, rot, exx, exy, eyy);
 
         # Here we output convenient things on polygons, since it's intuitive for the user.
@@ -76,7 +77,7 @@ class delaunay(Strain_2d):
         Ve, Vn = np.nan*np.empty(exx_grd.shape), np.nan*np.empty(exx_grd.shape)
 
         print("Success computing strain via Delaunay method.\n");
-        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def compute_with_delaunay_polygons(myVelfield):

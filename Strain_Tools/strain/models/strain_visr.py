@@ -8,7 +8,6 @@
 
 
 import numpy as np
-from .. import utilities
 from strain.models.strain_2d import Strain_2d
 import subprocess, sys, os
 
@@ -16,16 +15,18 @@ import subprocess, sys, os
 class visr(Strain_2d):
     """ Visr class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
-        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
+                           params.outdir);
         self._Name = 'visr';
         self._tempdir = params.outdir;
         self._distwgt, self._spatwgt, self._smoothincs, self._exec = verify_inputs_visr(params.method_specific);
 
     def compute(self, myVelfield):
-        [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(myVelfield, self._strain_range, self._grid_inc,
-                                                                        self._distwgt, self._spatwgt,
-                                                                        self._smoothincs, self._exec, self._tempdir);
-        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(myVelfield, self._strain_range, self._grid_inc,
+                                                                    self._xdata, self._ydata,
+                                                                    self._distwgt, self._spatwgt,
+                                                                    self._smoothincs, self._exec, self._tempdir);
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def verify_inputs_visr(method_specific_dict):
@@ -44,7 +45,7 @@ def verify_inputs_visr(method_specific_dict):
     return distance_weighting, spatial_weighting, min_max_inc_smooth, executable;
 
 
-def compute_visr(myVelfield, strain_range, inc, distwgt, spatwgt, smoothincs, executable, tempdir):
+def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, smoothincs, executable, tempdir):
     print("------------------------------\nComputing strain via Visr method.");
     strain_config_file = 'visr_strain.drv';
     strain_data_file = 'strain_input.txt';  # can only be 20 characters long bc fortran!
@@ -55,7 +56,7 @@ def compute_visr(myVelfield, strain_range, inc, distwgt, spatwgt, smoothincs, ex
     call_fortran_compute(strain_config_file, executable);
 
     # We convert that text file into grids, which we will write as GMT grd files.
-    [xdata, ydata, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file, strain_range, inc);
+    [rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file, xdata, ydata);
     subprocess.call(['mv', strain_config_file, tempdir], shell=False);
     subprocess.call(['mv', strain_data_file, tempdir], shell=False);
     subprocess.call(['mv', strain_output_file, tempdir], shell=False);
@@ -64,7 +65,7 @@ def compute_visr(myVelfield, strain_range, inc, distwgt, spatwgt, smoothincs, ex
     # I know visr allows for velocity calculation, but dropping this in here now as a placeholder
     Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape)
 
-    return [xdata, ydata, Ve, Vn, rot, exx, exy, eyy];
+    return [Ve, Vn, rot, exx, exy, eyy];
 
 
 def write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, range_strain, inc, distwgt, spatwgt, smoothincs):
@@ -142,7 +143,7 @@ def call_fortran_compute(config_file, executable):
     return;
 
 
-def make_output_grids_from_strain_out(infile, range_strain, inc):
+def make_output_grids_from_strain_out(infile, xdata, ydata):
     x, y = [], [];
     rotation, exx, exy, eyy = [], [], [], [];
     ifile = open(infile, 'r');
@@ -163,15 +164,13 @@ def make_output_grids_from_strain_out(infile, range_strain, inc):
         print("ERROR! No valid strains have been computed. Try again.")
         sys.exit(0);
 
-    lons, lats, zgrid = utilities.make_grid(range_strain, inc);
-
     # Loop through x and y lists, find the index of coordinates in xaxis and yaxis sets, place them into 2d arrays.
-    rot_grd = np.zeros(np.shape(zgrid));
-    exx_grd = np.zeros(np.shape(zgrid));
-    exy_grd = np.zeros(np.shape(zgrid));
-    eyy_grd = np.zeros(np.shape(zgrid));
-    lons = np.round(lons, 6);
-    lats = np.round(lats, 6);
+    rot_grd = np.zeros((len(ydata), len(xdata)));
+    exx_grd = np.zeros((len(ydata), len(xdata)));
+    exy_grd = np.zeros((len(ydata), len(xdata)));
+    eyy_grd = np.zeros((len(ydata), len(xdata)));
+    lons = np.round(xdata, 6);
+    lats = np.round(ydata, 6);
     x = np.round(x, 6);
     y = np.round(y, 6);
 
@@ -185,7 +184,7 @@ def make_output_grids_from_strain_out(infile, range_strain, inc):
         exy_grd[yindex][xindex] = exy[i];
         eyy_grd[yindex][xindex] = eyy[i];
 
-    return [lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd];
+    return [rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def check_fortran_executable(path_to_executable):

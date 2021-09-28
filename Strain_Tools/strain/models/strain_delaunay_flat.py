@@ -22,7 +22,8 @@ from Strain_Tools.strain.models.strain_2d import Strain_2d
 class delaunay_flat(Strain_2d):
     """ Delaunay class for 2d strain rate """
     def __init__(self, params):
-        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir)
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
+                           params.outdir)
         self._Name = 'delaunay_flat'
 
     def compute(self, myVelfield):
@@ -30,8 +31,8 @@ class delaunay_flat(Strain_2d):
 
         [xcentroid, ycentroid, triangle_verts, rot, exx, exy, eyy] = compute_with_delaunay_polygons(myVelfield);
 
-        lons, lats, rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.tri2grid(self._grid_inc, self._strain_range,
-                                                                                  triangle_verts, rot, exx, exy, eyy);
+        rot_grd, exx_grd, exy_grd, eyy_grd = produce_gridded.tri2grid(self._xdata, self._ydata,
+                                                                      triangle_verts, rot, exx, exy, eyy);
 
         # Here we output convenient things on polygons, since it's intuitive for the user.
         output_manager.outputs_1d(
@@ -47,10 +48,10 @@ class delaunay_flat(Strain_2d):
         );
 
         # Velocities aren't used in Delaunay
-        Ve, Vn = np.nan*np.empty((4,4)), np.nan*np.empty((4,4))
+        Ve, Vn = np.nan*np.empty((4, 4)), np.nan*np.empty((4, 4))
 
         print("Success computing strain via Delaunay method.\n");
-        return [lons, lats, Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 # ----------------- COMPUTE -------------------------
