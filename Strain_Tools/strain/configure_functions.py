@@ -122,10 +122,10 @@ def write_example_strain_config(outfile):
     d5 = configobj["geostats"];
     d5["model_type"] = "Gaussian";
     d5["sill_east"] = "20";
-    d5["range_east"] = "29/111";
+    d5["range_east"] = "0.2613"; # This is 29 km / 111 km /deg
     d5["nugget_east"] = "3";
     d5["sill_north"] = "20";
-    d5["range_north"] = "38/111";
+    d5["range_north"] = "0.342"; # This is 38 km / 111 km / deg
     d5["nugget_north"] = "6";
     d5["trend"] = "0";
     dcomps = configobj["strain-comparison"];
