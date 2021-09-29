@@ -59,7 +59,7 @@ class Tests(unittest.TestCase):
         return;
 
     def test_reading_config(self):
-        MyParams = configure_functions.read_strain_config(configfile="example/example_strain_config_auto.txt");
+        MyParams = configure_functions.read_strain_config(configfile="example/example_strain_config.txt");
         self.assertTrue(MyParams);
         return;
 
