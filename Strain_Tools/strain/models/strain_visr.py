@@ -50,7 +50,8 @@ def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, 
     strain_config_file = 'visr_strain.drv';
     strain_data_file = 'strain_input.txt';  # can only be 20 characters long bc fortran!
     strain_output_file = 'strain_output.txt';  # can only be 20 characters long bc fortran!
-    write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, strain_range, inc, distwgt, spatwgt, smoothincs);
+    write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, strain_range, inc, distwgt,
+                              spatwgt, smoothincs);
     write_fortran_data_file(strain_data_file, myVelfield);
     check_fortran_executable(executable);
     call_fortran_compute(strain_config_file, executable);
@@ -68,7 +69,8 @@ def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, 
     return [Ve, Vn, rot, exx, exy, eyy];
 
 
-def write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, range_strain, inc, distwgt, spatwgt, smoothincs):
+def write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, range_strain, inc,
+                              distwgt, spatwgt, smoothincs):
     # The config file will have the following components.
     """
     visr/visr_drive_strain.drv contains:
@@ -139,7 +141,7 @@ def call_fortran_compute(config_file, executable):
     # It will output a large text file.
     print("Calling visr.exe fortran code to compute strain: ");
     print(executable + ' < ' + config_file);
-    subprocess.call(executable + ' < '+config_file, shell=True);
+    subprocess.call(executable + ' < ' + config_file, shell=True);   # doesn't work in shell=false way
     return;
 
 

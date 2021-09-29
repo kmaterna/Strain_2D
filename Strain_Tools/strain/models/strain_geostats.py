@@ -43,28 +43,28 @@ class geostats(Strain_2d):
         else:
             self._model_type = params.method_specific['model_type']
             self._model_east = self.getVariogram(
-                    model_type = self._model_type,
-                    sill = np.float64(params.method_specific['sill_east']),
-                    rang = np.float64(params.method_specific['range_east']),
-                    nugget = np.float64(params.method_specific['nugget_east']),
-                    trend = bool(params.method_specific['trend']),
+                    model_type=self._model_type,
+                    sill=np.float64(params.method_specific['sill_east']),
+                    rang=np.float64(params.method_specific['range_east']),
+                    nugget=np.float64(params.method_specific['nugget_east']),
+                    trend=bool(params.method_specific['trend']),
                 )
             self._model_north = self.getVariogram(
-                    model_type = self._model_type,
-                    sill = np.float64(params.method_specific['sill_north']),
-                    rang = np.float64(params.method_specific['range_north']),
-                    nugget = np.float64(params.method_specific['nugget_north']),
-                    trend = bool(params.method_specific['trend']),
+                    model_type=self._model_type,
+                    sill=np.float64(params.method_specific['sill_north']),
+                    rang=np.float64(params.method_specific['range_north']),
+                    nugget=np.float64(params.method_specific['nugget_north']),
+                    trend=bool(params.method_specific['trend']),
                 )
         self.setGrid(None)
 
     def __repr__(self):
-          out_str = '''I'm a class for generating strain rates using kriging.
-          {}
-          '''.format(
-              self._model.__repr__()
-          )
-          return out_str
+        out_str = '''I'm a class for generating strain rates using kriging.
+        {}
+        '''.format(
+            self._model.__repr__()
+        )
+        return out_str
 
     def getVariogram(
             self, 
@@ -72,34 +72,38 @@ class geostats(Strain_2d):
             sill,
             rang,
             nugget=None,
-            trend=False,
-        ):
-        ''' 
-        Set the parameters of the spatial structure function 
+            trend=False
+            ):
+        """
+        Set the parameters of the spatial structure function
+        Former docs:
+        c0: list                    Single or list of lists containing the
+                                    initial parameter guesses for the
+                                    variogram model type
     
         Parameters
         ----------
         model_type: str or list     Covariance model type
-        c0: list                    Single or list of lists containing the 
-                                    initial parameter guesses for the 
-                                    variogram model type
+        sill:
+        rang:
+        nugget:
         trend: boolean or list      Use a trend or not, can be a list of bool
-        '''
+        """
         try:
             _model = eval(model_type)
             _model = _model()
         except AttributeError:
             raise ValueError('Model "{}" has not been implemented'.format(model_type))
         _model.setParms(
-            sill = sill,
-            range = rang,
-            use_nugget = [True if nugget is not None else False],
-            nugget = nugget
+            sill=sill,
+            range=rang,
+            use_nugget=[True if nugget is not None else False],
+            nugget=nugget
         )
         return _model
 
     def setPoints(self, xy, data):
-        '''
+        """
         Set the data for kriging.
 
         Parameters
@@ -107,23 +111,24 @@ class geostats(Strain_2d):
         xy: 2D ndarray          XY locations of the input data
         data: 1 or 2D ndarray   Data to krige. If 2D, will do each dim 
                                 separately
-        '''
-        if data.ndim !=2:
+        """
+        if data.ndim != 2:
             raise ValueError(
                 'Input data should be an N x 2 matrix of [easting, northing]'
             )
         self._xy = xy
-        self._easting = np.array(data)[:,0]
-        self._northing = np.array(data)[:,1]
+        self._easting = np.array(data)[:, 0]
+        self._northing = np.array(data)[:, 1]
 
     def setGrid(self, XY=None, XY_shape=None):
-        '''
+        """
         Set the query point grid for kriging
 
         Parameters
         ----------
-        XY: 2D ndarray  A 2-D array ordered [x y] of query points. 
-        '''
+        XY: 2D ndarray  A 2-D array ordered [x y] of query points.
+        XY_shape: tuple of two integers, (n, m), shape of XY
+        """
         if XY is None:
             self._lons, self._lats = self._xdata, self._ydata
             self._grid_shape = (len(self._lats), len(self._lons))
@@ -134,19 +139,19 @@ class geostats(Strain_2d):
             self._grid_shape = XY_shape
 
     def krige_east(self, model, ktype='ok'):
-        ''' 
+        """
         Interpolate velocities using kriging
-        '''
+        """
         return krige(self._xy, self._XY, self._easting, self._model_east, ktype=ktype)
 
     def krige_north(self, model, ktype='ok'):
-        ''' 
+        """
         Interpolate velocities using kriging
-        '''
+        """
         return krige(self._xy, self._XY, self._northing, self._model_north, ktype=ktype)
 
     def compute(self, myVelfield):
-        '''Compute the interpolated velocity field'''
+        """Compute the interpolated velocity field"""
 
         dlon, dlat, e, n, se, sn = getVels(myVelfield)
         xy = np.stack([dlon, dlat], axis=-1)
@@ -160,17 +165,17 @@ class geostats(Strain_2d):
         Vn = Dest_n.reshape(self._grid_shape)
 
         # Compute strain rates
-        dx, dy =  self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
+        dx, dy = self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
         exx, eyy, exy, rot = strain_on_regular_grid(dx, dy, Ve, Vn)
 
         # Return the strain rates etc.
-        return self._lons, self._lats, Ve, Vn, rot, exx, exy, eyy
+        return Ve, Vn, rot, exx, exy, eyy
         
 
 def krige(xy, XY, data, model, ktype='ok'):
-    ''' 
+    """
     Interpolate velocities using kriging
-    '''
+    """
     # Create the data covariance matrix
     SIG = compute_covariance(model, xy)
     SIG = SIG + np.sqrt(np.finfo(float).eps)*np.eye(SIG.shape[0])
@@ -195,7 +200,7 @@ def krige(xy, XY, data, model, ktype='ok'):
 
 
 def simple_kriging(SIG, sig0, data, sig2):
-    '''
+    """
     Perform simple (i.e. zero-mean) kriging
 
     Parameters
@@ -210,19 +215,19 @@ def simple_kriging(SIG, sig0, data, sig2):
     Dest: M x 1 ndarray - Expected value of the field at the query locations
     Dsig: M x 1 ndarray - Sqrt of the kriging variance for each query location
     lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
-    '''
+    """
     A = SIG
     B = sig0
-    lam = np.linalg.lstsq(A,B, rcond=None)
+    lam = np.linalg.lstsq(A, B, rcond=None)
     Dest = np.dot(lam.T, data)
-    Dsig=[]
+    Dsig = []
     for k in range(lam.shape[1]):
-        Dsig.append(np.sqrt(sig2 - np.dot(lam[:,k], sig0[:,k])))
+        Dsig.append(np.sqrt(sig2 - np.dot(lam[:, k], sig0[:, k])))
     return Dest, np.array(Dsig), lam
 
 
 def ordinary_kriging(SIG, sig0, data, sig2):
-    '''
+    """
     Perform ordinary kriging (stationary non-zero mean)
 
     Parameters
@@ -237,24 +242,24 @@ def ordinary_kriging(SIG, sig0, data, sig2):
     Dest: M x 1 ndarray - Expected value of the field at the query locations
     Dsig: M x 1 ndarray - Sqrt of the kriging variance for each query location
     lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
-    '''
-    M,N = sig0.shape
+    """
+    M, N = sig0.shape
     A = np.block([
-        [SIG, np.ones((M,1))],
-        [np.ones((1,M)), 0],
+        [SIG, np.ones((M, 1))],
+        [np.ones((1, M)), 0],
     ])
-    B = np.vstack([sig0, np.ones((1,N))])
-    lam_nu, _, _, _ = np.linalg.lstsq(A,B, rcond=None)
-    lam = lam_nu[:-1,:]; nu = -lam_nu[-1,:]
+    B = np.vstack([sig0, np.ones((1, N))])
+    lam_nu, _, _, _ = np.linalg.lstsq(A, B, rcond=None)
+    lam = lam_nu[:-1, :]; nu = -lam_nu[-1, :]
     Dest = np.dot(lam.T, data)
-    Dsig=[]
+    Dsig = []
     for k in range(lam.shape[1]):
-        Dsig.append(np.sqrt(sig2 - np.dot(lam[:,k], sig0[:,k]) + nu[k]))
+        Dsig.append(np.sqrt(sig2 - np.dot(lam[:, k], sig0[:, k]) + nu[k]))
     return Dest, np.array(Dsig), lam, nu
 
 
 def universal_kriging(SIG, sig0, data, sig2, xy, XY):
-    '''
+    """
     Perform universal kriging (field can be a linear function of "space". In reality 
     "space" can be any auxilliary variables, such as xy-location, topographic height, etc.)
 
@@ -272,29 +277,29 @@ def universal_kriging(SIG, sig0, data, sig2, xy, XY):
     Dest: M x 1 ndarray - Expected value of the field at the query locations
     Dsig: M x 1 ndarray - Sqrt of the kriging variance for each query location
     lam:  N x M ndarray - weights relating all of the data locations to all of the query locations
-    '''
+    """
     raise NotImplementedError
 
 
 def compute_covariance(model, xy, XY=None):
-    '''Returns the covariance matrix for a given set of data'''
-    if xy.size==1:
+    """Returns the covariance matrix for a given set of data"""
+    if xy.size == 1:
         dist = 0
     elif XY is None:
         dist = squareform(pdist(xy))
     else:
-        dist = cdist(xy,XY)
+        dist = cdist(xy, XY)
 
     C = model(dist)
     return C
 
 
 class VariogramModel(ABC):
-    ''' Defines the base variogram model class'''
+    """ Defines the base variogram model class"""
     def __init__(
-        self,
-        model_type,
-      ):
+            self,
+            model_type
+            ):
         self._model = model_type
         self._params = {}
         self._params['sill'] = None
@@ -310,7 +315,7 @@ class VariogramModel(ABC):
           self._model,
           self._params['sill'],
           self._params['range'],
-          ["using" if self._params[nugget] is not None else "not using"][0],
+          ["using" if self._params['nugget'] is not None else "not using"][0],
           self._params['nugget']
         )
       return out_str
@@ -320,9 +325,9 @@ class VariogramModel(ABC):
         pass
 
     def getParms(self):
-        return  self._params['sill'], \
-                self._params['range'], \
-                self._params['nugget']
+        return self._params['sill'], \
+               self._params['range'], \
+               self._params['nugget']
 
     def setParms(self, **kwargs):
       for key, value in kwargs.items():
@@ -332,24 +337,25 @@ class VariogramModel(ABC):
         return self._params['sill']
 
 class Nugget(VariogramModel):
-    '''Implements a nugget model'''
-    def __init__(self, nugget = None):
+    """Implements a nugget model"""
+    def __init__(self, nugget=None):
         VariogramModel.__init__(self, 'Nugget')
+
     def __call__(self, h):
         if self._params['nugget'] is None:
             raise RuntimeError('You must first specify a nugget')
-        return self._params['nugget']*(h == 0) # params is a scalar for nugget
+        return self._params['nugget']*(h == 0)  # params is a scalar for nugget
 
 
 class Gaussian(VariogramModel):
-    '''Implements a Gaussian model'''
+    """Implements a Gaussian model"""
     def __init__(self,
-            sill=None,
-            range=None,
-            nugget=None,
-        ):
+                 sill=None,
+                 range=None,
+                 nugget=None
+                 ):
         VariogramModel.__init__(self, 'Gaussian')
-        self.setParms(sill = sill, range = range, nugget = nugget)
+        self.setParms(sill=sill, range=range, nugget=nugget)
 
     def __call__(self, h):
         if self._params['sill'] is None:
@@ -361,14 +367,14 @@ class Gaussian(VariogramModel):
 
 
 class Exponential(VariogramModel):
-    '''Implements an Exponential model'''
+    """Implements an Exponential model"""
     def __init__(self,
-            sill=None,
-            range=None,
-            nugget=None,
-        ):
+                 sill=None,
+                 range=None,
+                 nugget=None
+                 ):
         VariogramModel.__init__(self, 'Exponential')
-        self.setParms(sill = sill, range = range, nugget = nugget)
+        self.setParms(sill=sill, range=range, nugget=nugget)
 
     def __call__(self, h):
         if self._params is None:
@@ -376,7 +382,7 @@ class Exponential(VariogramModel):
         if not self._params['nugget'] is not None:
             return self._params['sill']*np.exp(-h/self._params['range'])
         else:
-            return self._params['sill']*np.exp(-h/self._params['range']) + self._params['nugget']*(h == 0) # add a nugget
+            return self._params['sill']*np.exp(-h/self._params['range']) + self._params['nugget']*(h == 0)  # add nugget
 
 
 def is_pos_def(A):
@@ -388,5 +394,3 @@ def is_pos_def(A):
             return False
     else:
         return False
-
-
