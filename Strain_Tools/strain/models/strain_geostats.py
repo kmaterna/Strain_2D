@@ -168,8 +168,8 @@ class geostats(Strain_2d):
         dx, dy = self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
         exx, eyy, exy, rot = strain_on_regular_grid(dx, dy, Ve, Vn)
 
-        # Return the strain rates etc.
-        return Ve, Vn, rot, exx, exy, eyy
+        # Return the strain rates etc. in the same units as other methods
+        return Ve, Vn, rot*1000, exx*1000, exy*1000, eyy*1000
         
 
 def krige(xy, XY, data, model, ktype='ok'):
