@@ -56,7 +56,7 @@ gmt grdedit $outfile -Ev   # top-bottom flip for latitude increasing vs column n
 If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications. See the section on API below if you'd like to contribute a method. 
 
 ### Supported strain methods:  
-
+For more information on the parameters required by each method, see [Full Parameter Documentation](https://github.com/kmaterna/Strain_2D/blob/master/param_definitions.md). 
 1.  <ins>delaunay_flat</ins>: Delaunay Triangulation, the simplest method. The equations can be found in many papers, including Cai and Grafarend (2007), Journal of Geodynamics, 43, 214-238. No parameters are required to use this method.  
 
 2.  <ins>delaunay</ins>: a generalization of the Delaunay Triangulation for a spherical earth. This Python implementation is based on Savage et al., JGR October 2001, p.22,005, courtesy of Bill Hammond's matlab implementation. No parameters are required to use this method. 
@@ -100,7 +100,7 @@ This library uses the following units and sign conventions:
     * Dilatation = exx + eyy
     * units: nanostrain / year  
 * Max Shear: 
-    * e_max = sqrt((exx - eyy)^2 + exy^2) .  Tensor shear strain rate (*not engineering shear strain rate*)
+    * e_max = sqrt((exx - eyy)^2 + 4*exy^2) .  Tensor shear strain rate (*not engineering shear strain rate*)
     * units: nanostrain / year
 
 ### Internal Library API
