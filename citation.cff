@@ -1,0 +1,15 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Materna
+    given-names: Kathryn
+    orcid: https://orcid.org/0000-0002-6687-980X
+  - family-names: Maurer
+    given-names: Jeremy
+    orcid: https://orcid.org/0000-0002-3624-5961
+  - family-names: Sandoe
+    given-names: Lucy
+title: "Strain_2D"
+version: 1.0.0
+doi: 10.5281/zenodo.5240908
+date-released: 2021-08-23

@@ -34,6 +34,7 @@ setup(
     scripts=[
         'Strain_Tools/bin/strain_rate_compute.py',
         'Strain_Tools/bin/strain_rate_comparison.py',
+        'Strain_Tools/bin/moment_from_strain.py'
     ],
     zip_safe=False,
 )
