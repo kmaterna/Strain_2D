@@ -3,6 +3,7 @@
 import argparse, sys
 import xarray as xr
 import numpy as np
+from Tectonic_Utils.read_write import netcdf_read_write
 from . import strain_tensor_toolbox
 
 help_message = "Compute moment accumulation rate via method of Savage and Simpson (1997) "
@@ -23,6 +24,8 @@ def cmd_parser(cmdargs):
                    help='''shear modulus [GPa], default 30 Gpa''')
     p.add_argument('--depth', type=float, default=10,
                    help='''seismogenic thickness [km], default of 10 km''')
+    p.add_argument('--landmask', type=str, default=None,
+                   help='''grdfile showing where is land''')
     p.add_argument('-v', '--verbose', action='count', default=0,
                    help='''controls verbosity''')
     config_default = {};
@@ -37,7 +40,8 @@ def moment_coordinator(MyParams):
     """
     # Input, Compute, Output
     lons, lats, exx, exy, eyy = read_fields_from_netcdf(MyParams["netcdf"]);
-    Mo = compute_moments_loop(lons, lats, exx, exy, eyy, MyParams["mu"], MyParams["depth"]);
+    landmask = read_landmask(MyParams["landmask"], np.shape(exx));
+    Mo = compute_moments_loop(lons, lats, exx, exy, eyy, landmask, MyParams["mu"], MyParams["depth"]);
     write_Mo_outputs(MyParams, Mo);
     return;
 
@@ -50,6 +54,13 @@ def read_fields_from_netcdf(netcdf_name):
     exy = np.reshape(ds['exy'], (len(lats), len(lons)));
     eyy = np.reshape(ds['eyy'], (len(lats), len(lons)));
     return lons, lats, exx, exy, eyy;
+
+def read_landmask(netcdf_name, array_shape):
+    if not netcdf_name:
+        landmask = np.ones(array_shape);
+    else:
+        [_, _, landmask] = netcdf_read_write.read_any_grd(netcdf_name);
+    return landmask;
 
 def get_savage_simpson_moment(exx, exy, eyy, mu_GPa, depth_km, area_km2):
     """
@@ -65,14 +76,15 @@ def get_savage_simpson_moment(exx, exy, eyy, mu_GPa, depth_km, area_km2):
     M0_min = M0_min / 1e9;   # unit conversion because strain rate tensor comes in as nanostrain/yr
     return M0_min;
 
-def compute_moments_loop(lons, lats, exx, exy, eyy, mu, depth):
+def compute_moments_loop(lons, lats, exx, exy, eyy, landmask, mu, depth):
     Mo = 0;
     xinc_km = (lons[1] - lons[0]) * (111.000*np.cos(np.deg2rad(lats[0])));
     yinc_km = (lats[1] - lats[0]) * 111.000;
     area_km2 = xinc_km * yinc_km;
     for i in range(len(lats)):
         for j in range(len(lons)):
-            Mo = Mo + get_savage_simpson_moment(exx[i][j], exy[i][j], eyy[i][j], mu, depth, area_km2);
+            if landmask[i][j] == 1:
+                Mo = Mo + get_savage_simpson_moment(exx[i][j], exy[i][j], eyy[i][j], mu, depth, area_km2);
     return Mo;
 
 def write_Mo_outputs(MyParams, Mo):
