@@ -215,7 +215,7 @@ def plot_method_differences(strain_values_ds, average_strains, region, outdir, o
                     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue');
                     for counter, (varname, da) in enumerate(strain_values_ds.data_vars.items()):
                         if counter == index:
-                            plotting_data = np.subtract(da, average_strains["mean"]);  # testing
+                            plotting_data = np.subtract(da, average_strains);  # testing
                             fig.grdimage(plotting_data, projection=proj, region=region, cmap=outdir+"/mycpt.cpt");
                             fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black',
                                       water='lightblue');
