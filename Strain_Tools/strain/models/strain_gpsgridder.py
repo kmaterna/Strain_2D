@@ -6,7 +6,7 @@
 
 import numpy as np
 import subprocess
-from Tectonic_Utils.read_write import netcdf_read_write
+import xarray as xr
 from .. import velocity_io, strain_tensor_toolbox, utilities
 from strain.models.strain_2d import Strain_2d
 
@@ -68,8 +68,10 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     # Get ready to do strain calculation.
     file1 = tempoutdir+"nc_u.nc";
     file2 = tempoutdir+"nc_v.nc";
-    [_xdata, _ydata, udata] = netcdf_read_write.read_any_grd(file1);
-    [_, _, vdata] = netcdf_read_write.read_any_grd(file2);
+    ds = xr.open_dataset(file1);
+    udata = ds["z"];
+    ds = xr.open_dataset(file2);
+    vdata = ds["z"];
     udata = udata.T;
     vdata = vdata.T;
 

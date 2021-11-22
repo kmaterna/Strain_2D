@@ -59,6 +59,29 @@ def get_string_inc(float_inc):
     return string_inc;
 
 
+def get_gmt_range_inc(lons, lats):
+    """
+    Take lons and lats associated with pixel-node-registered files read into Python using xarray.ds
+
+    :param lons: list of pixel centers lons
+    :type lons: np.array
+    :param lats: list of pixel centers lats
+    :type lats: np.array
+    :returns: string range, string inc
+    :rtype: string, string
+    """
+    lon_inc = np.round(lons[1] - lons[0], 6)
+    edge_of_west_pixel = np.round(lons[0] - lon_inc/2, 5);
+    edge_of_east_pixel = np.round(lons[-1] + lon_inc/2, 5);
+    lat_inc = np.round(lats[1] - lats[0], 6);
+    edge_of_south_pixel = np.round(lats[0] - lat_inc/2, 5);
+    edge_of_north_pixel = np.round(lats[-1] + lat_inc/2, 5);
+    gmt_range_string = str(edge_of_west_pixel) + '/' + str(edge_of_east_pixel) + '/' + str(edge_of_south_pixel) + \
+                       '/' + str(edge_of_north_pixel);
+    gmt_inc_string = str(lon_inc) + '/' + str(lat_inc);
+    return gmt_range_string, gmt_inc_string;
+
+
 def mask_by_value(grid1, grid_maskingbasis, cutoff_value):
     """
     Implement NAN-mask for one grid in all places where values are smaller than cutoff value in corresponding grid.
