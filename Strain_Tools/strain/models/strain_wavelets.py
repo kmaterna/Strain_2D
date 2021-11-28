@@ -9,24 +9,25 @@ class tape(Strain_2d):
     def __init__(self, params):
         Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
                            params.outdir);
-        self._Name = 'tape'
-        self._code_dir, self._qmin, self._qmax, self._qsec = verify_inputs_tape(params.method_specific);
+        self._Name = 'wavelets'
+        self._code_dir, self._qmin, self._qmax, self._qsec = verify_inputs_wavelets(params.method_specific);
 
     def compute(self, myVelfield):
         # Setup for Matlab calculation
         configure_file = self._outdir + "surfacevel2strain_config_params.txt"
-        velocity_file = self._outdir + "vel_tape.txt";
+        velocity_file = self._outdir + "vel_wavelets.txt";
         subprocess.call(['mkdir', '-p', self._code_dir+'/matlab_output'], shell=False);
-        write_to_tape_vel_format(myVelfield, velocity_file);
-        write_tape_parameter_file(self._data_range, self._code_dir, self._qmin, self._qmax, self._qsec, velocity_file, configure_file);
+        write_to_wavelets_vel_format(myVelfield, velocity_file);
+        write_wavelets_parameter_file(self._data_range, self._code_dir, self._qmin, self._qmax, self._qsec,
+                                      velocity_file, configure_file);
 
         # Now go away and do your matlab calculation. Come back with the output stem. 
         output_tag = input("\n\nNow go away, run Matlab using the instructions and parameters in "+configure_file+"\n\n. When done, enter the output stem of your favorite model: ");
         # Format is like: /Users/kzm/Documents/Software//compearth/surfacevel2strain/matlab_output/_d-01_q04_q07_b1_2D_s1_u1
         
         # Parse the results
-        x, y, tt, tp, pp, rot = input_tape(output_tag+"_strain.dat", output_tag+"_Dtensor_6entries.dat", output_tag+"_Wtensor_3entries.dat");
-        exx, exy, eyy, rot = compute_tape(tt, tp, pp, rot);
+        x, y, tt, tp, pp, rot = input_wavelets(output_tag + "_strain.dat", output_tag + "_Dtensor_6entries.dat", output_tag + "_Wtensor_3entries.dat");
+        exx, exy, eyy, rot = compute_wavelets(tt, tp, pp, rot);
         _, _, exx = nn_interp(x, y, exx, self._xdata, self._ydata);
         _, _, exy = nn_interp(x, y, exy, self._xdata, self._ydata);
         _, _, eyy = nn_interp(x, y, eyy, self._xdata, self._ydata);
@@ -38,7 +39,7 @@ class tape(Strain_2d):
         return [Ve, Vn, rot, exx, exy, eyy];
 
 
-def verify_inputs_tape(method_specific_dict):
+def verify_inputs_wavelets(method_specific_dict):
     # Takes a dictionary and verifies that it contains the right parameters for Tape method
     if 'code_dir' not in method_specific_dict.keys():
         raise ValueError("\nTape requires code_dir. Please add to method_specific config. Exiting.\n");
@@ -55,7 +56,7 @@ def verify_inputs_tape(method_specific_dict):
     return code_dir, qmin, qmax, qsec;
 
 
-def write_to_tape_vel_format(velfield, outfile):
+def write_to_wavelets_vel_format(velfield, outfile):
     """
     Interface with matlab scripts published on Github by Carl Tape under the name surfacevel2strain.
     The Tape-format columns are: lon, lat, ve, vn, vu, se, sn, su, ren, reu, rnu, start, finish, name
@@ -69,7 +70,7 @@ def write_to_tape_vel_format(velfield, outfile):
     return;
 
 
-def write_tape_parameter_file(range_data, code_dir, qmin, qmax, qsec, velocity_file, outfile):
+def write_wavelets_parameter_file(range_data, code_dir, qmin, qmax, qsec, velocity_file, outfile):
     """Write the file that tells you how to operate Tape's compearth code"""
     print("Writing parameter file %s " % outfile);
     ofile = open(outfile, 'w');
@@ -87,7 +88,7 @@ def write_tape_parameter_file(range_data, code_dir, qmin, qmax, qsec, velocity_f
     ofile.write("Manual:   Collect name of output_stem of your favorite model (printed near the end of outputs from surfacevel2strain) and return to Python.\n");
     ofile.write("\n\n");
 
-    ofile.write('MANUAL OPTIONS FOR INPUT() IN TAPE MATLAB PROGRAM\n');
+    ofile.write('MANUAL OPTIONS FOR INPUT() IN WAVELETS MATLAB PROGRAM\n');
     ofile.write('1  # new calculation\n');
     ofile.write('1  # \n');
     ofile.write('1  # \n');
@@ -110,7 +111,7 @@ def write_tape_parameter_file(range_data, code_dir, qmin, qmax, qsec, velocity_f
     return;
 
 
-def input_tape(coordsfile, datafile, wfile):
+def input_wavelets(coordsfile, datafile, wfile):
     """
     Reads .dat files outputted by Carl Tape's matlab code, surfacevel2strain
     First, run tape code, selecting to output gmt files.
@@ -129,7 +130,7 @@ def input_tape(coordsfile, datafile, wfile):
     return lon, lat, thth, thph, phph, rot
 
 
-def compute_tape(thth, thph, phph, rot_sph):
+def compute_wavelets(thth, thph, phph, rot_sph):
     """
     Computes symmetric strain tensor components
     (in spherical coords, from tape)
@@ -168,22 +169,11 @@ def nn_interp(x, y, vals, newx, newy):
 
 
 """
-Steps for Tape:
+Steps for Tape Wavelets:
 Create compearth/ somewhere in your Software directory
 Inside compearth, git clone Tape's surfacevel2strain
 Configure and run a strain calculation. Some default options will helpfully be printed for you. 
 Open matlab. 
 >> setenv('REPOS','/Users/kzm/Documents/Software')   # where compearth lives 
 >> addpath(self._code_dir+'/matlab');
-
-If using python (No, BAD, this while thing didn't work because of matlab's input() function): 
-# Set up matlab python integration with python3.7 in a pygmt environment (see computer setups)
-go to "$matlabroot/extern/engines/python"
-python setup.py install
-python: 
->> import matlab.engine
->> eng = matlab.engine.start_matlab()
->> eng.setenv('REPOS',self._code_dir.split('compearth')[0], nargout=0);   # the Software directory
->> eng.addpath(self._code_dir+'/matlab', nargout=0)    # matlab folder within source directory
->> eng.surfacevel2strain(nargout=0)    # start the entire calculation loop. 
 """

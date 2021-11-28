@@ -16,23 +16,23 @@
 
 ### [visr]
 * [See Native Documentation](http://scec.ess.ucla.edu/~zshen/visr/visr.html)
-* ```distance_weighting```: string
-* ```spatial_weighting```: string
-* ```min_max_inc_smooth```: float/float/float
+* ```distance_weighting```: string, either 'gaussian' or 'quadratic'
+* ```spatial_weighting```: string, either 'voronoi' or 'azimuth'
+* ```min_max_inc_smooth```: float/float/float, representing minimum, maximum, and incremental spatial smoothing constants (km)
 * ```executable```: string, path to location of compiled fortran executable, visr.exe or similar 
 
 ### [gpsgridder]
 * [See Native Documentation](http://gmt.soest.hawaii.edu/doc/latest/supplements/potential/gpsgridder.html) 
-* ```poisson```: float
-* ```fd```: float
-* ```eigenvalue```: float 
+* ```poisson```: float, poisson's ratio used in gpsgridder -S argument
+* ```fd```: float, fudge factor used in gpsgridder -Fd argument. The GMT default value is 0.01
+* ```eigenvalue```: float, ratio of the smallest eigenvalue used in the fit to the largest eigenvalue, placed in gpsgridder -C argument 
 
 
-### [huang]
+### [local average gradient]
 * ```EstimateRadiusKm```: float, radius of searching neighborhood in km
 * ```nstations```: integer, minimum number of stations within search radius 
 
-### [tape]
+### [wavelets]
 
 * [See Native Documentation](https://github.com/carltape/surfacevel2strain/blob/master/USER_INFO/surfacevel2strain_manual.pdf)
 * ```code_dir```: string, path to location where surfacevel2strain on your computer system, such as '/Users/usrname/Documents/Software/surfacevel2strain'

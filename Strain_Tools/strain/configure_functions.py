@@ -7,7 +7,7 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'xdata', 'ydata', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
-avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  tape\n  visr\n "
+avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  wavelets\n  visr\n "
 help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
                "  USAGE 1: strain_rate_compute.py config.txt      <-- for running a strain calculation\n" \
                "  USAGE 2: strain_rate_compute.py --help          <-- for printing help message\n" \
@@ -91,7 +91,7 @@ def write_example_strain_config(outfile):
     configobj["visr"] = {}
     configobj["gpsgridder"] = {}
     configobj["huang"] = {}
-    configobj["tape"] = {}
+    configobj["wavelets"] = {}
     configobj["geostats"] = {}
     configobj["strain-comparison"] = {}
     genconfig = configobj["general"];
@@ -114,7 +114,7 @@ def write_example_strain_config(outfile):
     d3 = configobj["huang"];
     d3["EstimateRadiusKm"] = "80";
     d3["nstations"] = "8";
-    d4 = configobj["tape"];
+    d4 = configobj["wavelets"];
     d4["code_dir"] = "";
     d4["qmin"] = "4";
     d4["qmax"] = "7";

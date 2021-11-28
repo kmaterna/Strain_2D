@@ -27,11 +27,12 @@ eigenvalue = 0.0005
 estimateradiuskm = 80
 nstations = 8
 
-[tape]
+[wavelets]
 code_dir = 
 qmin = 4
 qmax = 7
 qsec = 7
+output_tag = 
 
 [geostats]
 model_type = Gaussian
