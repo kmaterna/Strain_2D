@@ -4,8 +4,8 @@ import subprocess
 from strain.models.strain_2d import Strain_2d
 
 
-class tape(Strain_2d):
-    """ Tape class for 2d strain rate, with general strain_2d behavior """
+class wavelets(Strain_2d):
+    """ Wavelets (Tape) class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
         Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
                            params.outdir);
@@ -42,13 +42,13 @@ class tape(Strain_2d):
 def verify_inputs_wavelets(method_specific_dict):
     # Takes a dictionary and verifies that it contains the right parameters for Tape method
     if 'code_dir' not in method_specific_dict.keys():
-        raise ValueError("\nTape requires code_dir. Please add to method_specific config. Exiting.\n");
+        raise ValueError("\nWavelets requires code_dir. Please add to method_specific config. Exiting.\n");
     if 'qmin' not in method_specific_dict.keys():
-        raise ValueError("\nTape requires qmin. Please add to method_specific config. Exiting.\n"); 
+        raise ValueError("\nWavelets requires qmin. Please add to method_specific config. Exiting.\n");
     if 'qmax' not in method_specific_dict.keys():
-        raise ValueError("\nTape requires qmax. Please add to method_specific config. Exiting.\n");
+        raise ValueError("\nWavelets requires qmax. Please add to method_specific config. Exiting.\n");
     if 'qsec' not in method_specific_dict.keys():
-        raise ValueError("\nTape requires qsec. Please add to method_specific config. Exiting.\n"); 
+        raise ValueError("\nWavelets requires qsec. Please add to method_specific config. Exiting.\n");
     code_dir = method_specific_dict["code_dir"];
     qmin = method_specific_dict["qmin"];
     qmax = method_specific_dict["qmax"];
@@ -74,7 +74,7 @@ def write_wavelets_parameter_file(range_data, code_dir, qmin, qmax, qsec, veloci
     """Write the file that tells you how to operate Tape's compearth code"""
     print("Writing parameter file %s " % outfile);
     ofile = open(outfile, 'w');
-    ofile.write("Total steps for computing strain with Tape method:\n");
+    ofile.write("Total steps for computing strain with Wavelets (Tape) method:\n");
     ofile.write("Manual:   Create directory called compearth/ somewhere in your Software directory.\n");
     ofile.write("Manual:   Inside compearth, git clone Tape's surfacevel2strain repository.\n");
     ofile.write("Manual:   Open matlab.  \n");

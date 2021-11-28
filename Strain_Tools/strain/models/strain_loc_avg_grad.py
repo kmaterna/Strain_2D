@@ -1,4 +1,4 @@
-# Courtesy of Mong-han Huang
+# Local Average Gradient method, courtesy of Mong-han Huang
 # Strain calculation tool based on a certain number of nearby stations
 
 import numpy as np
@@ -6,39 +6,39 @@ from Tectonic_Utils.geodesy import utm_conversion
 from strain.models.strain_2d import Strain_2d
 
 
-class huang(Strain_2d):
-    """ Huang class for 2d strain rate, with general strain_2d behavior """
+class loc_avg_grad(Strain_2d):
+    """ loc_avg_grad class for 2d strain rate, with general strain_2d behavior """
     def __init__(self, params):
         Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata,
                            params.outdir);
-        self._Name = 'huang'
-        self._radiuskm, self._nstations = verify_inputs_huang(params.method_specific);
+        self._Name = 'loc_avg_grad'
+        self._radiuskm, self._nstations = verify_inputs_loc_avg_grad(params.method_specific);
 
     def compute(self, myVelfield):
-        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_huang(myVelfield, self._xdata, self._ydata,
-                                                                     self._radiuskm, self._nstations);
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_loc_avg_grad(myVelfield, self._xdata, self._ydata,
+                                                                            self._radiuskm, self._nstations);
         return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
-def verify_inputs_huang(method_specific_dict):
-    # Takes a dictionary and verifies that it contains the right parameters for Huang method
+def verify_inputs_loc_avg_grad(method_specific_dict):
+    # Takes a dictionary and verifies that it contains the right parameters for Huang loc_avg_grad method
     if 'estimateradiuskm' not in method_specific_dict.keys():
-        raise ValueError("\nHuang requires estimateradiuskm. Please add to method_specific config. Exiting.\n");
+        raise ValueError("\nloc_avg_grad requires estimateradiuskm. Please add to method_specific config. Exiting.\n");
     if 'nstations' not in method_specific_dict.keys():
-        raise ValueError("\nHuang requires nstations. Please add to method_specific config. Exiting.\n");
+        raise ValueError("\nloc_avg_grad requires nstations. Please add to method_specific config. Exiting.\n");
     radiuskm = float(method_specific_dict["estimateradiuskm"]);
     nstations = int(method_specific_dict["nstations"]);
     return radiuskm, nstations;
 
 
-def compute_huang(myVelfield, xlons, ylats, radiuskm, nstations):
-    print("------------------------------\nComputing strain via Huang method.");
+def compute_loc_avg_grad(myVelfield, xlons, ylats, radiuskm, nstations):
+    print("------------------------------\nComputing strain via loc_avg_grad method.");
 
     # Set up grids for the computation
     gx = len(xlons);  # number of x - grid
     gy = len(ylats);  # number of y - grid
 
-    [elon, nlat, e, n, _, _] = velfield_to_huang_non_utm(myVelfield);
+    [elon, nlat, e, n, _, _] = velfield_to_LAG_non_utm(myVelfield);
     reflon = np.min([item.elon for item in myVelfield]);
     reflat = np.min([item.nlat for item in myVelfield]);
 
@@ -137,7 +137,7 @@ def compute_huang(myVelfield, xlons, ylats, radiuskm, nstations):
             eyy[j, i] = syy * 1e9;
             rot[j, i] = omega * 1e9;
 
-    print("Success computing strain via Huang method.\n");
+    print("Success computing strain via loc_avg_grad method.\n");
 
     # I know you can get velocities out of this code but dropping this in now as a placeholder
     Ve = np.nan*np.empty(exx.shape)
@@ -146,7 +146,7 @@ def compute_huang(myVelfield, xlons, ylats, radiuskm, nstations):
     return [Ve, Vn, rot, exx, exy, eyy];
 
 
-def velfield_to_huang_non_utm(myVelfield):
+def velfield_to_LAG_non_utm(myVelfield):
     elon, nlat = [], [];
     e, n, esig, nsig = [], [], [], [];
     elon_all = [item.elon for item in myVelfield];
@@ -164,7 +164,7 @@ def velfield_to_huang_non_utm(myVelfield):
     return [np.array(elon), np.array(nlat), np.array(e), np.array(n), np.array(esig), np.array(nsig)];
 
 
-def velfield_to_huang_format_utm(myVelfield):
+def velfield_to_LAG_format_utm(myVelfield):
     elon, nlat = [], [];
     e, n, esig, nsig = [], [], [], [];
     for item in myVelfield:

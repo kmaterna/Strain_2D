@@ -23,7 +23,7 @@ poisson = 0.5
 fd = 0.01
 eigenvalue = 0.0005
 
-[huang]
+[loc_avg_grad]
 estimateradiuskm = 80
 nstations = 8
 
@@ -46,5 +46,5 @@ trend = 0
 
 [strain-comparison]
 output_dir = Output/_strain_comparison
-input_dirs = Output/delaunay:Output/gpsgridder:Output/huang:Output/visr
+input_dirs = Output/delaunay:Output/gpsgridder:Output/loc_avg_grad:Output/visr
 

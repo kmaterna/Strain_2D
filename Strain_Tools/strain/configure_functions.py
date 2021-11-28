@@ -7,7 +7,7 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'xdata', 'ydata', 'outdir', 'method_specific']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
-avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  huang\n  wavelets\n  visr\n "
+avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  loc_avg_grad\n  wavelets\n  visr\n "
 help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
                "  USAGE 1: strain_rate_compute.py config.txt      <-- for running a strain calculation\n" \
                "  USAGE 2: strain_rate_compute.py --help          <-- for printing help message\n" \
@@ -90,7 +90,7 @@ def write_example_strain_config(outfile):
     configobj["delaunay_flat"] = {}
     configobj["visr"] = {}
     configobj["gpsgridder"] = {}
-    configobj["huang"] = {}
+    configobj["loc_avg_grad"] = {}
     configobj["wavelets"] = {}
     configobj["geostats"] = {}
     configobj["strain-comparison"] = {}
@@ -111,7 +111,7 @@ def write_example_strain_config(outfile):
     d2["poisson"] = "0.5";
     d2["fd"] = "0.01";
     d2["eigenvalue"] = "0.0005";
-    d3 = configobj["huang"];
+    d3 = configobj["loc_avg_grad"];
     d3["EstimateRadiusKm"] = "80";
     d3["nstations"] = "8";
     d4 = configobj["wavelets"];
@@ -131,7 +131,7 @@ def write_example_strain_config(outfile):
     d5["trend"] = "0";
     dcomps = configobj["strain-comparison"];
     dcomps["output_dir"] = "Output/_strain_comparison"
-    dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/huang:Output/visr"
+    dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/loc_avg_grad:Output/visr"
     with open(outfile, 'w') as configfile:
         configobj.write(configfile)
     print("Writing file %s " % outfile);

@@ -28,7 +28,7 @@
 * ```eigenvalue```: float, ratio of the smallest eigenvalue used in the fit to the largest eigenvalue, placed in gpsgridder -C argument 
 
 
-### [local average gradient]
+### [loc_avg_grad]
 * ```EstimateRadiusKm```: float, radius of searching neighborhood in km
 * ```nstations```: integer, minimum number of stations within search radius 
 
