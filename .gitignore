@@ -3,6 +3,8 @@
 *.ps 
 *.png
 *.pyc
+*.grd
+*.nc
 contrib/*
 early_work/*
 .idea/*

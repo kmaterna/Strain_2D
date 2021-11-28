@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/kmaterna/Strain_2D/blob/dev/license.md)
 [![DOI](https://zenodo.org/badge/190659682.svg)](https://zenodo.org/badge/latestdoi/190659682)
 
-This library contains several methods to compute geodetic strain from a GPS velocity field.  It is intended to be used as a means to compare various strain modeling techniques on the same input data (see https://files.scec.org/s3fs-public/0930_Sandwell_UCERF_strain.pdf for an example showing the variability of strain modeling techniques). Several of the strain methods are borrowed from other authors, github repositories, and papers.  If you use the contributed strain techniques, credit should be given to the original authors accordingly.  
+This library contains several methods to compute geodetic strain from a GPS velocity field.  It is intended to be used as a means to compare various strain modeling techniques on the same input data (see https://files.scec.org/s3fs-public/0930_Sandwell_UCERF_strain.pdf for an example showing the variability of strain modeling techniques). Several of the strain methods are borrowed from other authors, GitHub repositories, and papers.  If you use the contributed strain techniques, credit should be given to the original authors accordingly.  
 
 ### Requirements:
 * Python3, numpy, scipy, matplotlib
@@ -74,7 +74,7 @@ Four additional config parameters are required to use this method.
 7.  <ins>geostats</ins>: a method based on traditional geostatistical anlysis, using kriging to do the interpolation. This method requires the user to set one model type and three parameters. The model is the type of correlation structure the user expects to exist in the underlying field. A "Nugget" model is a white-noise model, "Exponential" models a continuous but non-differentiable process, and "Gaussian" is both continuous and differentiable. 
 All models require a nugget, which represents the level of point-wise variance in the observations, which for GNSS velocities is the same as data uncertainty. 
 The Gaussian and Exponential models also require a "sill" and "range" to be specified. The sill characterizes the overall mean variance in the dataset, and should be specified as the total variance of the observations minus the nugget. Note that the nugget can be thought of as the variance of the data uncertainties, and the sill is the variance of the data itself. 
-The range is the (isotropic) spatial correlation length scale. Currently we only implement an isotropic version, although anisotropic and even spatially-varying methods can be used. 
+The range is the (isotropic) spatial correlation length scale. Currently, we only implement an isotropic version, although anisotropic and even spatially-varying methods can be used. 
   
 ### Not included methods:
 If you have another strain method that you'd be willing to contribute, I would love to work with you to include it!  More methods results in a more robust estimate of strain rate variability.
