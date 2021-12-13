@@ -19,13 +19,15 @@ class visr(Strain_2d):
                            params.outdir);
         self._Name = 'visr';
         self._tempdir = params.outdir;
-        self._distwgt, self._spatwgt, self._smoothincs, self._exec = verify_inputs_visr(params.method_specific);
+        self._distwgt, self._spatwgt, self._smoothincs, self._wgt, self._unc_thresh, self._exec = \
+            verify_inputs_visr(params.method_specific);
 
     def compute(self, myVelfield):
         [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(myVelfield, self._strain_range, self._grid_inc,
                                                                     self._xdata, self._ydata,
-                                                                    self._distwgt, self._spatwgt,
-                                                                    self._smoothincs, self._exec, self._tempdir);
+                                                                    self._distwgt, self._spatwgt, self._smoothincs,
+                                                                    self._wgt, self._unc_thresh, self._exec,
+                                                                    self._tempdir);
         return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
@@ -36,22 +38,29 @@ def verify_inputs_visr(method_specific_dict):
         raise ValueError("\nvisr requires spatial weighting. Please add to method_specific config. Exiting.\n");
     if 'min_max_inc_smooth' not in method_specific_dict.keys():
         raise ValueError("\nvisr requires smoothing information. Please add to method_specific config. Exiting.\n");
+    if 'weighting_threshold' not in method_specific_dict.keys():
+        raise ValueError("\nvisr requires weighting_threshold. Please add to method_specific config. Exiting.\n");
+    if 'uncertainty_threshold' not in method_specific_dict.keys():
+        raise ValueError("\nvisr requires uncertainty_threshold. Please add to method_specific config. Exiting.\n");
     if 'executable' not in method_specific_dict.keys():
         raise ValueError("\nvisr requires path to executable. Please add to method_specific config. Exiting.\n");
     distance_weighting = method_specific_dict["distance_weighting"];
     spatial_weighting = method_specific_dict["spatial_weighting"];
     min_max_inc_smooth = method_specific_dict["min_max_inc_smooth"];
+    weighting_threshold = method_specific_dict["weighting_threshold"];
+    unc_threshold = method_specific_dict["uncertainty_threshold"];
     executable = method_specific_dict["executable"];
-    return distance_weighting, spatial_weighting, min_max_inc_smooth, executable;
+    return distance_weighting, spatial_weighting, min_max_inc_smooth, weighting_threshold, unc_threshold, executable;
 
 
-def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, smoothincs, executable, tempdir):
+def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, smoothincs, wgt, unc_thresh,
+                 executable, tempdir):
     print("------------------------------\nComputing strain via Visr method.");
     strain_config_file = 'visr_strain.drv';
     strain_data_file = 'strain_input.txt';  # can only be 20 characters long bc fortran!
     strain_output_file = 'strain_output.txt';  # can only be 20 characters long bc fortran!
     write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, strain_range, inc, distwgt,
-                              spatwgt, smoothincs);
+                              spatwgt, smoothincs, wgt, unc_thresh);
     write_fortran_data_file(strain_data_file, myVelfield);
     check_fortran_executable(executable);
     call_fortran_compute(strain_config_file, executable);
@@ -70,7 +79,7 @@ def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, 
 
 
 def write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, range_strain, inc,
-                              distwgt, spatwgt, smoothincs):
+                              distwgt, spatwgt, smoothincs, wgt, unc_thresh):
     # The config file will have the following components.
     """
     visr/visr_drive_strain.drv contains:
@@ -106,8 +115,8 @@ def write_fortran_config_file(strain_config_file, strain_data_file, strain_outpu
     ofile.write(dist_code + '                                          ! distance weighting scheme: 1=gaussian, 2=quadratic\n');
     ofile.write(spac_code + '                                          ! spatial weighting scheme: 1=azimuth, 2=voronoi area\n');
     ofile.write(min_smooth+' '+max_smooth+' '+inc_smooth+'                                    ! minimum, maximum, and incremental spatial smoothing constants (km)\n');
-    ofile.write('2                                          ! weighting threshold Wt\n');
-    ofile.write('0.05                                       ! uncertainty threshold for reset\n');
+    ofile.write(wgt+'                                          ! weighting threshold Wt\n');
+    ofile.write(unc_thresh+'                                       ! uncertainty threshold for reset\n');
     ofile.write('3                                          ! function: 1=velocity compatibility checking; 2=velocity interpolation; 3=strain rate interpolation\n');
     ofile.write(str(range_strain[0])+' '+str(range_strain[1])+' '+str(range_strain[2])+' '+str(range_strain[3])+' '+str(inc[0])+' '+str(inc[1])+'                ! Lon_min, Lon_max, Lat_min, Lat_max, dLon, dLat\n');
     ofile.write('0                                          ! number of creep faults\n');

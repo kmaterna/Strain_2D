@@ -19,6 +19,8 @@
 * ```distance_weighting```: string, either 'gaussian' or 'quadratic'
 * ```spatial_weighting```: string, either 'voronoi' or 'azimuth'
 * ```min_max_inc_smooth```: float/float/float, representing minimum, maximum, and incremental spatial smoothing constants (km)
+* ```weighting_threshold```: float, weighting threshold Wt
+* ```uncertainty_threshold```: float, uncertainty threshold for reset
 * ```executable```: string, path to location of compiled fortran executable, visr.exe or similar 
 
 ### [gpsgridder]

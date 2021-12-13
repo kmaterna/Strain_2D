@@ -106,6 +106,8 @@ def write_example_strain_config(outfile):
     d1["distance_weighting"] = "gaussian";
     d1["spatial_weighting"] = "voronoi";
     d1["min_max_inc_smooth"] = "1/100/1";
+    d1["weighting_threshold"] = "2";
+    d1["uncertainty_threshold"] = "0.05";
     d1["executable"] = "../contrib/visr/visr.exe";
     d2 = configobj["gpsgridder"];
     d2["poisson"] = "0.5";
