@@ -72,8 +72,8 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     udata = ds["z"];
     ds = xr.open_dataset(file2);
     vdata = ds["z"];
-    udata = udata.T;
-    vdata = vdata.T;
+    udata = np.array(udata.T);
+    vdata = np.array(vdata.T);
 
     xinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $8}\'', shell=True));  # x-inc
     yinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $9}\'', shell=True));  # y-inc

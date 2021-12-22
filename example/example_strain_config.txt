@@ -16,6 +16,8 @@ inc = 0.04/0.04
 distance_weighting = gaussian
 spatial_weighting = voronoi
 min_max_inc_smooth = 1/100/1
+weighting_threshold = 2
+uncertainty_threshold = 0.05
 executable = ../contrib/visr/visr.exe
 
 [gpsgridder]
