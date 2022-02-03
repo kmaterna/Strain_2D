@@ -60,13 +60,12 @@ def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
 
 def visualize_grid_means(MyParams, ds):
     """ Make pygmt plots of the means of all quantities """
-    pygmt_plots.plot_I2nd(ds['I2'], MyParams.range_strain, MyParams.outdir, [], [],
-                          MyParams.outdir + "/means_I2nd.png");
-    pygmt_plots.plot_dilatation(ds['dilatation'], MyParams.range_strain, MyParams.outdir, [], [],
+    pygmt_plots.plot_I2nd(ds['I2'], MyParams.range_strain, MyParams.outdir, MyParams.outdir + "/means_I2nd.png");
+    pygmt_plots.plot_dilatation(ds['dilatation'], MyParams.range_strain, MyParams.outdir,
                                 MyParams.outdir + "/means_dila.png");
-    pygmt_plots.plot_maxshear(ds['max_shear'], MyParams.range_strain, MyParams.outdir, [], [],
+    pygmt_plots.plot_maxshear(ds['max_shear'], MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir + "/means_max_shear.png");
-    pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir, [], [],
+    pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir,
                              MyParams.outdir + "/means_azimuth.png");
     pygmt_plots.plot_rotation(ds['rotation'], [], MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir + "/means_rot.png");

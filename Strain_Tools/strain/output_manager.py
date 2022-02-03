@@ -46,14 +46,14 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(ds['rotation'], myVelfield, MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir+'rotation.png');
-    pygmt_plots.plot_dilatation(ds['dilatation'], MyParams.range_strain, MyParams.outdir, positive_eigs,
-                                negative_eigs, MyParams.outdir+'dilatation.png');
-    pygmt_plots.plot_I2nd(ds['I2'], MyParams.range_strain, MyParams.outdir, positive_eigs,
-                          negative_eigs, MyParams.outdir+'I2nd.png');
-    pygmt_plots.plot_maxshear(ds['max_shear'], MyParams.range_strain, MyParams.outdir, positive_eigs,
-                              negative_eigs, MyParams.outdir+'max_shear.png');
-    pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir, positive_eigs,
-                             negative_eigs, MyParams.outdir+'azimuth.png');
+    pygmt_plots.plot_dilatation(ds['dilatation'], MyParams.range_strain, MyParams.outdir,
+                                MyParams.outdir + 'dilatation.png', positive_eigs, negative_eigs);
+    pygmt_plots.plot_I2nd(ds['I2'], MyParams.range_strain, MyParams.outdir, MyParams.outdir + 'I2nd.png', positive_eigs,
+                          negative_eigs);
+    pygmt_plots.plot_maxshear(ds['max_shear'], MyParams.range_strain, MyParams.outdir,
+                              MyParams.outdir + 'max_shear.png', positive_eigs, negative_eigs);
+    pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir, MyParams.outdir + 'azimuth.png',
+                             positive_eigs, negative_eigs);
 
 
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):
@@ -80,10 +80,10 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range
     print("Min/Max rot:   %f,   %f " % (np.amin(rot), np.amax(rot)) );
 
     # Plot the polygons as additional output (more intuitive)
-    pygmt_plots.plot_dilatation_1D(range_strain, polygon_vertices, dilatation, outdir, positive_eigs,
-                                   negative_eigs, outdir+'polygon_dilatation.eps');
-    pygmt_plots.plot_I2nd_1D(range_strain, polygon_vertices, I2nd, outdir, positive_eigs,
-                             negative_eigs, outdir+'polygon_I2nd.eps');
+    pygmt_plots.plot_dilatation_1D(range_strain, polygon_vertices, dilatation, outdir,
+                                   outdir + 'polygon_dilatation.eps', positive_eigs, negative_eigs);
+    pygmt_plots.plot_I2nd_1D(range_strain, polygon_vertices, I2nd, outdir, outdir + 'polygon_I2nd.eps', positive_eigs,
+                             negative_eigs);
 
 
 def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
