@@ -66,14 +66,11 @@ def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, 
     call_fortran_compute(strain_config_file, executable);
 
     # We convert that text file into grids, which we will write as GMT grd files.
-    [rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file, xdata, ydata);
+    [Ve, Vn, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file, xdata, ydata);
     subprocess.call(['mv', strain_config_file, tempdir], shell=False);
     subprocess.call(['mv', strain_data_file, tempdir], shell=False);
     subprocess.call(['mv', strain_output_file, tempdir], shell=False);
     print("Success computing strain via Visr method.\n");
-
-    # I know visr allows for velocity calculation, but dropping this in here now as a placeholder
-    Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape)
 
     return [Ve, Vn, rot, exx, exy, eyy];
 
@@ -155,8 +152,7 @@ def call_fortran_compute(config_file, executable):
 
 
 def make_output_grids_from_strain_out(infile, xdata, ydata):
-    x, y = [], [];
-    rotation, exx, exy, eyy = [], [], [], [];
+    x, y, Ve, Vn, rotation, exx, exy, eyy = [], [], [], [], [], [], [], [];
     ifile = open(infile, 'r');
     for line in ifile:
         temp = line.split();
@@ -165,6 +161,8 @@ def make_output_grids_from_strain_out(infile, xdata, ydata):
         else:
             x.append(float(temp[0]));
             y.append(float(temp[1]));
+            Ve.append(float(temp[2]));
+            Vn.append(float(temp[4]));
             rotation.append(float(line[53:60]));
             exx.append(float(temp[9]));
             exy.append(float(temp[11]));
@@ -176,10 +174,9 @@ def make_output_grids_from_strain_out(infile, xdata, ydata):
         sys.exit(0);
 
     # Loop through x and y lists, find the index of coordinates in xaxis and yaxis sets, place them into 2d arrays.
-    rot_grd = np.zeros((len(ydata), len(xdata)));
-    exx_grd = np.zeros((len(ydata), len(xdata)));
-    exy_grd = np.zeros((len(ydata), len(xdata)));
-    eyy_grd = np.zeros((len(ydata), len(xdata)));
+    grdshape = (len(ydata), len(xdata));
+    Ve_grd, Vn_grd = np.zeros(grdshape), np.zeros(grdshape);
+    rot_grd, exx_grd, exy_grd, eyy_grd = np.zeros(grdshape), np.zeros(grdshape), np.zeros(grdshape), np.zeros(grdshape);
     lons = np.round(xdata, 6);
     lats = np.round(ydata, 6);
     x = np.round(x, 6);
@@ -190,12 +187,14 @@ def make_output_grids_from_strain_out(infile, xdata, ydata):
         yindex = np.where(lats == y[i])[0];
         xindex = xindex[0];
         yindex = yindex[0];
+        Ve_grd[yindex][xindex] = Ve[i];
+        Vn_grd[yindex][xindex] = Vn[i];
         rot_grd[yindex][xindex] = rotation[i];
         exx_grd[yindex][xindex] = exx[i];
         exy_grd[yindex][xindex] = exy[i];
         eyy_grd[yindex][xindex] = eyy[i];
 
-    return [rot_grd, exx_grd, exy_grd, eyy_grd];
+    return [Ve_grd, Vn_grd, rot_grd, exx_grd, exy_grd, eyy_grd];
 
 
 def check_fortran_executable(path_to_executable):
