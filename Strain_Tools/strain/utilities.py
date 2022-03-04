@@ -1,5 +1,6 @@
 # A set of utility functions used throughout the Strain_2D library
 import numpy as np
+from . import velocity_io
 
 
 def get_float_range(string_range):
@@ -156,3 +157,42 @@ def getVels(velField):
         se.append(item.se)
         sn.append(item.sn)
     return np.array(lon), np.array(lat), np.array(e), np.array(n), np.array(se), np.array(sn)
+
+
+def get_index_of_nearest_point(xvals, target_val):
+    idx = (np.abs(xvals - target_val)).argmin()
+    return idx;
+
+
+def subtract_two_velfields(obsfield, modelfield):
+    # Perform residual subtraction
+    residual_velfield = [];
+    for obs, model in zip(obsfield, modelfield):
+        newVelPoint = velocity_io.StationVel(elon=obs.elon, nlat=obs.nlat, e=obs.e - model.e,
+                                             n=obs.n - model.n, u=0, se=0, sn=0, su=0, name=obs.name);
+        residual_velfield.append(newVelPoint);
+    return residual_velfield;
+
+
+def create_model_velfield(xdata, ydata, Ve, Vn, myVelfield):
+    """xdata, ydata are 1D arrays of lon and lat.  Ve, Vn are 2d arrays of interpolated velocities
+    Returns MODEL velocities at points in myVelfield. """
+    model_velfield = [];
+    for item in myVelfield:
+        target_lon = item.elon;
+        target_lat = item.nlat;
+        lon_idx = get_index_of_nearest_point(xdata, target_lon);
+        lat_idx = get_index_of_nearest_point(ydata, target_lat);
+        modelPoint = velocity_io.StationVel(elon=item.elon, nlat=item.nlat, e=Ve[lat_idx, lon_idx],
+                                            n=Vn[lat_idx, lon_idx], u=0, se=0, sn=0, su=0, name=item.name);
+        model_velfield.append(modelPoint);
+    return model_velfield;
+
+
+def filter_by_bounding_box(velfield, bbox):
+    filtered_velfield = [];
+    for item in velfield:
+        if bbox[0] <= item.elon <= bbox[1]:
+            if bbox[2] <= item.nlat <= bbox[3]:
+                filtered_velfield.append(item);
+    return filtered_velfield;

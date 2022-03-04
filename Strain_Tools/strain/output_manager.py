@@ -4,7 +4,7 @@ import numpy as np
 import os
 from xarray import Dataset
 
-from . import strain_tensor_toolbox, velocity_io, pygmt_plots
+from . import strain_tensor_toolbox, velocity_io, pygmt_plots, utilities
 
 
 def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
@@ -42,6 +42,12 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
     [positive_eigs, negative_eigs] = get_grid_eigenvectors(MyParams.xdata, MyParams.ydata, e1, e2, v00, v01, v10, v11);
     velocity_io.write_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt');
     velocity_io.write_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
+
+    # Write residual velocities for most methods
+    model_velfield = utilities.create_model_velfield(MyParams.xdata, MyParams.ydata, Ve, Vn, myVelfield);
+    residual_velfield = utilities.subtract_two_velfields(myVelfield, model_velfield);
+    residual_velfield = utilities.filter_by_bounding_box(residual_velfield, MyParams.range_strain);
+    velocity_io.write_stationvels(residual_velfield, MyParams.outdir + 'residual_vels.txt');
 
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(ds['rotation'], myVelfield, MyParams.range_strain, MyParams.outdir,
