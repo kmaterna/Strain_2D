@@ -9,7 +9,6 @@ This library contains several methods to compute geodetic strain from a GPS velo
 ### Requirements:
 * Python3, numpy, scipy, matplotlib
 * GMT5 or higher, PYGMT
-* Tectonic_Utils - https://github.com/kmaterna/Tectonic_Utils (can be installed by pip)
 * Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
 
 First, clone the Strain_2D repository onto your computer and get into the top level directory.  

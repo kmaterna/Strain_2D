@@ -17,5 +17,4 @@ dependencies:
  - gmt
  - pygmt
  - pip
- - pip: 
-   - Tectonic_Utils 
+

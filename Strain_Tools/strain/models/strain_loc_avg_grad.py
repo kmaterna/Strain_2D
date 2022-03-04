@@ -2,7 +2,6 @@
 # Strain calculation tool based on a certain number of nearby stations
 
 import numpy as np
-from Tectonic_Utils.geodesy import utm_conversion
 from strain.models.strain_2d import Strain_2d
 
 
@@ -21,7 +20,7 @@ class loc_avg_grad(Strain_2d):
 
 
 def verify_inputs_loc_avg_grad(method_specific_dict):
-    # Takes a dictionary and verifies that it contains the right parameters for Huang loc_avg_grad method
+    # Takes a dictionary and verifies that it contains the right parameters for loc_avg_grad method
     if 'estimateradiuskm' not in method_specific_dict.keys():
         raise ValueError("\nloc_avg_grad requires estimateradiuskm. Please add to method_specific config. Exiting.\n");
     if 'nstations' not in method_specific_dict.keys():
@@ -52,8 +51,7 @@ def compute_loc_avg_grad(myVelfield, xlons, ylats, radiuskm, nstations):
     EstimateRadius = radiuskm * 1000;  # convert to meters
     ns = nstations;  # number of selected stations
 
-    # 2. The main loop, getting displacement gradients around stations
-    # find at least 5 smallest distance stations
+    # 2. The main loop, getting displacement gradients around ns nearest stations
     Uxx = np.zeros((gy, gx));
     Uyy = np.zeros((gy, gx));
     Uxy = np.zeros((gy, gx));
@@ -62,9 +60,10 @@ def compute_loc_avg_grad(myVelfield, xlons, ylats, radiuskm, nstations):
     exy = np.zeros((gy, gx));
     eyy = np.zeros((gy, gx));
     rot = np.zeros((gy, gx));
+    Ve = np.zeros((gy, gx));
+    Vn = np.zeros((gy, gx));
     for i in range(gx):
         for j in range(gy):
-            # [gridX_loc, gridY_loc] = coord_to_local_utm(xlons[i], ylats[j], refx, refy);
             [gridX_loc, gridY_loc] = convert_to_local_planar(xlons[i], ylats[j], reflon, reflat);
             X = elon;   # in local coordinates, m
             Y = nlat;   # in local coordiantes, m
@@ -110,10 +109,7 @@ def compute_loc_avg_grad(myVelfield, xlons, ylats, radiuskm, nstations):
                     dyV = dyV + SelectStations[iii, 2] * SelectStations[iii, 4];
             G = [[ns, Px, Py], [Px, Px2, Pxy], [Py, Pxy, Py2]];
             if np.sum(G) == ns:
-                Uxx[j, i] = 0;
-                Uyy[j, i] = 0;
-                Uxy[j, i] = 0;
-                Uyx[j, i] = 0;
+                Uxx[j, i], Uyy[j, i], Uxy[j, i], Uyx[j, i] = 0, 0, 0, 0;
             else:
                 dx = np.array([[dU], [dxU], [dyU]]);
                 dy = np.array([[dV], [dxV], [dyV]]);
@@ -123,6 +119,9 @@ def compute_loc_avg_grad(myVelfield, xlons, ylats, radiuskm, nstations):
                 Uyy[j, i] = modely[2];
                 Uxy[j, i] = modelx[2];
                 Uyx[j, i] = modely[1];
+
+                Ve[j, i] = 1000 * (modelx[0] + modelx[1]*SelectStations[0, 1] + modelx[2]*SelectStations[0, 2]);  # mm
+                Vn[j, i] = 1000 * (modely[0] + modely[1]*SelectStations[0, 1] + modely[2]*SelectStations[0, 2]);  # mm
 
             # skipping misfit right now
             # misfit estimation   d = m1 + m2 x + m3 y
@@ -138,10 +137,6 @@ def compute_loc_avg_grad(myVelfield, xlons, ylats, radiuskm, nstations):
             rot[j, i] = omega * 1e9;
 
     print("Success computing strain via loc_avg_grad method.\n");
-
-    # I know you can get velocities out of this code but dropping this in now as a placeholder
-    Ve = np.nan*np.empty(exx.shape)
-    Vn = np.nan*np.empty(exx.shape)
 
     return [Ve, Vn, rot, exx, exy, eyy];
 
@@ -162,28 +157,6 @@ def velfield_to_LAG_non_utm(myVelfield):
         esig.append(item.se*0.001);
         nsig.append(item.sn*0.001);
     return [np.array(elon), np.array(nlat), np.array(e), np.array(n), np.array(esig), np.array(nsig)];
-
-
-def velfield_to_LAG_format_utm(myVelfield):
-    elon, nlat = [], [];
-    e, n, esig, nsig = [], [], [], [];
-    for item in myVelfield:
-        [x, y, _] = utm_conversion.deg2utm([item.nlat], [item.elon]);
-        elon.append(x);
-        nlat.append(y);
-        e.append(item.e*0.001);
-        n.append(item.n*0.001);
-        esig.append(item.se*0.001);
-        nsig.append(item.sn*0.001);
-
-    return [np.array(elon), np.array(nlat), np.array(e), np.array(n), np.array(esig), np.array(nsig)];
-
-
-def coord_to_local_utm(lon, lat, utm_xref, utm_yref):
-    [x, y, _] = utm_conversion.deg2utm([lat], [lon]);
-    local_utmx = x - utm_xref;
-    local_utmy = y - utm_yref;
-    return [local_utmx, local_utmy];
 
 
 def convert_to_local_planar(lon, lat, reflon, reflat):
