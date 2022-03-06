@@ -1,9 +1,7 @@
 # Computing moment via Savage and Simpson, 1997
 
 import argparse, sys
-import xarray as xr
 import numpy as np
-import subprocess
 from . import strain_tensor_toolbox, utilities
 
 help_message = "Compute moment accumulation rate via method of Savage and Simpson (1997) "
@@ -33,49 +31,18 @@ def cmd_parser(cmdargs):
     config = vars(p.parse_args())
     return config;
 
+
 def moment_coordinator(MyParams):
     """
     Coordinates the calculation.
     MyParams is a dictionary.
     """
     # Input, Compute, Output
-    lons, lats, exx, exy, eyy = read_fields_from_netcdf(MyParams["netcdf"]);
-    landmask = make_gmt_landmask(np.array(lons), np.array(lats), MyParams["landmask"]);
+    lons, lats, exx, exy, eyy = utilities.read_basic_fields_from_netcdf(MyParams["netcdf"]);
+    landmask = utilities.make_gmt_landmask(np.array(lons), np.array(lats), MyParams["landmask"]);
     Mo = compute_moments_loop(lons, lats, exx, exy, eyy, landmask, MyParams["mu"], MyParams["depth"]);
     write_Mo_outputs(MyParams, Mo);
     return;
-
-def read_fields_from_netcdf(netcdf_name):
-    """Return type is class 'xarray.core.dataarray.DataArray' for all 1D and 2D arrays """
-    ds = xr.open_dataset(netcdf_name);
-    lons = ds["x"]
-    lats = ds["y"]
-    exx = np.reshape(ds['exx'], (len(lats), len(lons)));
-    exy = np.reshape(ds['exy'], (len(lats), len(lons)));
-    eyy = np.reshape(ds['eyy'], (len(lats), len(lons)));
-    return lons, lats, exx, exy, eyy;
-
-def make_gmt_landmask(lons, lats, grd_filename):
-    """
-    Use GMT to construct a landmask for calculating total moment accumulation from strain rate.
-    param lons: np.array of centers of pixels
-    param lats: np.array of centers of pixels
-    param filename: string
-    returns landmask array
-    """
-    gmt_range_string, gmt_inc_string = utilities.get_gmt_range_inc(np.array(lons), np.array(lats));
-    subprocess.call(['gmt', 'grdlandmask', '-G'+grd_filename, '-R'+gmt_range_string, '-I'+gmt_inc_string, '-r'],
-                    shell=False);  # guarantee pixel node registration
-    print('gmt grdlandmask -G'+grd_filename+' -R'+gmt_range_string+'-I'+gmt_inc_string+' -r');
-    landmask_array = read_landmask(grd_filename);
-    return landmask_array;
-
-def read_landmask(netcdf_name):
-    """Read the pixel node grd file created by gmt grdlandmask"""
-    print("Reading landmask %s " % netcdf_name);
-    ds = xr.open_dataset(netcdf_name);
-    landmask = ds["z"];
-    return landmask;
 
 
 def get_savage_simpson_moment(exx, exy, eyy, mu_GPa, depth_km, area_km2):

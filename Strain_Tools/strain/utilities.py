@@ -1,5 +1,8 @@
 # A set of utility functions used throughout the Strain_2D library
+import subprocess
 import numpy as np
+import xarray as xr
+
 from . import velocity_io
 
 
@@ -83,30 +86,6 @@ def get_gmt_range_inc(lons, lats):
     return gmt_range_string, gmt_inc_string;
 
 
-def mask_by_value(grid1, grid_maskingbasis, cutoff_value):
-    """
-    Implement NAN-mask for one grid in all places where values are smaller than cutoff value in corresponding grid.
-
-    :param grid1: usually azimuth deviations
-    :type grid1: 2D array
-    :param grid_maskingbasis: usually I2nd
-    :type grid_maskingbasis: 2D array
-    :param cutoff_value: cutoff for nans
-    :type cutoff_value: float
-    :returns: masked grid
-    :rtype: 2D array
-    """
-    (y, x) = np.shape(grid1);
-    masked_vals = np.zeros(np.shape(grid1));
-    for i in range(x):
-        for j in range(y):
-            if abs(grid_maskingbasis[j][i]) > cutoff_value:
-                masked_vals[j][i] = grid1[j][i];
-            else:
-                masked_vals[j][i] = np.nan;
-    return masked_vals;
-
-
 # --------- DEFENSIVE PROGRAMMING FOR COMPARING MULTIPLE GRIDS ------------------ #
 
 def check_coregistered_shapes(strain_values_ds):
@@ -127,7 +106,7 @@ def check_coregistered_shapes(strain_values_ds):
     return;
 
 
-# --------- GRID AND NAMED TUPLE UTILITIES ------------------ #
+# --------- GRID AND VELFIELD NAMED TUPLE UTILITIES ------------------ #
 
 def make_grid(coordbox, inc):
     """
@@ -196,3 +175,68 @@ def filter_by_bounding_box(velfield, bbox):
             if bbox[2] <= item.nlat <= bbox[3]:
                 filtered_velfield.append(item);
     return filtered_velfield;
+
+
+# --------- GRD/NETCDF UTILITIES ------------------ #
+
+def mask_by_value(grid1, grid_maskingbasis, cutoff_value):
+    """
+    Implement NAN-mask for one grid in all places where values are smaller than cutoff value in corresponding grid.
+
+    :param grid1: usually azimuth deviations
+    :type grid1: 2D array
+    :param grid_maskingbasis: usually I2nd
+    :type grid_maskingbasis: 2D array
+    :param cutoff_value: cutoff for nans
+    :type cutoff_value: float
+    :returns: masked grid
+    :rtype: 2D array
+    """
+    (y, x) = np.shape(grid1);
+    masked_vals = np.zeros(np.shape(grid1));
+    for i in range(x):
+        for j in range(y):
+            if abs(grid_maskingbasis[j][i]) > cutoff_value:
+                masked_vals[j][i] = grid1[j][i];
+            else:
+                masked_vals[j][i] = np.nan;
+    return masked_vals;
+
+
+def read_basic_fields_from_netcdf(netcdf_name):
+    """
+    Reads x, y, and strain from formatted NetCDF output for Strain project.
+    Return type is class 'xarray.core.dataarray.DataArray' for all 1D and 2D arrays
+    """
+    ds = xr.open_dataset(netcdf_name);
+    lons = ds["x"]
+    lats = ds["y"]
+    exx = np.reshape(ds['exx'], (len(lats), len(lons)));
+    exy = np.reshape(ds['exy'], (len(lats), len(lons)));
+    eyy = np.reshape(ds['eyy'], (len(lats), len(lons)));
+    return lons, lats, exx, exy, eyy;
+
+
+def make_gmt_landmask(lons, lats, grd_filename):
+    """
+    Use GMT to construct a landmask for calculating total moment accumulation from strain rate.
+
+    param lons: np.array of centers of pixels
+    param lats: np.array of centers of pixels
+    param filename: string
+    returns landmask array
+    """
+    gmt_range_string, gmt_inc_string = get_gmt_range_inc(np.array(lons), np.array(lats));
+    subprocess.call(['gmt', 'grdlandmask', '-G'+grd_filename, '-R'+gmt_range_string, '-I'+gmt_inc_string, '-r'],
+                    shell=False);  # guarantee pixel node registration
+    print('gmt grdlandmask -G'+grd_filename+' -R'+gmt_range_string+'-I'+gmt_inc_string+' -r');
+    landmask_array = read_landmask(grd_filename);
+    return landmask_array;
+
+
+def read_landmask(netcdf_name):
+    """Read the pixel node grd file created by gmt grdlandmask"""
+    print("Reading landmask %s " % netcdf_name);
+    ds = xr.open_dataset(netcdf_name);
+    landmask = ds["z"];
+    return landmask;
