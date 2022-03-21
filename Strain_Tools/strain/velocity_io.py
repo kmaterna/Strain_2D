@@ -1,5 +1,4 @@
-import collections
-import os
+import collections, os
 import xarray as xr
 
 
@@ -23,13 +22,8 @@ def read_stationvels(input_file):
             lon = float(temp[0]);
         except ValueError:
             continue
-        lat = float(temp[1]);
-        VE = float(temp[2]);
-        VN = float(temp[3]);
-        VU = float(temp[4]);
-        SE = float(temp[5]);
-        SN = float(temp[6]);
-        SU = float(temp[7]);
+        lat, VE, VN, VU = float(temp[1]), float(temp[2]), float(temp[3]), float(temp[4]);
+        SE, SN, SU = float(temp[5]), float(temp[6]), float(temp[7]);
         if len(temp) > 8:
             name = temp[8];
         else:
@@ -40,17 +34,18 @@ def read_stationvels(input_file):
     return myVelfield;
 
 
-def write_stationvels(myVelfield, output_file):
+def write_stationvels(myVelfield, output_file, header=""):
     """
     Writing basic format for 2D velocity data
 
     :param myVelfield: Velfield object
     :param output_file: name of velocity file
+    :param header: optional string that is written into the header line
     """
     print("writing human-readable velfile in station-vel format, %s" % output_file);
     ofile = open(output_file, 'w');
     ofile.write(
-        "# Format: lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)\n");
+        "# "+header+" Format: lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)\n");
     for station_vel in myVelfield:
         ofile.write("%f %f %f %f %f %f %f %f %s\n" % (
             station_vel.elon, station_vel.nlat, station_vel.e, station_vel.n, station_vel.u, station_vel.se,
@@ -75,10 +70,7 @@ def read_gmt_format(filename):
         if line.split()[0] == "#":
             continue;
         temp = line.split();
-        lon = float(temp[0]);
-        lat = float(temp[1]);
-        VE = float(temp[2]);
-        VN = float(temp[3]);
+        lon, lat, VE, VN = float(temp[0]), float(temp[1]), float(temp[2]), float(temp[3]);
         myVelfield.append(StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=0, se=0, sn=0, su=0, name=''));
     ifile.close();
     return myVelfield;

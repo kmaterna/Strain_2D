@@ -126,16 +126,14 @@ def make_grid(coordbox, inc):
 
 
 def getVels(velField):
-    """Read velocities from a NamedTuple"""
-    lon, lat, e, n, se, sn = [], [], [], [], [], [];
-    for item in velField:
-        lon.append(item.elon)
-        lat.append(item.nlat)
-        e.append(item.e)
-        n.append(item.n)
-        se.append(item.se)
-        sn.append(item.sn)
-    return np.array(lon), np.array(lat), np.array(e), np.array(n), np.array(se), np.array(sn)
+    """Extract velocities from a list of NamedTuples"""
+    lon = np.array([x.elon for x in velField]);
+    lat = np.array([x.nlat for x in velField]);
+    e = np.array([x.e for x in velField]);
+    n = np.array([x.n for x in velField]);
+    se = np.array([x.se for x in velField]);
+    sn = np.array([x.se for x in velField]);
+    return lon, lat, e, n, se, sn;
 
 
 def get_index_of_nearest_point(xvals, target_val):
