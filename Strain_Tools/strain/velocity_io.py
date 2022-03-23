@@ -44,8 +44,8 @@ def write_stationvels(myVelfield, output_file, header=""):
     """
     print("writing human-readable velfile in station-vel format, %s" % output_file);
     ofile = open(output_file, 'w');
-    ofile.write(
-        "# "+header+" Format: lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)\n");
+    ofile.write("# "+header+"\n");
+    ofile.write("lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)\n");
     for station_vel in myVelfield:
         ofile.write("%f %f %f %f %f %f %f %f %s\n" % (
             station_vel.elon, station_vel.nlat, station_vel.e, station_vel.n, station_vel.u, station_vel.se,
@@ -70,6 +70,10 @@ def read_gmt_format(filename):
         if line.split()[0] == "#":
             continue;
         temp = line.split();
+        try:
+            _lon = float(temp[0]);
+        except ValueError:
+            continue
         lon, lat, VE, VN = float(temp[0]), float(temp[1]), float(temp[2]), float(temp[3]);
         myVelfield.append(StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=0, se=0, sn=0, su=0, name=''));
     ifile.close();
@@ -85,7 +89,7 @@ def write_gmt_format(myVelfield, outfile):
     """
     print("writing vector output file %s " % outfile);
     ofile = open(outfile, 'w');
-    ofile.write("# Format: lon(deg) lat(deg) VE(mm) VN(mm) SE(mm) SN(mm) Corr\n");
+    ofile.write("lon(deg) lat(deg) VE(mm) VN(mm) SE(mm) SN(mm) Corr\n");
     for item in myVelfield:
         ofile.write("%f %f %f %f %f %f 0.0\n" % (item.elon, item.nlat, item.e, item.n, item.se, item.sn));
     ofile.close();

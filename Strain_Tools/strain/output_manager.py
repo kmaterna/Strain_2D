@@ -47,8 +47,8 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
     filtered_velfield = utilities.filter_by_bounding_box(myVelfield, MyParams.range_strain);
     model_velfield = utilities.create_model_velfield(MyParams.xdata, MyParams.ydata, Ve, Vn, filtered_velfield);
     residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
-    velocity_io.write_stationvels(filtered_velfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity. ');
-    velocity_io.write_stationvels(residual_velfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model. ');
+    velocity_io.write_stationvels(filtered_velfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.');
+    velocity_io.write_stationvels(residual_velfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.');
 
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(ds['rotation'], myVelfield, MyParams.range_strain, MyParams.outdir,
