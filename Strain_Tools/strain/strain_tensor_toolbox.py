@@ -14,8 +14,8 @@ def strain_on_regular_grid(dx, dy, V1, V2):
     :param V2: 2d array of velocities in y-direction
     :returns: 2d arrays of derived quantities
     """
-    e11, dV1dx2 = np.gradient(V1, dx, dy)
-    dV2dx1, e22 = np.gradient(V2, dx, dy)
+    dV1dx2,e11 = np.gradient(V1, dx, dy)
+    e22,dV2dx1 = np.gradient(V2, dx, dy)
 
     # shear strain rate is the symmetric part of the gradient
     e12 = 0.5*(dV1dx2 + dV2dx1)

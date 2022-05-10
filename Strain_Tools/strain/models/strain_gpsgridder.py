@@ -69,11 +69,9 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     file1 = tempoutdir+"nc_u.nc";
     file2 = tempoutdir+"nc_v.nc";
     ds = xr.open_dataset(file1);
-    udata = ds["z"];
+    udata = ds["z"][:];
     ds = xr.open_dataset(file2);
-    vdata = ds["z"];
-    udata = np.array(udata.T);
-    vdata = np.array(vdata.T);
+    vdata = ds["z"][:];
 
     xinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $8}\'', shell=True));  # x-inc
     yinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $9}\'', shell=True));  # y-inc
@@ -83,4 +81,5 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     [exx, eyy, exy, rot] = strain_tensor_toolbox.strain_on_regular_grid(xinc, yinc, udata * 1000, vdata * 1000)
 
     print("Success computing strain via gpsgridder method.\n");
-    return [udata.T, vdata.T, abs(rot.T), exx.T, exy.T, eyy.T];
+    return [udata, vdata, abs(rot), exx, exy, eyy];
+

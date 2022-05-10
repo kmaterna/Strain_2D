@@ -14,7 +14,6 @@ dependencies:
  - numpy
  - scipy
  - xarray
- - gmt
  - pygmt
  - pip
 
