@@ -31,6 +31,7 @@ Input velocities must be in a text file. They must be a space-separated table wi
 ```
 # lon(deg) lat(deg) VE(mm) VN(mm) VU(mm) SE(mm) SN(mm) SU(mm) name(optional)
 ``` 
+In general, users are expected to clean their velocities before using Strain_2D, according to their own needs in their own projects.  Within Strain_2D, the velocities will be filtered to include only those within the bounding box provided in the config parameter ```range_data```. 
 
 ### Outputs: 
 Output strain components and derived quantities (invariants, eigenvectors) are written as *pixel-node-registered* netCDF files and/or text files, and plotted in PyGMT.  
