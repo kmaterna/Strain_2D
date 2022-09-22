@@ -53,14 +53,14 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(ds['rotation'], myVelfield, MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir+'rotation.png');
-    pygmt_plots.plot_dilatation(ds['dilatation'], MyParams.range_strain, MyParams.outdir,
+    pygmt_plots.plot_dilatation(ds['dilatation'], myVelfield, MyParams.range_strain, MyParams.outdir,
                                 MyParams.outdir + 'dilatation.png', positive_eigs, negative_eigs);
-    pygmt_plots.plot_I2nd(ds['I2'], MyParams.range_strain, MyParams.outdir, MyParams.outdir + 'I2nd.png', positive_eigs,
-                          negative_eigs);
-    pygmt_plots.plot_maxshear(ds['max_shear'], MyParams.range_strain, MyParams.outdir,
+    pygmt_plots.plot_I2nd(ds['I2'], myVelfield, MyParams.range_strain, MyParams.outdir, MyParams.outdir + 'I2nd.png',
+                          positive_eigs, negative_eigs);
+    pygmt_plots.plot_maxshear(ds['max_shear'], myVelfield, MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir + 'max_shear.png', positive_eigs, negative_eigs);
-    pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir, MyParams.outdir + 'azimuth.png',
-                             positive_eigs, negative_eigs);
+    pygmt_plots.plot_azimuth(ds['azimuth'], myVelfield, MyParams.range_strain, MyParams.outdir,
+                             MyParams.outdir + 'azimuth.png', positive_eigs, negative_eigs);
 
 
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):
