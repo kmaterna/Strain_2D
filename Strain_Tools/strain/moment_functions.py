@@ -22,7 +22,7 @@ def cmd_parser(cmdargs):
                    help='''shear modulus [GPa], default 30 Gpa''')
     p.add_argument('--depth', type=float, default=10,
                    help='''seismogenic thickness [km], default of 10 km''')
-    p.add_argument('--landmask', type=str, default=None,
+    p.add_argument('--landmask', type=str, default='landmask.grd',
                    help='''grdfile showing where is land''')
     p.add_argument('-v', '--verbose', action='count', default=0,
                    help='''controls verbosity''')
@@ -35,14 +35,15 @@ def cmd_parser(cmdargs):
 def moment_coordinator(MyParams):
     """
     Coordinates the calculation.
-    MyParams is a dictionary.
+
+    :param MyParams: a dictionary
     """
     # Input, Compute, Output
     lons, lats, exx, exy, eyy = utilities.read_basic_fields_from_netcdf(MyParams["netcdf"]);
     landmask = utilities.make_gmt_landmask(np.array(lons), np.array(lats), MyParams["landmask"]);
     Mo = compute_moments_loop(lons, lats, exx, exy, eyy, landmask, MyParams["mu"], MyParams["depth"]);
     write_Mo_outputs(MyParams, Mo);
-    return;
+    return Mo;
 
 
 def get_savage_simpson_moment(exx, exy, eyy, mu_GPa, depth_km, area_km2):
@@ -50,25 +51,30 @@ def get_savage_simpson_moment(exx, exy, eyy, mu_GPa, depth_km, area_km2):
     Minimum moment accumulation rate associated with a surface strain rate tensor.
     as per Savage and Simpson 1997, Equation 22
     exx, exy, eyy assumed in units of nanostrain
+    With strain in nanostrain and mu in GPa, we don't need to multiply and then divide by 1e9
     """
     [e1, e2, _] = strain_tensor_toolbox.eigenvector_eigenvalue(exx, exy, eyy);
     depth_m = depth_km * 1000;
-    mu_Pa = mu_GPa * 1e9;
     area_m2 = area_km2 * 1e6;
-    M0_min = 2 * mu_Pa * depth_m * area_m2 * np.max([np.abs(e1), np.abs(e2), np.abs(e1+e2)]);
-    M0_min = M0_min / 1e9;   # unit conversion because strain rate tensor comes in as nanostrain/yr
+    M0_min = 2 * mu_GPa * depth_m * area_m2 * np.max([np.abs(e1), np.abs(e2), np.abs(e1+e2)]);
     return M0_min;
 
+
 def compute_moments_loop(lons, lats, exx, exy, eyy, landmask, mu, depth):
+    print("Computing total moment rate of strain rate field from Savage and Simpson (1997).");
     Mo = 0;
     xinc_km = (lons[1] - lons[0]) * (111.000*np.cos(np.deg2rad(lats[0])));
     yinc_km = (lats[1] - lats[0]) * 111.000;
     area_km2 = xinc_km * yinc_km;
+    exx = np.multiply(exx, landmask);
+    exy = np.multiply(exy, landmask);
+    eyy = np.multiply(eyy, landmask);
     for i in range(len(lats)):
         for j in range(len(lons)):
-            if landmask[i][j] == 1:
+            if landmask[i][j] > 0:
                 Mo = Mo + get_savage_simpson_moment(exx[i][j], exy[i][j], eyy[i][j], mu, depth, area_km2);
     return Mo;
+
 
 def write_Mo_outputs(MyParams, Mo):
     print("Writing file %s " % MyParams["outfile"]);

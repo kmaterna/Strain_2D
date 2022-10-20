@@ -135,6 +135,7 @@ def read_multiple_strain_netcdfs(MyParams, plot_type):
     ds_new: xarray Dataset - A dataset containing the plot_type variable from each type of model
     """
     building_dict = {}
+    ds = [];
     for k, method in enumerate(MyParams.strain_dict.keys()):
         specific_filename = os.path.join(MyParams.strain_dict[method], "{}_strain.nc".format(method))
         ds = xr.load_dataset(specific_filename)

@@ -4,10 +4,11 @@ import numpy as np
 import os
 from xarray import Dataset
 
-from . import strain_tensor_toolbox, velocity_io, pygmt_plots, utilities
+from . import strain_tensor_toolbox, velocity_io, pygmt_plots, utilities, moment_functions
 
 
 def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
+    """Every strain method goes through this function at the end of its output stage"""
     print("------------------------------\nWriting 2d outputs:");
     velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");  # within range_data bounding box
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
@@ -32,8 +33,10 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
             "y": ('y', MyParams.ydata),
         },
     )
-    print("Writing file %s " % os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)));
-    ds.to_netcdf(os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)))
+
+    output_filename = os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method));
+    print("Writing file %s " % output_filename);
+    ds.to_netcdf(output_filename);
 
     print("Max I2: %f " % (np.nanmax(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.nanmin(rot), np.nanmax(rot)) );
@@ -61,6 +64,16 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
                               MyParams.outdir + 'max_shear.png', positive_eigs, negative_eigs);
     pygmt_plots.plot_azimuth(ds['azimuth'], myVelfield, MyParams.range_strain, MyParams.outdir,
                              MyParams.outdir + 'azimuth.png', positive_eigs, negative_eigs);
+
+    if MyParams.write_metrics:  # optional: we can automatically compute a metric of the mag. of strain field
+        output_params = {"netcdf": output_filename,
+                         "landmask": MyParams.outdir+"landmask.grd",
+                         "mu": 30,
+                         "depth": 11,
+                         "outfile": MyParams.outdir+"strain_metrics.txt"}
+        moment_functions.moment_coordinator(output_params);
+
+    return;
 
 
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):
