@@ -50,7 +50,7 @@
 
 import numpy as np
 from scipy.spatial import Delaunay
-from .. import output_manager, produce_gridded
+from .. import output_manager, produce_gridded, utilities
 from strain.models.strain_2d import Strain_2d
 
 
@@ -75,9 +75,12 @@ class delaunay(Strain_2d):
 
         # Velocities aren't used in Delaunay
         Ve, Vn = np.nan*np.empty(exx_grd.shape), np.nan*np.empty(exx_grd.shape)
+        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, filtered_velfield);
+        residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
 
         print("Success computing strain via Delaunay method.\n");
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, filtered_velfield, residual_velfield];
 
 
 def compute_with_delaunay_polygons(myVelfield):

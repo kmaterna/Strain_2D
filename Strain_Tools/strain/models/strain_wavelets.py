@@ -2,6 +2,7 @@ import numpy as np
 import scipy.interpolate as interp
 import subprocess
 from strain.models.strain_2d import Strain_2d
+from .. import utilities
 
 
 class wavelets(Strain_2d):
@@ -33,10 +34,13 @@ class wavelets(Strain_2d):
         _, _, eyy = nn_interp(x, y, eyy, self._xdata, self._ydata);
         _, _, rot = nn_interp(x, y, rot, self._xdata, self._ydata);
 
-        # Not sure whether Tape gives velocities or not
-        Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape), 
+        # Not sure whether Wavelets gives velocities or not
+        Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape),
 
-        return [Ve, Vn, rot, exx, exy, eyy];
+        # Report observed and residual velocities within bounding box
+        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        residual_velfield = [];
+        return [Ve, Vn, rot, exx, exy, eyy, filtered_velfield, residual_velfield];
 
 
 def verify_inputs_wavelets(method_specific_dict):
@@ -167,6 +171,15 @@ def nn_interp(x, y, vals, newx, newy):
 
     return newx, newy, newvals
 
+
+def report_on_misfits_wavelets(residfile, key):
+    print("\n" + key.upper());
+    [Sn, Se, resid_Vn, resid_Ve] = np.loadtxt(residfile, usecols=(3, 4, 6, 7), unpack=True);
+    #  From Compearth code on Matlab file:
+    #  fprintf(fid, stfmt, dlon(ii), dlat(ii), su(ii) * 1e3, sn(ii) * 1e3, se(ii) * 1e3, Vmat(ii,:));
+    _misfit_total, _chi2_total = compute_misfits(resid_Ve, resid_Vn, Se, Sn);
+    return;
+# 'wavelets': ['output/wavelets/matlab-output-files/_d-01_q04_q07_b1_2D_s1_u1_vfield_residual.dat'],
 
 """
 Steps for Tape Wavelets:

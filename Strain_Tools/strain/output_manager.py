@@ -3,14 +3,17 @@
 import numpy as np
 import os
 from xarray import Dataset
+from . import strain_tensor_toolbox, velocity_io, pygmt_plots, moment_functions
 
-from . import strain_tensor_toolbox, velocity_io, pygmt_plots, utilities, moment_functions
 
-
-def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
+def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
     """Every strain method goes through this function at the end of its output stage"""
     print("------------------------------\nWriting 2d outputs:");
-    velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");  # within range_data bounding box
+
+    # Write residual velocities.  Filter observations by range_strain bounding box.
+    velocity_io.write_stationvels(myVelfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.');  # range_strain
+    velocity_io.write_stationvels(residfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.');
+
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
 
@@ -45,13 +48,6 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
     [positive_eigs, negative_eigs] = get_grid_eigenvectors(MyParams.xdata, MyParams.ydata, e1, e2, v00, v01, v10, v11);
     velocity_io.write_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt');
     velocity_io.write_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
-
-    # Write residual velocities for most methods (not Wavelets).  Filter observations by range_strain bounding box.
-    filtered_velfield = utilities.filter_by_bounding_box(myVelfield, MyParams.range_strain);
-    model_velfield = utilities.create_model_velfield(MyParams.xdata, MyParams.ydata, Ve, Vn, filtered_velfield);
-    residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
-    velocity_io.write_stationvels(filtered_velfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.');
-    velocity_io.write_stationvels(residual_velfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.');
 
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(ds['rotation'], myVelfield, MyParams.range_strain, MyParams.outdir,
