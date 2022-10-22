@@ -40,7 +40,6 @@ class wavelets(Strain_2d):
         # Get residuals
         resid_file = output_tag + "_vfield_residual.dat";
         residual_velfield = report_on_misfits_wavelets(resid_file);
-        print(residual_velfield);
 
         # Report observed and residual velocities within bounding box
         filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
