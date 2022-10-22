@@ -70,13 +70,13 @@ class delaunay(Strain_2d):
                                                                                   triangle_verts, rot, exx, exy, eyy);
 
         # Here we output convenient things on polygons, since it's intuitive for the user.
-        # output_manager.outputs_1d(xcentroid, ycentroid, triangle_verts, rot, exx, exy, eyy, self._strain_range,
-        #                           myVelfield, self._outdir);
+        output_manager.outputs_1d(xcentroid, ycentroid, triangle_verts, rot, exx, exy, eyy, self._strain_range,
+                                  myVelfield, self._outdir);
 
         # Velocities aren't used in Delaunay
         Ve, Vn = np.nan*np.empty(exx_grd.shape), np.nan*np.empty(exx_grd.shape)
         filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
-        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, filtered_velfield);
+        model_velfield = filtered_velfield;
         residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
 
         print("Success computing strain via Delaunay method.\n");

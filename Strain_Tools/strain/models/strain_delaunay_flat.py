@@ -50,7 +50,7 @@ class delaunay_flat(Strain_2d):
         # Velocities aren't used in Delaunay
         Ve, Vn = np.nan*np.empty((4, 4)), np.nan*np.empty((4, 4))
         filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
-        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, filtered_velfield);
+        model_velfield = filtered_velfield;
         residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
 
         print("Success computing strain via Delaunay method.\n");
