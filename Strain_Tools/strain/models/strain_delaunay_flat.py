@@ -15,7 +15,7 @@ ftp://ftp.ingv.it/pub/salvatore.barba/RevEu/Cai_StrainBIFROST_2007.pdf
 import numpy as np
 from scipy.spatial import Delaunay
 from numpy.linalg import inv
-from .. import strain_tensor_toolbox, output_manager, produce_gridded
+from .. import strain_tensor_toolbox, output_manager, produce_gridded, utilities
 from Strain_Tools.strain.models.strain_2d import Strain_2d
 
 
@@ -49,9 +49,12 @@ class delaunay_flat(Strain_2d):
 
         # Velocities aren't used in Delaunay
         Ve, Vn = np.nan*np.empty((4, 4)), np.nan*np.empty((4, 4))
+        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        model_velfield = filtered_velfield;
+        residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
 
         print("Success computing strain via Delaunay method.\n");
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, filtered_velfield, residual_velfield];
 
 
 # ----------------- COMPUTE -------------------------

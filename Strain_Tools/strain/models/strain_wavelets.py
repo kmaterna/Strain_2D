@@ -2,6 +2,7 @@ import numpy as np
 import scipy.interpolate as interp
 import subprocess
 from strain.models.strain_2d import Strain_2d
+from .. import utilities, velocity_io
 
 
 class wavelets(Strain_2d):
@@ -33,10 +34,17 @@ class wavelets(Strain_2d):
         _, _, eyy = nn_interp(x, y, eyy, self._xdata, self._ydata);
         _, _, rot = nn_interp(x, y, rot, self._xdata, self._ydata);
 
-        # Not sure whether Tape gives velocities or not
-        Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape), 
+        # Not sure whether Wavelets gives velocities or not
+        Ve, Vn = np.nan*np.empty(exx.shape), np.nan*np.empty(exx.shape),
 
-        return [Ve, Vn, rot, exx, exy, eyy];
+        # Get residuals
+        resid_file = output_tag + "_vfield_residual.dat";
+        residual_velfield = report_on_misfits_wavelets(resid_file);
+
+        # Report observed and residual velocities within bounding box
+        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        residual_velfield = utilities.filter_by_bounding_box(residual_velfield, self._strain_range);
+        return [Ve, Vn, rot, exx, exy, eyy, filtered_velfield, residual_velfield];
 
 
 def verify_inputs_wavelets(method_specific_dict):
@@ -119,8 +127,7 @@ def input_wavelets(coordsfile, datafile, wfile):
     and outputs the coordinates and strain tensor components.    
     """
     incoords = np.loadtxt(coordsfile, usecols=(0, 1), unpack=True)
-    lon = incoords[0]
-    lat = incoords[1]
+    lon, lat = incoords[0], incoords[1]
     infile = np.loadtxt(datafile, skiprows=1, usecols=(3, 4, 5), unpack=True)
     thth = infile[0]
     thph = infile[1]
@@ -166,6 +173,17 @@ def nn_interp(x, y, vals, newx, newy):
     newvals = np.transpose(newvals)
 
     return newx, newy, newvals
+
+
+def report_on_misfits_wavelets(residfile):
+    [elon, nlat, Sn, Se, resid_Vn, resid_Ve] = np.loadtxt(residfile, usecols=(0, 1, 3, 4, 6, 7), unpack=True);
+    #  From Compearth code on Matlab file:
+    #  fprintf(fid, stfmt, dlon(ii), dlat(ii), su(ii) * 1e3, sn(ii) * 1e3, se(ii) * 1e3, Vmat(ii,:));
+    residfield = [];
+    for i in range(len(elon)):
+        new_resid = velocity_io.StationVel(elon=elon[i], nlat=nlat[i], e=resid_Ve[i], n=resid_Vn[i], u=0, se=0, sn=0, su=0, name='');
+        residfield.append(new_resid);
+    return residfield;
 
 
 """

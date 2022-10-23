@@ -3,7 +3,7 @@
 
 import numpy as np
 from strain.models.strain_2d import Strain_2d
-
+from .. import utilities
 
 class loc_avg_grad(Strain_2d):
     """ loc_avg_grad class for 2d strain rate, with general strain_2d behavior """
@@ -16,7 +16,11 @@ class loc_avg_grad(Strain_2d):
     def compute(self, myVelfield):
         [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_loc_avg_grad(myVelfield, self._xdata, self._ydata,
                                                                             self._radiuskm, self._nstations);
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        # Report observed and residual velocities within bounding box
+        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, filtered_velfield);
+        residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, filtered_velfield, residual_velfield];
 
 
 def verify_inputs_loc_avg_grad(method_specific_dict):

@@ -8,6 +8,7 @@ import numpy as np
 from scipy.spatial.distance import pdist, cdist, squareform
 
 from strain.models.strain_2d import Strain_2d
+from .. import utilities
 from strain.strain_tensor_toolbox import strain_on_regular_grid
 from strain.utilities import getVels
 
@@ -168,8 +169,13 @@ class geostats(Strain_2d):
         dx, dy = self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
         exx, eyy, exy, rot = strain_on_regular_grid(dx, dy, Ve, Vn)
 
+        # Report observed and residual velocities within bounding box
+        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, filtered_velfield);
+        residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
+
         # Return the strain rates etc. in the same units as other methods
-        return Ve, Vn, rot*1000, exx*1000, exy*1000, eyy*1000
+        return Ve, Vn, rot*1000, exx*1000, exy*1000, eyy*1000, filtered_velfield, residual_velfield
         
 
 def krige(xy, XY, data, model, ktype='ok'):

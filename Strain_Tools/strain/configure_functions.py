@@ -1,10 +1,8 @@
-import subprocess, sys, os
-import collections
-import configparser
+import subprocess, sys, os, collections, configparser
 from . import utilities
 
 Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range_strain', 'range_data', 'inc',
-                                           'xdata', 'ydata', 'outdir', 'method_specific']);
+                                           'xdata', 'ydata', 'outdir', 'method_specific', 'write_metrics']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
 avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  loc_avg_grad\n  wavelets\n  visr\n "
@@ -36,6 +34,7 @@ def strain_cmd_parser(cmdargs):
         else:                           # run the main program
             configfile = cmdargs[1];
             MyParams = read_strain_config(configfile);
+            print_Params(MyParams);
             subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
             subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
             return MyParams;
@@ -50,6 +49,7 @@ def read_strain_config(configfile):
     strain_method = config.get('general', 'method');
     output_dir = config.get('general', 'output_dir');
     input_file = config.get('general', 'input_vel_file');
+    write_metrics = config.getint('general', 'write_metrics') if config.has_option('general', 'write_metrics') else 0;
     range_strain = config.get('strain', 'range_strain');
     range_data = config.get('strain', 'range_data') if config.has_option('strain', 'range_data') else range_strain;
     inc = config.get('strain', 'inc');
@@ -70,15 +70,18 @@ def read_strain_config(configfile):
     xdata, ydata, _ = utilities.make_grid(range_strain, inc);
     MyParams = Params(strain_method=strain_method, input_file=input_file, range_strain=range_strain,
                       range_data=range_data, inc=inc, xdata=xdata, ydata=ydata,
-                      outdir=output_dir, method_specific=method_specific);
+                      outdir=output_dir, method_specific=method_specific, write_metrics=write_metrics);
+    return MyParams;
 
+
+def print_Params(MyParams):
     print("\n------------------------------");
     print("Hello! We are...");
     print("   Computing strain using : %s " % MyParams.strain_method);
     print("   Input data from        : %s" % MyParams.input_file);
     print("   Calculation range      : %s" % MyParams.range_strain);
     print("   Putting the outputs    : %s \n" % MyParams.outdir);
-    return MyParams;
+    return;
 
 
 def write_example_strain_config(outfile):
@@ -98,6 +101,7 @@ def write_example_strain_config(outfile):
     genconfig["method"] = "delaunay"
     genconfig["output_dir"] = "Output"
     genconfig["input_vel_file"] = "../test/testing_data/NorCal_stationvels.txt";
+    genconfig["write_metrics"] = "0"
     strainconfig = configobj["strain"];
     strainconfig["range_strain"] = "-125/-120/38/42"
     strainconfig["range_data"] = "-125/-119/37.5/42.5"

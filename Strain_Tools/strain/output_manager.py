@@ -3,13 +3,17 @@
 import numpy as np
 import os
 from xarray import Dataset
+from . import strain_tensor_toolbox, velocity_io, pygmt_plots, moment_functions
 
-from . import strain_tensor_toolbox, velocity_io, pygmt_plots, utilities
 
-
-def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
+def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
+    """Every strain method goes through this function at the end of its output stage"""
     print("------------------------------\nWriting 2d outputs:");
-    velocity_io.write_stationvels(myVelfield, MyParams.outdir+"tempgps.txt");  # within range_data bounding box
+
+    # Write residual velocities.  Filter observations by range_strain bounding box.
+    velocity_io.write_stationvels(myVelfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.');  # range_strain
+    velocity_io.write_stationvels(residfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.');
+
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
 
@@ -32,8 +36,10 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
             "y": ('y', MyParams.ydata),
         },
     )
-    print("Writing file %s " % os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)));
-    ds.to_netcdf(os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method)))
+
+    output_filename = os.path.join(MyParams.outdir, '{}_strain.nc'.format(MyParams.strain_method));
+    print("Writing file %s " % output_filename);
+    ds.to_netcdf(output_filename);
 
     print("Max I2: %f " % (np.nanmax(I2nd)));
     print("Min/Max rot:   %f,   %f " % (np.nanmin(rot), np.nanmax(rot)) );
@@ -43,24 +49,27 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield):
     velocity_io.write_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt');
     velocity_io.write_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt');
 
-    # Write residual velocities for most methods (not Wavelets).  Filter observations by range_strain bounding box.
-    filtered_velfield = utilities.filter_by_bounding_box(myVelfield, MyParams.range_strain);
-    model_velfield = utilities.create_model_velfield(MyParams.xdata, MyParams.ydata, Ve, Vn, filtered_velfield);
-    residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
-    velocity_io.write_stationvels(filtered_velfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.');
-    velocity_io.write_stationvels(residual_velfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.');
-
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(ds['rotation'], myVelfield, MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir+'rotation.png');
-    pygmt_plots.plot_dilatation(ds['dilatation'], MyParams.range_strain, MyParams.outdir,
+    pygmt_plots.plot_dilatation(ds['dilatation'], myVelfield, MyParams.range_strain, MyParams.outdir,
                                 MyParams.outdir + 'dilatation.png', positive_eigs, negative_eigs);
-    pygmt_plots.plot_I2nd(ds['I2'], MyParams.range_strain, MyParams.outdir, MyParams.outdir + 'I2nd.png', positive_eigs,
-                          negative_eigs);
-    pygmt_plots.plot_maxshear(ds['max_shear'], MyParams.range_strain, MyParams.outdir,
+    pygmt_plots.plot_I2nd(ds['I2'], myVelfield, MyParams.range_strain, MyParams.outdir, MyParams.outdir + 'I2nd.png',
+                          positive_eigs, negative_eigs);
+    pygmt_plots.plot_maxshear(ds['max_shear'], myVelfield, MyParams.range_strain, MyParams.outdir,
                               MyParams.outdir + 'max_shear.png', positive_eigs, negative_eigs);
-    pygmt_plots.plot_azimuth(ds['azimuth'], MyParams.range_strain, MyParams.outdir, MyParams.outdir + 'azimuth.png',
-                             positive_eigs, negative_eigs);
+    pygmt_plots.plot_azimuth(ds['azimuth'], myVelfield, MyParams.range_strain, MyParams.outdir,
+                             MyParams.outdir + 'azimuth.png', positive_eigs, negative_eigs);
+
+    if MyParams.write_metrics:  # optional: we can automatically compute a metric of the mag. of strain field
+        output_params = {"netcdf": output_filename,
+                         "landmask": MyParams.outdir+"landmask.grd",
+                         "mu": 30,
+                         "depth": 11,
+                         "outfile": MyParams.outdir+"strain_metrics.txt"}
+        moment_functions.moment_coordinator(output_params);
+
+    return;
 
 
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):

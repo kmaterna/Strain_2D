@@ -54,7 +54,7 @@ def plot_rotation(filename, station_vels, region, outdir, outfile):
     return;
 
 
-def plot_dilatation(filename, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_dilatation(filename, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o", output=outdir+"/mycpt.cpt");
@@ -62,6 +62,9 @@ def plot_dilatation(filename, region, outdir, outfile, positive_eigs=(), negativ
     fig.grdimage(filename, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
+    if station_vels:
+        elon, nlat, e, n = station_vels_to_arrays(station_vels);
+        fig.plot(x=elon, y=nlat, style='c0.02i', color='black');  # station locations
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);
@@ -85,7 +88,7 @@ def plot_dilatation(filename, region, outdir, outfile, positive_eigs=(), negativ
     return;
 
 
-def plot_I2nd(filename, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_I2nd(filename, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=outdir+"/mycpt.cpt");
@@ -93,6 +96,9 @@ def plot_I2nd(filename, region, outdir, outfile, positive_eigs=(), negative_eigs
     fig.grdimage(filename, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
+    if station_vels:
+        elon, nlat, e, n = station_vels_to_arrays(station_vels);
+        fig.plot(x=elon, y=nlat, style='c0.02i', color='black');  # station locations
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);
@@ -116,7 +122,7 @@ def plot_I2nd(filename, region, outdir, outfile, positive_eigs=(), negative_eigs
     return;
 
 
-def plot_maxshear(filename, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_maxshear(filename, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="polar", series="0/300/2", truncate="0/1.0", background="o", output=outdir+"/mycpt.cpt");
@@ -124,6 +130,9 @@ def plot_maxshear(filename, region, outdir, outfile, positive_eigs=(), negative_
     fig.grdimage(filename, projection=proj, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
+    if station_vels:
+        elon, nlat, e, n = station_vels_to_arrays(station_vels);
+        fig.plot(x=elon, y=nlat, style='c0.02i', color='black');  # station locations
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);
@@ -147,7 +156,7 @@ def plot_maxshear(filename, region, outdir, outfile, positive_eigs=(), negative_
     return;
 
 
-def plot_azimuth(filename, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_azimuth(filename, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="rainbow", series="0/180/1", background="o", output=outdir+"/mycpt.cpt");
@@ -155,6 +164,9 @@ def plot_azimuth(filename, region, outdir, outfile, positive_eigs=(), negative_e
     fig.grdimage(filename, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
+    if station_vels:
+        elon, nlat, e, n = station_vels_to_arrays(station_vels);
+        fig.plot(x=elon, y=nlat, style='c0.02i', color='black');  # station locations
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);

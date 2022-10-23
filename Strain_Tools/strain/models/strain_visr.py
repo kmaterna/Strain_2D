@@ -10,6 +10,7 @@
 import numpy as np
 from strain.models.strain_2d import Strain_2d
 import subprocess, sys, os
+from .. import utilities
 
 
 class visr(Strain_2d):
@@ -28,7 +29,11 @@ class visr(Strain_2d):
                                                                     self._distwgt, self._spatwgt, self._smoothincs,
                                                                     self._wgt, self._unc_thresh, self._exec,
                                                                     self._tempdir);
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        # Report observed and residual velocities within bounding box
+        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, filtered_velfield);
+        residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, filtered_velfield, residual_velfield];
 
 
 def verify_inputs_visr(method_specific_dict):

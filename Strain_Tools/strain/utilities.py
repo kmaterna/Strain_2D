@@ -111,6 +111,7 @@ def check_coregistered_shapes(strain_values_ds):
 def make_grid(coordbox, inc):
     """
     Assumption is a pixel-node-registered grid.
+
     :param coordbox: [float, float, float, float] corresponding to [W, E, S, N]
     :type coordbox: list
     :param inc: [float, float] corresponding to [xinc, yinc]
@@ -146,7 +147,7 @@ def subtract_two_velfields(obsfield, modelfield):
     residual_velfield = [];
     for obs, model in zip(obsfield, modelfield):
         newVelPoint = velocity_io.StationVel(elon=obs.elon, nlat=obs.nlat, e=obs.e - model.e,
-                                             n=obs.n - model.n, u=0, se=0, sn=0, su=0, name=obs.name);
+                                             n=obs.n - model.n, u=obs.u - model.u, se=0, sn=0, su=0, name=obs.name);
         residual_velfield.append(newVelPoint);
     return residual_velfield;
 
@@ -219,10 +220,10 @@ def make_gmt_landmask(lons, lats, grd_filename):
     """
     Use GMT to construct a landmask for calculating total moment accumulation from strain rate.
 
-    param lons: np.array of centers of pixels
-    param lats: np.array of centers of pixels
-    param filename: string
-    returns landmask array
+    :param lons: np.array of centers of pixels
+    :param lats: np.array of centers of pixels
+    :param grd_filename: string
+    :returns: landmask, 2D array
     """
     gmt_range_string, gmt_inc_string = get_gmt_range_inc(np.array(lons), np.array(lats));
     subprocess.call(['gmt', 'grdlandmask', '-G'+grd_filename, '-R'+gmt_range_string, '-I'+gmt_inc_string, '-r'],
@@ -236,5 +237,5 @@ def read_landmask(netcdf_name):
     """Read the pixel node grd file created by gmt grdlandmask"""
     print("Reading landmask %s " % netcdf_name);
     ds = xr.open_dataset(netcdf_name);
-    landmask = ds["z"];
+    landmask = np.array(ds["z"]);
     return landmask;

@@ -56,7 +56,7 @@ def write_stationvels(myVelfield, output_file, header=""):
 
 def read_gmt_format(filename):
     """
-    Reading simplest gmt format for 2D velocity data, usually without error ellipses
+    Reading simplest gmt format for 2D velocity data, with error ellipses
 
     :param filename: name of velocity file
     :returns: list of stationvels
@@ -75,7 +75,8 @@ def read_gmt_format(filename):
         except ValueError:
             continue
         lon, lat, VE, VN = float(temp[0]), float(temp[1]), float(temp[2]), float(temp[3]);
-        myVelfield.append(StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=0, se=0, sn=0, su=0, name=''));
+        se, sn = float(temp[4]), float(temp[5]);
+        myVelfield.append(StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=0, se=se, sn=sn, su=0.1, name=''));
     ifile.close();
     return myVelfield;
 
@@ -134,6 +135,7 @@ def read_multiple_strain_netcdfs(MyParams, plot_type):
     ds_new: xarray Dataset - A dataset containing the plot_type variable from each type of model
     """
     building_dict = {}
+    ds = [];
     for k, method in enumerate(MyParams.strain_dict.keys()):
         specific_filename = os.path.join(MyParams.strain_dict[method], "{}_strain.nc".format(method))
         ds = xr.load_dataset(specific_filename)
