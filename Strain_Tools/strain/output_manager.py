@@ -10,6 +10,9 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
     """Every strain method goes through this function at the end of its output stage"""
     print("------------------------------\nWriting 2d outputs:");
 
+    if len(myVelfield) != len(residfield):
+        raise ValueError("Error! Velocity field and residual field have different lengths.");
+
     # Write residual velocities.  Filter observations by range_strain bounding box.
     velocity_io.write_stationvels(myVelfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.');  # range_strain
     velocity_io.write_stationvels(residfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.');

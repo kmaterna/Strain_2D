@@ -42,9 +42,9 @@ class wavelets(Strain_2d):
         residual_velfield = report_on_misfits_wavelets(resid_file);
 
         # Report observed and residual velocities within bounding box
-        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
         residual_velfield = utilities.filter_by_bounding_box(residual_velfield, self._strain_range);
-        return [Ve, Vn, rot, exx, exy, eyy, filtered_velfield, residual_velfield];
+        return [Ve, Vn, rot, exx, exy, eyy, velfield_within_box, residual_velfield];
 
 
 def verify_inputs_wavelets(method_specific_dict):

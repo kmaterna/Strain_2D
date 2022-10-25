@@ -30,10 +30,10 @@ class visr(Strain_2d):
                                                                     self._wgt, self._unc_thresh, self._exec,
                                                                     self._tempdir);
         # Report observed and residual velocities within bounding box
-        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
-        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, filtered_velfield);
-        residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, filtered_velfield, residual_velfield];
+        velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box);
+        residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield);
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield];
 
 
 def verify_inputs_visr(method_specific_dict):

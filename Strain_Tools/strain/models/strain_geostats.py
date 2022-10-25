@@ -170,12 +170,12 @@ class geostats(Strain_2d):
         exx, eyy, exy, rot = strain_on_regular_grid(dx, dy, Ve, Vn)
 
         # Report observed and residual velocities within bounding box
-        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
-        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, filtered_velfield);
-        residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
+        velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box);
+        residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield);
 
         # Return the strain rates etc. in the same units as other methods
-        return Ve, Vn, rot*1000, exx*1000, exy*1000, eyy*1000, filtered_velfield, residual_velfield
+        return Ve, Vn, rot*1000, exx*1000, exy*1000, eyy*1000, velfield_within_box, residual_velfield
         
 
 def krige(xy, XY, data, model, ktype='ok'):
