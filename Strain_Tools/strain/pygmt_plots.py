@@ -190,21 +190,15 @@ def plot_azimuth(filename, station_vels, region, outdir, outfile, positive_eigs=
     return;
 
 
-def plot_dilatation_1D(region, polygon_vertices, dilatation, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o", output=outdir+"/mycpt.cpt");
     fig.basemap(region=region, projection=proj, frame="+t\"Dilatation\"");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0");
 
-    # color by value
-    for i in range(len(dilatation)):
-        lons = [polygon_vertices[i, 0, 0], polygon_vertices[i, 1, 0], polygon_vertices[i, 2, 0]];
-        lats = [polygon_vertices[i, 0, 1], polygon_vertices[i, 1, 1], polygon_vertices[i, 2, 1]];
-        fig.plot(x=lons, y=lats, zvalue=str(dilatation[i]), pen="thinner,black", color="+z", cmap=outdir+"/mycpt.cpt");
-
-    fig.coast(borders='2', shorelines='1.0p,black', water='lightblue',
-              map_sacle="n0.12/0.12+c" + str(region[2]) + "+w50");
+    fig.plot(data=polygon_outdir_file, pen="thinner,black", color="+z", cmap=outdir+"/mycpt.cpt");
+    fig.coast(borders='2', shorelines='1.0p,black', water='lightblue', map_scale="n0.12/0.12+c"+str(region[2])+"+w50");
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);
@@ -228,7 +222,7 @@ def plot_dilatation_1D(region, polygon_vertices, dilatation, outdir, outfile, po
     return;
 
 
-def plot_I2nd_1D(region, polygon_vertices, I2nd, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=outdir+"/mycpt.cpt");
@@ -236,13 +230,8 @@ def plot_I2nd_1D(region, polygon_vertices, I2nd, outdir, outfile, positive_eigs=
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0");
 
     # color by value
-    for i in range(len(I2nd)):
-        lons = [polygon_vertices[i, 0, 0], polygon_vertices[i, 1, 0], polygon_vertices[i, 2, 0]];
-        lats = [polygon_vertices[i, 0, 1], polygon_vertices[i, 1, 1], polygon_vertices[i, 2, 1]];
-        fig.plot(x=lons, y=lats, zvalue=str(I2nd[i]), pen="thinner,black", color="+z", cmap=outdir+"/mycpt.cpt");
-
-    fig.coast(borders='2', shorelines='1.0p,black', water='lightblue',
-              map_scale="n0.12/0.12+c" + str(region[2]) + "+w50");
+    fig.plot(data=second_inv_polygon_file, pen="thinner,black", color="+z", cmap=outdir + "/mycpt.cpt");
+    fig.coast(borders='2', shorelines='1.0p,black', water='lightblue', map_scale="n0.12/0.12+c"+str(region[2])+"+w50");
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);

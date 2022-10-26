@@ -102,8 +102,7 @@ def write_multisegment_file(polygon_vertices, quantity, filename):
     Write a quantity (e.g., gmt multisegment file) to color each polygon on a map
 
     :param polygon_vertices: list, a type of data structure
-    :param quantity: z-values
-    :type quantity: list
+    :param quantity: z-values, numpy array
     :param filename: output file name
     :type filename: string
     """

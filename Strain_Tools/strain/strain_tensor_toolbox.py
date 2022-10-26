@@ -71,6 +71,8 @@ def compute_derived_quantities(exx, exy, eyy):
     # Azimuth is tricky so leaving it as a for-loop for now
     azimuth = np.zeros(np.shape(exx));
     [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy);
+    print(np.shape(e1), np.shape(e2));
+    print(np.shape(v00), np.shape(v01), np.shape(v10), np.shape(v11));
 
     dshape = np.shape(exx);
     if len(dshape) == 1:
@@ -103,7 +105,7 @@ def compute_eigenvectors(exx, exy, eyy):
     if len(dshape) == 1:
         for i in range(len(exx)):
             [e11, e22, v] = eigenvector_eigenvalue(exx[i], exy[i], eyy[i]);
-            e1[i], e2 = e11, e22;  # convention of this code returns negative eigenvalues compared to my other codes
+            e1[i], e2[i] = e11, e22;  # convention of this code returns negative eigenvalues compared to my other codes
             v00[i], v10[i] = v[0][0], v[1][0];
             v01[i], v11[i] = v[0][1], v[1][1];
     elif len(dshape) == 2:

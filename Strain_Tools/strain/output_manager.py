@@ -77,13 +77,16 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
 
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):
     print("------------------------------\nWriting 1d outputs:");
+    exx, exy, eyy = np.array(exx), np.array(exy), np.array(eyy);
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
     [positive_eigs, negative_eigs] = get_list_eigenvectors(xcentroid, ycentroid, e1, e2, v00, v01, v10, v11);
 
+    dilatation_polygon_outfile = outdir + "Dilatation_polygons.txt"
+    second_inv_polygon_outfile = outdir + "I2nd_polygons.txt"
     velocity_io.write_multisegment_file(polygon_vertices, rot, outdir + "rot_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, I2nd, outdir + "I2nd_polygons.txt");
-    velocity_io.write_multisegment_file(polygon_vertices, dilatation, outdir + "Dilatation_polygons.txt");
+    velocity_io.write_multisegment_file(polygon_vertices, I2nd, second_inv_polygon_outfile);
+    velocity_io.write_multisegment_file(polygon_vertices, dilatation, dilatation_polygon_outfile);
     velocity_io.write_multisegment_file(polygon_vertices, max_shear, outdir + "max_shear_polygons.txt");
     velocity_io.write_multisegment_file(polygon_vertices, azimuth, outdir + "azimuth_polygons.txt");
     velocity_io.write_multisegment_file(polygon_vertices, exx, outdir + "exx_polygons.txt");
@@ -99,10 +102,11 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range
     print("Min/Max rot:   %f,   %f " % (np.amin(rot), np.amax(rot)) );
 
     # Plot the polygons as additional output (more intuitive)
-    pygmt_plots.plot_dilatation_1D(range_strain, polygon_vertices, dilatation, outdir,
-                                   outdir + 'polygon_dilatation.eps', positive_eigs, negative_eigs);
-    pygmt_plots.plot_I2nd_1D(range_strain, polygon_vertices, I2nd, outdir, outdir + 'polygon_I2nd.eps', positive_eigs,
-                             negative_eigs);
+    pygmt_plots.plot_dilatation_1D(range_strain, dilatation_polygon_outfile, outdir,
+                                   outdir + 'polygon_dilatation.png', positive_eigs, negative_eigs);
+    pygmt_plots.plot_I2nd_1D(range_strain, second_inv_polygon_outfile, outdir, outdir + 'polygon_I2nd.png',
+                             positive_eigs, negative_eigs);
+    return;
 
 
 def get_grid_eigenvectors(xdata, ydata, w1, w2, v00, v01, v10, v11):
