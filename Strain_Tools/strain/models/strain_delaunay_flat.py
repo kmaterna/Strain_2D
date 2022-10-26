@@ -16,7 +16,7 @@ import numpy as np
 from scipy.spatial import Delaunay
 from numpy.linalg import inv
 from .. import strain_tensor_toolbox, output_manager, produce_gridded, utilities
-from Strain_Tools.strain.models.strain_2d import Strain_2d
+from strain.models.strain_2d import Strain_2d
 
 
 class delaunay_flat(Strain_2d):
@@ -48,7 +48,7 @@ class delaunay_flat(Strain_2d):
         );
 
         # Velocities aren't used in Delaunay
-        Ve, Vn = np.nan*np.empty((4, 4)), np.nan*np.empty((4, 4))
+        Ve, Vn = np.nan*np.empty(np.shape(rot_grd)), np.nan*np.empty(np.shape(rot_grd));
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
         model_velfield = velfield_within_box;
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield);
