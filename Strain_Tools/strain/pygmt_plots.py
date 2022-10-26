@@ -21,7 +21,7 @@ def filter_vectors_to_land_only(region, elon, nlat, e, n):
     points = np.array(points);
     if len(points) == 0:
         return [], [], [], [];
-    values = pygmt.grdtrack(points, maskfile);  # values is a pandas DataFrame
+    values = pygmt.grdtrack(grid=maskfile, points=points);  # values is a pandas DataFrame
     for i, item in enumerate(values[2]):   # column 2 is the grdtrack output
         if item > 0.8:  # if grdtrack gives something on land
             newelon.append(elon[i]);
