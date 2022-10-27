@@ -103,7 +103,7 @@ def compute_eigenvectors(exx, exy, eyy):
     if len(dshape) == 1:
         for i in range(len(exx)):
             [e11, e22, v] = eigenvector_eigenvalue(exx[i], exy[i], eyy[i]);
-            e1[i], e2 = e11, e22;  # convention of this code returns negative eigenvalues compared to my other codes
+            e1[i], e2[i] = e11, e22;  # convention of this code returns negative eigenvalues compared to my other codes
             v00[i], v10[i] = v[0][0], v[1][0];
             v01[i], v11[i] = v[0][1], v[1][1];
     elif len(dshape) == 2:

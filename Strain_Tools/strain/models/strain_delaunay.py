@@ -75,12 +75,12 @@ class delaunay(Strain_2d):
 
         # Velocities aren't used in Delaunay
         Ve, Vn = np.nan*np.empty(exx_grd.shape), np.nan*np.empty(exx_grd.shape)
-        filtered_velfield = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
-        model_velfield = filtered_velfield;
-        residual_velfield = utilities.subtract_two_velfields(filtered_velfield, model_velfield);
+        velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
+        model_velfield = velfield_within_box;
+        residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield);
 
         print("Success computing strain via Delaunay method.\n");
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, filtered_velfield, residual_velfield];
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield];
 
 
 def compute_with_delaunay_polygons(myVelfield):
