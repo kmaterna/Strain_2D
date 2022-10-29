@@ -77,6 +77,7 @@ def compute_moments_loop(lons, lats, exx, exy, eyy, landmask, mu, depth):
 
 
 def write_Mo_outputs(MyParams, Mo):
+    # TODO: would be nice to write the reduced chi-square value to this same file
     print("Writing file %s " % MyParams["outfile"]);
     print("Moment Accumulation Rate: %f e18 N-m / year" % (Mo/1e18));
     ofile = open(MyParams["outfile"], 'w');
