@@ -3,7 +3,7 @@
 import numpy as np
 import os
 from xarray import Dataset
-from . import strain_tensor_toolbox, velocity_io, pygmt_plots, moment_functions
+from . import strain_tensor_toolbox, velocity_io, pygmt_plots, moment_functions, data_misfits
 
 
 def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
@@ -69,8 +69,11 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
                          "landmask": MyParams.outdir+"landmask.grd",
                          "mu": 30,
                          "depth": 11,
-                         "outfile": MyParams.outdir+"strain_metrics.txt"}
+                         "outfile": MyParams.outdir+"strain_metrics.txt",
+                         "obs_velfile": MyParams.outdir + 'obs_vels.txt',
+                         "resid_velfile": MyParams.outdir + 'residual_vels.txt'}
         moment_functions.moment_coordinator(output_params);
+        data_misfits.misfits_coordinator(output_params);  # append-mode
 
     return;
 
