@@ -29,8 +29,8 @@ def compute_misfits(resid_vels, obs_vels, outlier_tolerance=10.0):
 def write_misfits_to_file(misfits, chi2, outfile):
     with open(outfile, 'a') as ofile:
         ofile.write("\n");
-        ofile.write("Median absolute deviation: %.5f mm/yr" % (np.median(misfits)) )
-        ofile.write("Median chi2: %.5f" % (np.median(chi2)));
+        ofile.write("Median absolute deviation: %.5f mm/yr\n" % (np.median(misfits)) )
+        ofile.write("Median chi2: %.5f\n" % (np.median(chi2)));
     return;
 
 
