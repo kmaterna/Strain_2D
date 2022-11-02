@@ -56,10 +56,10 @@ The result is less block-like if you use finer increments.
 
 ### [geostats]
 * ```model_type```: string, one of [Gaussian, Exponential, Nugget].
-* ```sill_east```: float
-* ```range_east```: float
-* ```nugget_east```: float
-* ```sill_north```: float
-* ```range_north```: float
-* ```nugget_north```: float
-* ```trend```: float
+* ```sill_east```: float, sill value (variance) of Veast in mm^2/yr^2 
+* ```range_east```: float, range (correlation length scale) of Veast in degrees
+* ```nugget_east```: float, point-wise variance of Veast (i.e. data noise level) in mm/yr
+* ```sill_north```: float, sill value of northing velocity in mm^2/yr^2 
+* ```range_north```: float, range of Veast in degrees 
+* ```nugget_north```: float, point-wise variance for Vnorth in mm/yr
+* ```trend```: boolean (TODO: Not Yet Implemented)

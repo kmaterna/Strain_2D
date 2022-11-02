@@ -1,4 +1,4 @@
-import collections, os
+import collections, glob, os
 import xarray as xr
 
 
@@ -136,7 +136,7 @@ def read_multiple_strain_netcdfs(MyParams, plot_type):
     building_dict = {}
     ds = [];
     for k, method in enumerate(MyParams.strain_dict.keys()):
-        specific_filename = os.path.join(MyParams.strain_dict[method], "{}_strain.nc".format(method))
+        specific_filename = glob.glob(MyParams.strain_dict[method] + os.sep + '*' + "_strain.nc")[0]
         ds = xr.load_dataset(specific_filename)
         building_dict[method] = ds[plot_type];
 
