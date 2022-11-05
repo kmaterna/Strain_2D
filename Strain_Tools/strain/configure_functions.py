@@ -112,6 +112,8 @@ def write_example_strain_config(outfile):
     d1["min_max_inc_smooth"] = "1/100/1";
     d1["weighting_threshold"] = "2";
     d1["uncertainty_threshold"] = "0.05";
+    d1["num_creeping_faults"] = "0";
+    d1["creep_file"] = "crp.dat"
     d1["executable"] = "../contrib/visr/visr.exe";
     d2 = configobj["gpsgridder"];
     d2["poisson"] = "0.5";

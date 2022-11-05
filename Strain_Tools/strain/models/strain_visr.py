@@ -20,15 +20,15 @@ class visr(Strain_2d):
                            params.outdir);
         self._Name = 'visr';
         self._tempdir = params.outdir;
-        self._distwgt, self._spatwgt, self._smoothincs, self._wgt, self._unc_thresh, self._exec = \
-            verify_inputs_visr(params.method_specific);
+        self._distwgt, self._spatwgt, self._smoothincs, self._wgt, self._unc_thresh, \
+        self._num_creep_faults, self._creep_file, self._exec = verify_inputs_visr(params.method_specific);
 
     def compute(self, myVelfield):
         [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(myVelfield, self._strain_range, self._grid_inc,
                                                                     self._xdata, self._ydata,
                                                                     self._distwgt, self._spatwgt, self._smoothincs,
-                                                                    self._wgt, self._unc_thresh, self._exec,
-                                                                    self._tempdir);
+                                                                    self._wgt, self._unc_thresh, self._num_creep_faults,
+                                                                    self._creep_file, self._exec, self._tempdir);
         # Report observed and residual velocities within bounding box
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
         model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box);
@@ -49,23 +49,29 @@ def verify_inputs_visr(method_specific_dict):
         raise ValueError("\nvisr requires uncertainty_threshold. Please add to method_specific config. Exiting.\n");
     if 'executable' not in method_specific_dict.keys():
         raise ValueError("\nvisr requires path to executable. Please add to method_specific config. Exiting.\n");
+    if 'num_creeping_faults' not in method_specific_dict.keys():
+        method_specific_dict['num_creeping_faults'] = 0;
+        method_specific_dict['creep_file'] = 'crp.dat';
     distance_weighting = method_specific_dict["distance_weighting"];
     spatial_weighting = method_specific_dict["spatial_weighting"];
     min_max_inc_smooth = method_specific_dict["min_max_inc_smooth"];
     weighting_threshold = method_specific_dict["weighting_threshold"];
     unc_threshold = method_specific_dict["uncertainty_threshold"];
     executable = method_specific_dict["executable"];
-    return distance_weighting, spatial_weighting, min_max_inc_smooth, weighting_threshold, unc_threshold, executable;
+    num_creep_faults = method_specific_dict['num_creeping_faults'];
+    creep_file = method_specific_dict['creep_file'];
+    return distance_weighting, spatial_weighting, min_max_inc_smooth, weighting_threshold, unc_threshold, \
+           num_creep_faults, creep_file, executable;
 
 
 def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, smoothincs, wgt, unc_thresh,
-                 executable, tempdir):
+                 num_creep_faults, creep_file, executable, tempdir):
     print("------------------------------\nComputing strain via Visr method.");
     strain_config_file = 'visr_strain.drv';
     strain_data_file = 'strain_input.txt';  # can only be 20 characters long bc fortran!
     strain_output_file = 'strain_output.txt';  # can only be 20 characters long bc fortran!
     write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, strain_range, inc, distwgt,
-                              spatwgt, smoothincs, wgt, unc_thresh);
+                              spatwgt, smoothincs, wgt, unc_thresh, num_creep_faults, creep_file);
     write_fortran_data_file(strain_data_file, myVelfield);
     check_fortran_executable(executable);
     call_fortran_compute(strain_config_file, executable);
@@ -81,7 +87,7 @@ def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, 
 
 
 def write_fortran_config_file(strain_config_file, strain_data_file, strain_output_file, range_strain, inc,
-                              distwgt, spatwgt, smoothincs, wgt, unc_thresh):
+                              distwgt, spatwgt, smoothincs, wgt, unc_thresh, num_creep_faults, creep_file):
     # The config file will have the following components.
     """
     visr/visr_drive_strain.drv contains:
@@ -92,7 +98,8 @@ def write_fortran_config_file(strain_config_file, strain_data_file, strain_outpu
     1 100 1                                    ! minimum, maximum, and incremental spatial smoothing constants (km)
     24                                         ! weighting threshold Wt
     0.5                                        ! uncertainty threshold for reset
-    3                                          ! function: 1=velocity compatibility checking; 2=velocity interpolation; 3=strain rate interpolation
+    3                                          ! function: 1=velocity compatibility checking; 2=velocity interpolation;
+                                                           3=strain rate interpolation
     -122.5 -114.0 32.0 37.5 0.04 0.04          ! Lon_min, Lon_max, Lat_min, Lat_max, dLon, dLat
     0                                          ! number of creep faults
     crp.dat                                    ! creep fault data file
@@ -121,8 +128,8 @@ def write_fortran_config_file(strain_config_file, strain_data_file, strain_outpu
     ofile.write(unc_thresh+'                                       ! uncertainty threshold for reset\n');
     ofile.write('3                                          ! function: 1=velocity compatibility checking; 2=velocity interpolation; 3=strain rate interpolation\n');
     ofile.write(str(range_strain[0])+' '+str(range_strain[1])+' '+str(range_strain[2])+' '+str(range_strain[3])+' '+str(inc[0])+' '+str(inc[1])+'                ! Lon_min, Lon_max, Lat_min, Lat_max, dLon, dLat\n');
-    ofile.write('0                                          ! number of creep faults\n');
-    ofile.write('crp.dat                                    ! creep fault data file\n');
+    ofile.write(str(int(num_creep_faults)) + '                                          ! number of creep faults\n');
+    ofile.write(str(creep_file) + '                                    ! creep fault data file\n');
     ofile.close();
     return;
 
@@ -190,10 +197,8 @@ def make_output_grids_from_strain_out(infile, xdata, ydata):
     for i in range(len(x)):
         xindex = np.where(lons == x[i])[0];
         yindex = np.where(lats == y[i])[0];
-        xindex = xindex[0];
-        yindex = yindex[0];
-        Ve_grd[yindex][xindex] = Ve[i];
-        Vn_grd[yindex][xindex] = Vn[i];
+        xindex, yindex = xindex[0], yindex[0];
+        Ve_grd[yindex][xindex], Vn_grd[yindex][xindex] = Ve[i], Vn[i];
         rot_grd[yindex][xindex] = rotation[i];
         exx_grd[yindex][xindex] = exx[i];
         exy_grd[yindex][xindex] = exy[i];
