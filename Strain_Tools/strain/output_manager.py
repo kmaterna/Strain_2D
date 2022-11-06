@@ -15,8 +15,7 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
 
     # Write residual velocities.  Filter observations by range_strain bounding box.
     # TODO: Residual field should be identical to observed except for VE/VN/VU. Currently SE/SN/SU are not the same?
-    # TODO: Alternatively, just everything to one file and have two extra columns with the residuals appended. 
-    # TODO: I wonder if a dataframe is a better way to carry things around than a NamedTuple?
+    # TODO: Alternatively, just everything to one file and have two extra columns with the residuals appended.
     velocity_io.write_stationvels(myVelfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.')
     velocity_io.write_stationvels(residfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.')
 

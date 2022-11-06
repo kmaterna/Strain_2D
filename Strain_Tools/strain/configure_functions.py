@@ -174,12 +174,12 @@ def read_comparison_config(configfile):
     input_dirs = config.get('strain-comparison', 'input_dirs');
     strain_dict = {};
     for item in input_dirs.split(':'):
-        strain_method = item.split('/')[-1]  # get the name of the technique
+        strain_method = item;  # get the name of the technique
         strain_dict[strain_method] = item;
     output_dir = config.get('strain-comparison', 'output_dir');
     MyParams = Comps_Params(inc=inc, range_strain=range_strain, outdir=output_dir, strain_dict=strain_dict);
     print("\n------------------------------");
     print("Hello! We are comparing strain calculations...");
-    print("   Comparing strain from calculations : \n  %s " % MyParams.strain_dict);
+    print("   Comparing strain from calculations : \n  %s " % strain_dict.values());
     print("   Putting the outputs    : %s \n" % MyParams.outdir);
     return MyParams;
