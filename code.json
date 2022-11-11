@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Strain_2D",
+    "organization": "U.S. Geological Survey",
+    "description": "Strain rate modeling from GNSS velocity fields using multiple published strain rate techniques.",
+    "version": "1.0.0",
+    "status": "RELEASE_STATUS",
+
+    "permissions": {
+      "usageType": "openSource",
+      "licenses": [
+        {
+          "name": "Public Domain, CC0-1.0",
+          "URL": "https://github.com/usgs/Strain_2D/blob/master/LICENSE.md"
+        }
+      ]
+    },
+
+    "homepageURL": "https://usgs.github.io/Strain_2D/",
+    "downloadURL": "https://github.com/usgs/Strain_2D/archive/master.zip",
+    "disclaimerURL": "https://github.com/usgs/Strain_2D/blob/master/LICENSE.md",
+    "repositoryURL": "https://github.com/usgs/Strain_2D.git",
+    "vcs": "git",
+
+    "laborHours": 0,
+
+    "tags": [
+      "strain rate computation"
+    ],
+
+    "languages": [
+      "python3.9"
+    ],
+
+    "contact": {
+      "name": "Kathryn Materna",
+      "email": "kmaterna@usgs.gov"
+    },
+
+    "date": {
+      "metadataLastUpdated": "2022-11-15"
+    }
+  }
+]
