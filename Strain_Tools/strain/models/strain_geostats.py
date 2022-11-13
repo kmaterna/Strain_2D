@@ -9,7 +9,7 @@ from scipy.spatial.distance import pdist, cdist, squareform
 
 from strain.models.strain_2d import Strain_2d
 from .. import utilities
-from strain.strain_tensor_toolbox import strain_on_regular_grid
+from strain.strain_tensor_toolbox import strain_on_regular_grid, calc_strain_uncertainty
 from strain.utilities import getVels
 
 
@@ -168,6 +168,12 @@ class geostats(Strain_2d):
         # Compute strain rates
         dx, dy = self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
         exx, eyy, exy, rot = strain_on_regular_grid(dx, dy, Ve, Vn)
+
+        # Right now we aren't calculating uncertainties for any method except geostats.
+        # We might want to consider exploring adding uncertainties to other methods if
+        # they are amenable; e.g. local average gradient and visr *should* be able to 
+        # provide them. Others may not (wavelets, gpsgridder esp). 
+        var_dil, var_shear = calc_strain_uncertainty(np.square(Dsig_e), np.square(Dsig_n), self._grid_inc, self._grid_inc, exx, eyy, exy)
 
         # Report observed and residual velocities within bounding box
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
