@@ -138,10 +138,7 @@ def read_multiple_strain_netcdfs(MyParams, plot_type):
     building_dict = {}
     ds = [];
     for key, value in MyParams.strain_dict.items():
-        try:
-            specific_filename = glob.glob(value + os.sep + '*' + "_strain.nc")[0]
-        except:
-            breakpoint()
+        specific_filename = glob.glob(value + os.sep + '*' + "_strain.nc")[0]
         ds = xr.load_dataset(specific_filename)
         building_dict[key] = ds[plot_type];
 
