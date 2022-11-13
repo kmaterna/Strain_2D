@@ -164,6 +164,8 @@ class geostats(Strain_2d):
         
         Ve = Dest_e.reshape(self._grid_shape)
         Vn = Dest_n.reshape(self._grid_shape)
+        Se = Dsig_e.reshape(self._grid_shape)
+        Sn = Dsig_n.reshape(self._grid_shape)
 
         # Compute strain rates
         dx, dy = self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
@@ -173,7 +175,7 @@ class geostats(Strain_2d):
         # We might want to consider exploring adding uncertainties to other methods if
         # they are amenable; e.g. local average gradient and visr *should* be able to 
         # provide them. Others may not (wavelets, gpsgridder esp). 
-        var_dil, var_shear = calc_strain_uncertainty(np.square(Dsig_e), np.square(Dsig_n), self._grid_inc, self._grid_inc, exx, eyy, exy)
+        var_dil, var_shear = calc_strain_uncertainty(np.square(Se), np.square(Sn), self._grid_inc[0], self._grid_inc[1], exx, eyy, exy)
 
         # Report observed and residual velocities within bounding box
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
