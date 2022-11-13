@@ -1,6 +1,8 @@
-import collections, glob, os
-import xarray as xr
+import collections
+import glob
+import os
 
+import xarray as xr
 
 StationVel = collections.namedtuple('StationVel', ['elon', 'nlat', 'e', 'n', 'u', 'se', 'sn', 'su', 'name']);
 
@@ -135,10 +137,13 @@ def read_multiple_strain_netcdfs(MyParams, plot_type):
     """
     building_dict = {}
     ds = [];
-    for k, method in enumerate(MyParams.strain_dict.keys()):
-        specific_filename = glob.glob(MyParams.strain_dict[method] + os.sep + '*' + "_strain.nc")[0]
+    for key, value in MyParams.strain_dict.items():
+        try:
+            specific_filename = glob.glob(value + os.sep + '*' + "_strain.nc")[0]
+        except:
+            breakpoint()
         ds = xr.load_dataset(specific_filename)
-        building_dict[method] = ds[plot_type];
+        building_dict[key] = ds[plot_type];
 
     ds_new = xr.Dataset(building_dict, coords=ds.coords)
     return ds_new
