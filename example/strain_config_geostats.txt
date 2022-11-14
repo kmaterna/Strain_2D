@@ -1,0 +1,20 @@
+[general]
+method = geostats
+output_dir = Output
+input_vel_file = ../test/testing_data/NorCal_stationvels.txt
+write_metrics = 1
+
+[strain]
+range_strain = -125/-120/38/42
+range_data = -125/-119/37.5/42.5
+inc = 0.04/0.04
+
+[geostats]
+model_type = Gaussian
+sill_east = 1.1
+range_east = 0.55
+nugget_east = 0.18
+sill_north = 1.1
+range_north = 0.55
+nugget_north = 0.18
+trend = 0

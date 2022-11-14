@@ -1,0 +1,15 @@
+[general]
+method = strain-comparison
+output_dir = Output
+input_vel_file = ../test/testing_data/NorCal_stationvels.txt
+write_metrics = 0
+
+[strain]
+range_strain = -125/-120/38/42
+range_data = -125/-119/37.5/42.5
+inc = 0.04/0.04
+
+[strain-comparison]
+output_dir = Output/_strain_comparison
+input_dirs = Output/delaunay:Output/gpsgridder:Output/loc_avg_grad:Output/geostats
+
