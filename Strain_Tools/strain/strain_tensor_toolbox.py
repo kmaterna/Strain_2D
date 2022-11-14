@@ -64,7 +64,7 @@ def compute_derived_quantities(exx, exy, eyy):
     :rtype: list
     """
     # Since exx etc. are numpy arrays, we can use numpy's vectorized math
-    I2nd = np.log10(np.abs(exx*eyy - np.square(exy)))
+    I2nd =  0.5 * (exx*eyy - np.square(exy))
     max_shear = np.sqrt(np.square(exx - eyy) + 4*np.square(exy))
     dilatation = exx + eyy
 

@@ -94,13 +94,13 @@ This library uses the following units and sign conventions:
     * W = 0.5 * (dvdx - dudy)
     * units: (1e-3 radians)/yr, or radians / Ka
 * Second invariant:
-    * Log of I2 = log10(abs(exx * eyy - exy * exy))
+    * Log of I2 = 0.5 * (exx * eyy - exy * exy)
     * units: (nanostrain/yr)^2  (very unusual units; usually plotted on log scale for clarity)
 * Dilatation: Positive means extension and negative means shortening.
     * Dilatation = exx + eyy
     * units: nanostrain / year  
 * Max Shear: 
-    * e_max = sqrt((exx - eyy)^2 + 4*exy^2) .  Tensor shear strain rate (*not engineering shear strain rate*)
+    * e_max = 0.5 * sqrt((exx - eyy)^2 + 4*exy^2) .  Tensor shear strain rate (*not engineering shear strain rate*)
     * units: nanostrain / year
 
 ### Internal Library API
