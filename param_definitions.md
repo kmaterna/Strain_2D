@@ -5,6 +5,7 @@
 * ```method```: string, one of the methods below
 * ```output_dir```: string, path to output parent-directory
 * ```input_vel_file```: string, path to text file wtih input velocities
+* ```write_metrics```: bool, optional, default 0. Writes a text file with a Kostrov moment calculation and a chi-2 misfit to the data
 
 ### [strain]
 * ```range_strain```: float/float/float/float, representing the target region for strain rate to be calculated upon, in W/E/S/N degrees longitude and latitude
@@ -30,6 +31,8 @@ $$ L_i = \frac {1} {1 + \Delta R_i^2 / D^2} $$
 The result is less block-like if you use finer increments. 
   * ```weighting_threshold```: float, weighting threshold, *Wt*, from Shen et al., 2015; it ends up determining the optimal smoothing distance *D*. It's very important.
   * ```uncertainty_threshold```: float, cutoff uncertainty for velocity data input. The VISR examples have 0.5. I've been putting it too low (0.05) and I didn't have bad effects... not sure what units it has. 
+  * ```num_creep_faults```: int, number of creeping fault segments (up to 10 creeping faults)
+  * ```creep_file```: string, path to txt file containing creeping fault endpoints
   * ```executable```: string, path to location of compiled fortran executable, visr.exe or similar
 
   * Based on the VISR documentation, I'm not sure where Shen et al. (2015)'s *L_0* (distance weighting threshold for ignoring the weight) gets defined. It might not get defined in the config file. 

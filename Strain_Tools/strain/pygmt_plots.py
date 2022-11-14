@@ -31,12 +31,12 @@ def filter_vectors_to_land_only(region, elon, nlat, e, n):
     return newelon, newnlat, newe, newn;
 
 
-def plot_rotation(filename, station_vels, region, outdir, outfile):
+def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="magma", series="0/300/1", truncate="0.3/1.0", background="o", output=outdir+"/mycpt.cpt");
     fig.basemap(region=region, projection=proj, frame="+t\"Rotation\"");
-    fig.grdimage(filename, region=region, cmap=outdir+"/mycpt.cpt");
+    fig.grdimage(rotation_array, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
@@ -54,12 +54,12 @@ def plot_rotation(filename, station_vels, region, outdir, outfile):
     return;
 
 
-def plot_dilatation(filename, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o", output=outdir+"/mycpt.cpt");
     fig.basemap(region=region, projection=proj, frame="+t\"Dilatation\"");
-    fig.grdimage(filename, region=region, cmap=outdir+"/mycpt.cpt");
+    fig.grdimage(dila_array, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
@@ -88,12 +88,13 @@ def plot_dilatation(filename, station_vels, region, outdir, outfile, positive_ei
     return;
 
 
-def plot_I2nd(filename, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+    plotting_array = np.log10(np.abs(I2_array));  # for plotting the map of second invariant
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=outdir+"/mycpt.cpt");
     fig.basemap(region=region, projection=proj, frame="+t\"Second Invariant\"");
-    fig.grdimage(filename, region=region, cmap=outdir+"/mycpt.cpt");
+    fig.grdimage(plotting_array, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
@@ -122,12 +123,12 @@ def plot_I2nd(filename, station_vels, region, outdir, outfile, positive_eigs=(),
     return;
 
 
-def plot_maxshear(filename, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="polar", series="0/300/2", truncate="0/1.0", background="o", output=outdir+"/mycpt.cpt");
     fig.basemap(region=region, projection=proj, frame="+t\"Maximum Shear\"");
-    fig.grdimage(filename, projection=proj, region=region, cmap=outdir+"/mycpt.cpt");
+    fig.grdimage(max_shear_array, projection=proj, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
@@ -156,12 +157,12 @@ def plot_maxshear(filename, station_vels, region, outdir, outfile, positive_eigs
     return;
 
 
-def plot_azimuth(filename, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure();
     pygmt.makecpt(cmap="rainbow", series="0/180/1", background="o", output=outdir+"/mycpt.cpt");
     fig.basemap(region=region, projection=proj, frame="+t\"Azimuth of Max Shortening\"");
-    fig.grdimage(filename, region=region, cmap=outdir+"/mycpt.cpt");
+    fig.grdimage(azimuth_array, region=region, cmap=outdir+"/mycpt.cpt");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
