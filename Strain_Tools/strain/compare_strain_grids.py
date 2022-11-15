@@ -13,7 +13,7 @@ def drive(MyParams):
     mean_dss = xr.Dataset()
     mean_dss['max_shear'] = compare_grid_means(MyParams, "max_shear", simple_means_statistics)
     mean_dss['dilatation'] = compare_grid_means(MyParams, "dilatation", simple_means_statistics)
-    mean_dss['I2'] = compare_grid_means(MyParams, "I2", log_means_statistics)
+    mean_dss['I2'] = compare_grid_means(MyParams, "I2", simple_means_statistics)
     mean_dss['rotation'] = compare_grid_means(MyParams, "rotation", simple_means_statistics)
     mean_dss['azimuth'] = compare_grid_means(MyParams, "azimuth", angular_means_statistics,
                                              mask=[MyParams.outdir+'/means_I2.nc', 3])

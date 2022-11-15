@@ -65,7 +65,7 @@ def compute_derived_quantities(exx, exy, eyy):
     """
     # Since exx etc. are numpy arrays, we can use numpy's vectorized math
     max_shear = 0.5 * np.sqrt(np.square(exx - eyy) + 4*np.square(exy))
-    I2nd =  0.5 * (exx*eyy - np.square(exy))
+    I2nd = 0.5 * (exx*eyy - np.square(exy))
     dilatation = exx + eyy
 
     # Azimuth is tricky so leaving it as a for-loop for now
@@ -197,7 +197,7 @@ def angle_mean_math(azimuth_values):
 
 
 def calc_strain_uncertainty(VarE, VarN, grid_x, grid_y, exx, eyy, exy):
-    '''Calculate strain rate variance'''
+    """Calculate strain rate variance"""
     var_dil = 0.5 * ((VarE / np.square(grid_x)) + (VarN / np.square(grid_y)))
 
     # need various strain rate quantities, including max shear
