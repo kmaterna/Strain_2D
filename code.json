@@ -3,7 +3,7 @@
     "name": "Strain_2D",
     "organization": "U.S. Geological Survey",
     "description": "Strain rate modeling from GNSS velocity fields using multiple published strain rate techniques.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "status": "RELEASE_STATUS",
 
     "permissions": {
