@@ -86,6 +86,7 @@ def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy);
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy);
     [positive_eigs, negative_eigs] = get_list_eigenvectors(xcentroid, ycentroid, e1, e2, v00, v01, v10, v11);
+    I2nd = np.log10(np.abs(I2nd));  # for convenient plotting
 
     dilatation_polygon_outfile = outdir + "Dilatation_polygons.txt"
     second_inv_polygon_outfile = outdir + "I2nd_polygons.txt"

@@ -114,8 +114,8 @@ class your_strain_method(strain_2d.Strain_2d):
         return
 
     def compute(self, myVelfield):
-        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = your_strain_method_compute(myVelfield... etc);
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd];
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield, residual_velfield] = your_strain_method_compute(myVelfield... etc);
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield, residual_velfield];
 ```
 
 where:
@@ -131,9 +131,10 @@ where:
 To reproduce the figure in the README:  
 1. In the example/ directory, run: ```strain_rate_compute.py --print_config``` to print an example config file (similar to the one provided here in the repo).
 2. Run: ```strain_rate_compute.py example_strain_config.txt``` to compute delaunay strain rate using the parameters in the newly-created config file. 
-3. Change the method in the config file to try other methods, and re-run each time for different strain calculations with different parameters.
+3. Change the method in the config file to try other methods, and re-run each time for different strain calculations with different parameters. Try with ```gpsgridder```, ```delaunay```, and ```loc_avg_grad```. If you have the visr executable on your system, try with ```visr``` as well.
 4. Run: ```strain_rate_comparison.py example_strain_config.txt ``` to compute average strain rate maps from several results.
-5. Run: ```Display_output/comparison_rows_example.sh -125/-121/38/42``` to view a GMT plot with several strain rate calculations in Northern California together. 
+5. Navigate into ```Display_output/```
+6. Run: ```./comparison_rows_example.sh -125/-121/38/42``` to view a GMT plot with several strain rate calculations in Northern California together. 
 
 ![strain](https://github.com/kmaterna/2D_Strain/blob/master/example/Display_output/output_rows.png)
 

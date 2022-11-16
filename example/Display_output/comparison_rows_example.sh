@@ -3,7 +3,7 @@
 
 range=$1
 projection="M2.0i"
-out_strain="output_rows.ps"
+out_strain="output_rows_plots.ps"
 gmt set MAP_FRAME_TYPE plain
 gmt set FORMAT_GEO_MAP D
 
@@ -14,9 +14,10 @@ infile3=$output_dir"visr/visr_strain.nc"
 infile4=$output_dir"loc_avg_grad/loc_avg_grad_strain.nc"
 
 # Delaunay Strain
-gmt makecpt -T-1/5/0.5 -Cbatlow.cpt > mycpt.cpt
+gmt makecpt -T-1/5/0.5 -Cbatlow > mycpt.cpt
 gmt grdedit $infile1=gd?HDF5:"$infile1"://I2 -R$range -T -G$"I2_delaunay.nc" 
 gmt grdedit I2_delaunay.nc -Ev
+gmt grdmath I2_delaunay.nc ABS LOG10 = I2_delaunay.nc
 gmt grdimage I2_delaunay.nc -R$range -J$projection -BWeSn -Bp1.0 -Cmycpt.cpt -X2 -Y10 -K > $out_strain
 gmt pscoast -R -J -Wthick,black -Df -Sgray -K -O >> $out_strain
 echo "-122.8 42.3 Delaunay" | gmt pstext -R -J -F+f18p,Helvetica-Bold -N -K -O >> $out_strain
@@ -26,6 +27,7 @@ gmt psvelo $output_dir"delaunay/negative_eigs.txt" -Se0.003/0.68/0 -A+b+n10+pthi
 # Loc_Avg_Grad Strain
 gmt grdedit $infile4=gd?HDF5:"$infile4"://I2 -R$range -T -G$"I2_loc_avg_grad.nc" 
 gmt grdedit I2_loc_avg_grad.nc -Ev
+gmt grdmath I2_loc_avg_grad.nc ABS LOG10 = I2_loc_avg_grad.nc
 gmt grdimage I2_loc_avg_grad.nc -R$range -J$projection -BweSn -Bp1.0 -Cmycpt.cpt -X6 -Y0 -K -O >> $out_strain
 gmt pscoast -R -J -Wthick,black -Df -Sgray -K -O >> $out_strain
 echo "-122.8 42.3 Loc avg grad" | gmt pstext -R -J -F+f18p,Helvetica-Bold -N -K -O >> $out_strain
@@ -35,6 +37,7 @@ gmt psvelo $output_dir"loc_avg_grad/negative_eigs.txt" -Se0.003/0.68/0 -A+b+n10+
 # Visr Strain
 gmt grdedit $infile3=gd?HDF5:"$infile3"://I2 -R$range -T -G$"I2_visr.nc" 
 gmt grdedit I2_visr.nc -Ev
+gmt grdmath I2_visr.nc ABS LOG10 = I2_visr.nc
 gmt grdimage I2_visr.nc -R -J -BweSn -Bp1.0 -Cmycpt.cpt -X6 -Y0 -K -O >> $out_strain
 gmt pscoast -R -J -Wthick,black -Df -Sgray -K -O >> $out_strain
 echo "-122.8 42.3 VISR" | gmt pstext -R -J -F+f18p,Helvetica-Bold -N -K -O >> $out_strain
@@ -44,6 +47,7 @@ gmt psvelo $output_dir"visr/negative_eigs.txt" -Se0.003/0.68/0 -A+b+n10+pthick,b
 # GPSgridder Strain
 gmt grdedit $infile2=gd?HDF5:"$infile2"://I2 -R$range -T -G$"I2_gpsgridder.nc" 
 gmt grdedit I2_gpsgridder.nc -Ev
+gmt grdmath I2_gpsgridder.nc ABS LOG10 = I2_gpsgridder.nc
 gmt grdimage I2_gpsgridder.nc -R -J -BweSn -Bp1.0 -Cmycpt.cpt -X6 -Y0 -K -O >> $out_strain
 gmt pscoast -R -J -Wthick,black -Df -Sgray -K -O >> $out_strain
 echo "-122.8 42.3 gpsgridder" | gmt pstext -R -J -F+f18p,Helvetica-Bold -N -K -O >> $out_strain
@@ -53,7 +57,7 @@ gmt psvelo $output_dir"gpsgridder/negative_eigs.txt" -Se0.003/0.68/0 -A+b+n10+pt
 
 
 # Rotation
-gmt makecpt -T0/300/10 -Cmagma.cpt -Do -G0.30/1.0 > mycpt.cpt
+gmt makecpt -T0/300/10 -Cmagma -Do -G0.30/1.0 > mycpt.cpt
 gmt grdedit $infile1=gd?HDF5:"$infile1"://rotation -R$range -T -G$"rot_delaunay.nc" 
 gmt grdedit rot_delaunay.nc -Ev
 gmt grdimage rot_delaunay.nc -R -J -BWeSn -Bp1.0 -Cmycpt.cpt -X-18 -Y-8 -K -O >> $out_strain

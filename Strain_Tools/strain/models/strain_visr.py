@@ -211,5 +211,7 @@ def check_fortran_executable(path_to_executable):
     if os.path.isfile(path_to_executable):
         print("VISR executable found at %s " % path_to_executable);
     else:
-        raise FileNotFoundError("VISR executable not found on your system. Check config file for path.");
+        raise FileNotFoundError("\n  ERROR!  VISR executable not found on your system. Check config file for path.  "
+                                "\n  If you don't have it on your local system, the source can be downloaded from: "
+                                "\n  http://scec.ess.ucla.edu/~zshen/visr/visr.html");
     return;
