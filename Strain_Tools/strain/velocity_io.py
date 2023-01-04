@@ -56,11 +56,12 @@ def write_stationvels(myVelfield, output_file, header=""):
     return;
 
 
-def read_gmt_format(filename):
+def read_gmt_format(filename, wrap_lons_greater_than_180=False):
     """
     Reading simplest gmt format for 2D velocity data, with error ellipses
 
     :param filename: name of velocity file
+    :param wrap_lons_greater_than_180: bool, whether to convert lons 240E to -120E. By default, will not.
     :returns: list of stationvels
     """
     print("reading file %s " % filename);
@@ -78,6 +79,8 @@ def read_gmt_format(filename):
             continue
         lon, lat, VE, VN = float(temp[0]), float(temp[1]), float(temp[2]), float(temp[3]);
         se, sn = float(temp[4]), float(temp[5]);
+        if wrap_lons_greater_than_180 and lon > 180:  # catch for longitudes like 240°E (should be -120°E)
+            lon = lon - 360;
         myVelfield.append(StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=0, se=se, sn=sn, su=0.1, name=''));
     ifile.close();
     return myVelfield;
