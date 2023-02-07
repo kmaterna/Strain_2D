@@ -141,7 +141,7 @@ def write_example_strain_config(outfile):
     d6 = configobj["velmap"];
     d6["nrows"] = "70";
     d6["ncols"] = "20";
-    d6["smoothing_constant"] = "1e-2";  # This is 29 km / 111 km /deg
+    d6["smoothing_constant"] = "1e-2"; 
     d6["grid_size_lon"] = "0.1";
     d6["grid_size_lat"] = "0.1";
     dcomps = configobj["strain-comparison"];
