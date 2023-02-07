@@ -1,6 +1,6 @@
 # Strain calculate - Velmap
 # From:  Wang, H., & Wright, T. J. (2012). 
-# AUthor: Yi-Chieh Lee
+# Author: Yi-Chieh Lee
 # Last modified: 02.07.2023
 # Note: Only G_gps_plane and only consider Ve & Vn for now
 
@@ -13,13 +13,13 @@ import sys
 
 class velmap(Strain_2d):
     def __init__(self, params):
-        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.outdir);
+        Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata, params.outdir);
         self._Name = 'Velmap'
         self._tempdir = params.outdir;
         self._nrows, self._ncols, self._smoothing_constant, self._grid_size_lon, self._grid_size_lat = verify_inputs_velmap(params.method_specific);
 
     def compute(self, myVelfield):
-        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_velmap(myVelfield, self._range_strain,
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_velmap(myVelfield, self._strain_range,
                                                                           self._nrows, self._ncols, self._smoothing_constant,
                                                                           self._grid_size_lon, self._grid_size_lat);
         # Report observed and residual velocities within bounding box
@@ -33,14 +33,17 @@ def compute_velmap(myVelfield, range_strain, nrows, ncols, smoothing_constant, g
     '''Compute the interpolated velocity field'''
 
     # Read File
-    dlon, dlat, ve, vn, ve, se, sn, su = getVels(myVelfield)
-    mask = (dlon > utilities.get_float_range(range_strain)[0] & (dlon < utilities.get_float_range(range_strain)[1]) & (dlat > utilities.get_float_range(range_strain)[2]) & (dlat < utilities.get_float_range(range_strain)[3]))
-    ve = ve[mask], vn = vn[mask], vu = vu[mask]
-    se = se[mask], se = se[mask], su = su[mask]
+    dlon, dlat, ve, vn, se, sn = getVels(myVelfield)
+    #mask = (dlon > utilities.get_float_range(range_strain)[0] & (dlon < utilities.get_float_range(range_strain)[1]) & (dlat > utilities.get_float_range(range_strain)[2]) & (dlat < utilities.get_float_range(range_strain)[3]))
+    #ve = ve[mask], vn = vn[mask]
+    #se = se[mask], se = se[mask]
 
     # GPS_plane
-    lon = np.repeat(np.linspace(utilities.get_float_range(range_strain)[1], utilities.get_float_range(range_strain)[0], num = nrows), ncols).reshape(-1, 1)
-    lat = np.tile(np.linspace(utilities.get_float_range(range_strain)[2], utilities.get_float_range(range_strain)[3], num = ncols), nrows).reshape(-1, 1)
+    #lon = np.repeat(np.linspace(utilities.get_float_range(range_strain)[1], utilities.get_float_range(range_strain)[0], num = nrows), ncols).reshape(-1, 1)
+    #lat = np.tile(np.linspace(utilities.get_float_range(range_strain)[2], utilities.get_float_range(range_strain)[3], num = ncols), nrows).reshape(-1, 1)
+    lon = np.repeat(np.linspace((range_strain)[1],(range_strain)[0], num = nrows), ncols).reshape(-1, 1)
+    lat = np.tile(np.linspace((range_strain)[2], (range_strain)[3], num = ncols), nrows).reshape(-1, 1)
+    
     xy_gps = np.hstack((lon, lat))
     G_plane_gps = np.hstack((xy_gps, np.ones((xy_gps.shape[0], 1))))
     G_plane = np.block([ [G_plane_gps, np.zeros((G_plane_gps.shape[0], G_plane_gps.shape[1]))], [np.zeros((G_plane_gps.shape[0], G_plane_gps.shape[1])), G_plane_gps] ])
@@ -66,7 +69,7 @@ def compute_velmap(myVelfield, range_strain, nrows, ncols, smoothing_constant, g
 
     # Laplacian smoothing matrix 
     Lap = Laplacian_backslip(nrows, ncols, grid_size_lon, grid_size_lat, 0)
-    full_Lap = np.block([[Lap, np.zeros((ncols*nrows, ncols*nrows))], [np.zeros((ncols*nrows, ncols*nrows)), Lap]])
+    full_Lap = np.block([[Lap, np.zeros((nrows*ncols, nrows*ncols))], [np.zeros((nrows*ncols, nrows*ncols)), Lap]])
 
     # Uncertainities
     SIG_gps = np.append(se, sn)
@@ -120,8 +123,8 @@ def verify_inputs_velmap(method_specific_dict):
         raise ValueError("\nvelmap requires the number of row. Please add to method_specific config. Exiting.\n");
     if 'ncols' not in method_specific_dict.keys():
         raise ValueError("\nvelmap requires the number of column. Please add to method_specific config. Exiting.\n");
-    if 'smoothing_constrant' not in method_specific_dict.keys():
-        raise ValueError("\nvelmap requires the value of smoothing constrain. Please add to method_specific config. Exiting.\n");
+    if 'smoothing_constant' not in method_specific_dict.keys():
+        raise ValueError("\nvelmap requires the value of smoothing constant. Please add to method_specific config. Exiting.\n");
     if 'grid_size_lon' not in method_specific_dict.keys():
         raise ValueError("\nvelmap requires the grid size of longitude. Please add to method_specific config. Exiting.\n");
     if 'grid_size_lat' not in method_specific_dict.keys():
@@ -129,11 +132,11 @@ def verify_inputs_velmap(method_specific_dict):
     
     nrows = method_specific_dict["nrows"];
     ncols = method_specific_dict["ncols"];
-    smoothing_constrant = method_specific_dict["smoothing_constrant"];
+    smoothing_constant = method_specific_dict["smoothing_constant"];
     grid_size_lon = method_specific_dict["grid_size_lon"];
     grid_size_lat = method_specific_dict["grid_size_lat"];
 
-    return nrows, ncols, smoothing_constrant, grid_size_lon, grid_size_lat;
+    return int(nrows), int(ncols), float(smoothing_constant), float(grid_size_lon), float(grid_size_lat);
 
 
 def Laplacian_backslip(nve, nhe, delx, dely, surf):
