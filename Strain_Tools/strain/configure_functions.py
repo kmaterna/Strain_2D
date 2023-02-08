@@ -139,11 +139,7 @@ def write_example_strain_config(outfile):
     d5["nugget_north"] = "6";
     d5["trend"] = "0";
     d6 = configobj["velmap"];
-    d6["nrows"] = "70";
-    d6["ncols"] = "20";
     d6["smoothing_constant"] = "1e-2"; 
-    d6["grid_size_lon"] = "0.1";
-    d6["grid_size_lat"] = "0.1";
     dcomps = configobj["strain-comparison"];
     dcomps["output_dir"] = "Output/_strain_comparison"
     dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/loc_avg_grad:Output/visr"
