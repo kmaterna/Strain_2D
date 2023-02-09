@@ -19,7 +19,7 @@ class velmap(Strain_2d):
         self._smoothing_constant = verify_inputs_velmap(params.method_specific);
 
     def compute(self, myVelfield):
-        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_velmap(myVelfield, self._strain_range, self._smoothing_constant, self._grid_inc);
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_velmap(myVelfield, self, self._smoothing_constant);
         # Report observed and residual velocities within bounding box
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
         model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box);
@@ -27,23 +27,25 @@ class velmap(Strain_2d):
         return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield];
    
 
-def compute_velmap(myVelfield, range_strain, smoothing_constant, inc):
+def compute_velmap(myVelfield, self, smoothing_constant):
     '''Compute the interpolated velocity field'''
 
     # Read File
     dlon, dlat, ve, vn, se, sn = getVels(myVelfield)
     
-    lonmin, lonmax = range_strain[0], range_strain[1]
-    latmin, latmax = range_strain[2], range_strain[3]
-    lons_grid = np.arange(lonmin, lonmax+0.00001, inc[0])
-    lats_grid = np.arange(latmin, latmax+0.00001, inc[1])
+    lonmin, lonmax = self._strain_range[0], self._strain_range[1]
+    latmin, latmax = self._strain_range[2], self._strain_range[3]
+    lonmin, lonmax = self._strain_range[0], self._strain_range[1]
+    latmin, latmax = self._strain_range[2], self._strain_range[3]
+    lons_grid = np.arange(lonmin, lonmax+0.00001, self._grid_inc[0])
+    lats_grid = np.arange(latmin, latmax+0.00001, self._grid_inc[1])
     
-    nrows = len(lons_grid) #lon
-    ncols = len(lats_grid) #lat
+    nrows = len(lons_grid) 
+    ncols = len(lats_grid) 
     
     # GPS_plane
-    lon = np.repeat(np.linspace((range_strain)[1],(range_strain)[0], num = nrows), ncols).reshape(-1, 1)
-    lat = np.tile(np.linspace((range_strain)[2], (range_strain)[3], num = ncols), nrows).reshape(-1, 1)
+    lon = np.repeat(np.linspace((self._strain_range)[1],(self._strain_range)[0], nrows), ncols).reshape(-1, 1)
+    lat = np.tile(np.linspace((self._strain_range)[2], (self._strain_range)[3], ncols), nrows).reshape(-1, 1)
     
     xy_gps = np.hstack((lon, lat))
     G_plane_gps = np.hstack((xy_gps, np.ones((xy_gps.shape[0], 1))))
@@ -69,8 +71,7 @@ def compute_velmap(myVelfield, range_strain, smoothing_constant, inc):
     #G_gps = block_diag((G_gps_x, G_gps_y, G_gps_z)).toarray()
 
     # Laplacian smoothing matrix 
-    #Lap = Laplacian_backslip(nrows, ncols, grid_size_lon, grid_size_lat, 0)
-    Lap = Laplacian_backslip(nrows, ncols, float(inc[0]), float(inc[1]), 0)
+    Lap = Laplacian_backslip(nrows, ncols, float(self._grid_inc[0]), float(self._grid_inc[1]), 0)
     full_Lap = np.block([[Lap, np.zeros((nrows*ncols, nrows*ncols))], [np.zeros((nrows*ncols, nrows*ncols)), Lap]])
 
     # Uncertainities
@@ -112,8 +113,9 @@ def compute_velmap(myVelfield, range_strain, smoothing_constant, inc):
     Vn = Vn_pred.reshape(ncols, nrows)
 
     # Calculate strain rate
-    exx, eyy, exy, rot = strain_tensor_toolbox.strain_on_regular_grid(ncols, nrows, Ve, Vn)
-
+    dx, dy = self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
+    exx, eyy, exy, rot = strain_tensor_toolbox.strain_on_regular_grid(dx, dy, Ve, Vn)
+    
     # Return the strain rates etc. in the same units as other methods
     return Ve, Vn, rot*1000, exx*1000, exy*1000, eyy*1000
 
