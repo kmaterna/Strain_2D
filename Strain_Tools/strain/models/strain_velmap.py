@@ -71,7 +71,7 @@ def compute_velmap(myVelfield, self, smoothing_constant):
     #G_gps = block_diag((G_gps_x, G_gps_y, G_gps_z)).toarray()
 
     # Laplacian smoothing matrix 
-    Lap = Laplacian_backslip(nrows, ncols, float(self._grid_inc[0]), float(self._grid_inc[1]), 0)
+    Lap = Laplacian_velmap(nrows, ncols, float(self._grid_inc[0]), float(self._grid_inc[1]))
     full_Lap = np.block([[Lap, np.zeros((nrows*ncols, nrows*ncols))], [np.zeros((nrows*ncols, nrows*ncols)), Lap]])
 
     # Uncertainities
@@ -172,3 +172,33 @@ def Laplacian_backslip(nve, nhe, delx, dely, surf):
     # Lap_inv = np.linalg.inv(Lap)
     return Lap
 
+def Laplacian_velmap(nve, nhe, delx, dely):
+    ngrid = nhe * nve
+    Lap = np.zeros([ngrid, ngrid])
+    xpartd = np.zeros([ngrid, ngrid])
+    ypartd = np.zeros([ngrid, ngrid])
+    temp = np.zeros([nve, nve])
+
+    # x-derivative 
+    for i in range(nve * nhe):
+        if i + nve < nve * nhe :
+            xpartd[i, i + nve] = 1.0
+        if (i - nve < nve * nhe) and (i > nve-1):
+            xpartd[i, i - nve] = 1.0
+        xpartd[i, i] = -2.0
+
+    # y-derivative
+    for j in range(nhe * nve):
+        if j == 0:                       # first point
+            ypartd[j, j:j+2] = [-2, 1]
+        elif j == nhe * nve - 1:         # last point     
+            ypartd[j, j-1:j+1] = [1, -2]
+        elif ((j < nve) and (j != 0)) or ((j > (nhe * nve - nve -1)) and (j != (nhe * nve - 1))):
+            ypartd[j, j-1:j+2] = [1, -1, 1]
+        else:
+            ypartd[j, j-1:j+2] = [1, -2, 1]
+  
+    Lap = (xpartd/delx**2) + (ypartd/dely**2)
+    # Lap_inv = np.linalg.inv(Lap)
+
+    return Lap
