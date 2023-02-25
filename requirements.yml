@@ -17,4 +17,5 @@ dependencies:
  - gmt
  - pygmt
  - pip
+ - jupyter
 

@@ -4,12 +4,14 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/kmaterna/Strain_2D/blob/dev/license.md)
 [![DOI](https://zenodo.org/badge/190659682.svg)](https://zenodo.org/badge/latestdoi/190659682)
 
-This library contains several methods to compute geodetic strain from a GPS velocity field.  It is intended to be used as a means to compare various strain modeling techniques on the same input data (see https://files.scec.org/s3fs-public/0930_Sandwell_UCERF_strain.pdf for an example showing the variability of strain modeling techniques). Several of the strain methods are borrowed from other authors, GitHub repositories, and papers.  If you use the contributed strain techniques, credit should be given to the original authors accordingly.  
+This library contains several methods to compute geodetic strain from a GPS velocity field.  It is intended to be used as a means to compare various strain modeling techniques on the same input data (see https://files.scec.org/s3fs-public/0930_Sandwell_UCERF_strain.pdf for an example showing the variability of strain modeling techniques). 
+Several of the strain methods are borrowed from other authors, GitHub repositories, and papers.  If you use the contributed strain techniques, credit should be given to the original authors accordingly.  
 
-### Requirements:
-* Python3, numpy, scipy, matplotlib
-* GMT5 or higher, PYGMT
+### Requirements and Installation:
+* Python3, numpy, scipy, matplotlib, pygmt
+* GMT5 or higher: https://www.generic-mapping-tools.org/
 * Third-party Matlab or Fortran codes may be required depending on the specific strain technique you select, as detailed further below
+* Optional: Jupyter notebook is needed to run the tutorial
 
 First, clone the Strain_2D repository onto your computer and get into the top level directory.  
 
@@ -19,7 +21,9 @@ conda env create -f requirements.yml
 conda activate Strain_2D
 ```   
 
-Then, to install this library, run in the top level directory of the repo: ```python setup.py install``` 
+Then, to install this library within the newly created conda environment, run in the top level directory of the repo: ```python setup.py install```
+
+We have not yet tested the installation on Windows. Let us know if you have used the software on Windows!
 
  ### Usage: 
 The main executable for this library is ```strain_rate_compute.py```.  The behavior of the program is controlled using a config file that specifies inputs/outputs, general strain options, and any required parameters for various strain rate techniques. You can print a sample config file from the main executable ```strain_rate_compute.py``` under the flag ```--print_config``` (also try ```--help``` for more information).  
@@ -53,7 +57,9 @@ gmt grdedit $outfile -Ev   # top-bottom flip for latitude increasing vs column n
 ``` 
 
 ### Contributing
-If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications. See the section on API below if you'd like to contribute a method. 
+If you're using this library and have suggestions, let me know!  I'm happy to work together on the code and its applications.  We are working on the contributing.md for guidelines.  
+
+See the section on API below if you'd like to contribute a method. 
 
 ### Supported strain methods:  
 For more information on the parameters required by each method, see [Full Parameter Documentation](https://github.com/kmaterna/Strain_2D/blob/master/param_definitions.md). 

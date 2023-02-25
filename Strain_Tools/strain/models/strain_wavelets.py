@@ -24,7 +24,7 @@ class wavelets(Strain_2d):
 
         # Now go away and do your matlab calculation. Come back with the output stem. 
         output_tag = input("\n\nNow go away, run Matlab using the instructions and parameters in "+configure_file+"\n\n. When done, enter the output stem of your favorite model: ");
-        # Format is like: /Users/kzm/Documents/Software//compearth/surfacevel2strain/matlab_output/_d-01_q04_q07_b1_2D_s1_u1
+        # Format is like: ~/Documents/Software/compearth/surfacevel2strain/matlab_output/_d-01_q04_q07_b1_2D_s1_u1
         
         # Parse the results
         x, y, tt, tp, pp, rot = input_wavelets(output_tag + "_strain.dat", output_tag + "_Dtensor_6entries.dat", output_tag + "_Wtensor_3entries.dat");
@@ -105,7 +105,6 @@ def write_wavelets_parameter_file(range_data, code_dir, qmin, qmax, qsec, veloci
     ofile.write('1  # yes gmt outputs\n');
     ofile.write('-1 # ropt = overridden for user-specified velocity file\n');
     ofile.write('-1 # dopt = overridden for user-specified velocity file\n');
-    # ofile.write('\'/Users/kzm/Documents/Projects/Strain/output/tape/vel_tape.txt\'\n');
     ofile.write('\''+velocity_file+'\'\n');
     ofile.write('\''+str(range_data[0])+' '+str(range_data[1])+' '+str(range_data[2])+' '+str(range_data[3])+'\'\n');
     ofile.write('1  # remove rotation\n');
@@ -192,6 +191,6 @@ Create compearth/ somewhere in your Software directory
 Inside compearth, git clone Tape's surfacevel2strain
 Configure and run a strain calculation. Some default options will helpfully be printed for you. 
 Open matlab. 
->> setenv('REPOS','/Users/kzm/Documents/Software')   # where compearth lives 
+>> setenv('REPOS','~/Documents/Software')   # where compearth lives 
 >> addpath(self._code_dir+'/matlab');
 """
