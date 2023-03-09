@@ -91,6 +91,7 @@ def get_gmt_range_inc(lons, lats):
 def check_coregistered_shapes(strain_values_ds):
     """
     Make sure arrays are of the same dimensions before attempting to produce any statistics
+    
     :param strain_values_ds: xarray.DataSet of strain values from different calculations
     :returns: None
     """
