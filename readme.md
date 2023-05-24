@@ -147,12 +147,15 @@ To reproduce the figure in the README:
 ### Citing
 [![DOI](https://zenodo.org/badge/190659682.svg)](https://zenodo.org/badge/latestdoi/190659682)
 
-If you use this library in your research, you can cite this repository using its DOI and associated version number. Example citations:
+If you use this library in your research, you can cite this work with:
+
+Maurer and Materna (2023), Quantification of geodetic strain rate uncertainties and implications for seismic hazard estimates, Geophysical Journal International, 234, 3, p. 2128-2142, doi: 10.1093/gji/ggad191.
+
+The code itself can be cited with a DOI: 
 
 Materna, K., and J. Maurer (2023). Strain_2D (version 1.1.1). https://code.usgs.gov/kmaterna/Strain_2D. Archived at DOI: 10.5066/P9JJW0DY
 
 or 
 
 Materna, K., J. Maurer, and L. Sandoe (2021). Strain-2D (version 1.0.0). https://github.com/kmaterna/Strain_2D. Archived at DOI: 10.5281/zenodo.5240908
-
-Publication citation will be updated in the future. 
+ 
