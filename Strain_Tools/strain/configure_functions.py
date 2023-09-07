@@ -1,4 +1,4 @@
-import subprocess, sys, os, collections, configparser
+import sys, os, collections, configparser, shutil
 from . import utilities
 
 Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range_strain', 'range_data', 'inc',
@@ -35,8 +35,8 @@ def strain_cmd_parser(cmdargs):
             configfile = cmdargs[1];
             MyParams = read_strain_config(configfile);
             print_Params(MyParams);
-            subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
-            subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
+            os.makedirs(str(MyParams.outdir), exist_ok=True);
+            shutil.copyfile(configfile, str(MyParams.outdir)+'/'+configfile);
             return MyParams;
 
 
@@ -156,8 +156,8 @@ def comparison_cmd_parser(args):
     else:
         configfile = args[1];
         MyParams = read_comparison_config(configfile);
-        subprocess.call(['mkdir', '-p', MyParams.outdir], shell=False);
-        subprocess.call(['cp', configfile, MyParams.outdir], shell=False);
+        os.makedirs(str(MyParams.outdir), exist_ok=True);
+        shutil.copyfile(configfile, str(MyParams.outdir)+'/'+configfile);
         return MyParams;
 
 
