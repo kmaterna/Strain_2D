@@ -1,7 +1,7 @@
-# Strain calculate - Velmap
+# Strain calculate - velmap
 # From:  Wang, H., & Wright, T. J. (2012). 
 # Author: Yi-Chieh Lee
-# Last modified: 02.08.2023
+# Last modified: 09.20.2023
 # Note: Only G_gps_plane and only consider Ve & Vn for now
 
 import numpy as np
@@ -14,27 +14,28 @@ import sys
 class velmap(Strain_2d):
     def __init__(self, params):
         Strain_2d.__init__(self, params.inc, params.range_strain, params.range_data, params.xdata, params.ydata, params.outdir);
-        self._Name = 'Velmap'
+        self._Name = 'velmap'
         self._tempdir = params.outdir;
         self._smoothing_constant = verify_inputs_velmap(params.method_specific);
 
     def compute(self, myVelfield):
         [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_velmap(myVelfield, self, self._smoothing_constant);
+        
         # Report observed and residual velocities within bounding box
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
         model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box);
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield);
+        
         return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield];
    
 
 def compute_velmap(myVelfield, self, smoothing_constant):
     '''Compute the interpolated velocity field'''
-
+    print("------------------------------\nComputing strain via velmap method.")
+    
     # Read File
     dlon, dlat, ve, vn, se, sn = getVels(myVelfield)
     
-    lonmin, lonmax = self._strain_range[0], self._strain_range[1]
-    latmin, latmax = self._strain_range[2], self._strain_range[3]
     lonmin, lonmax = self._strain_range[0], self._strain_range[1]
     latmin, latmax = self._strain_range[2], self._strain_range[3]
     lons_grid = np.arange(lonmin, lonmax+0.00001, self._grid_inc[0])
@@ -54,9 +55,7 @@ def compute_velmap(myVelfield, self, smoothing_constant):
     # G-gps matrix
     Ngps = len(ve)
     G_gps_x = np.zeros((Ngps, nrows*ncols))
-    G_gps_y = np.zeros((Ngps, nrows*ncols))
-    #G_gps_z = np.zeros((Ngps, nrows*ncols))
-    
+    G_gps_y = np.zeros((Ngps, nrows*ncols))   
 
     for i in range(Ngps):
         for j in range(ncols*nrows):
@@ -65,10 +64,8 @@ def compute_velmap(myVelfield, self, smoothing_constant):
 
         G_gps_x[i, j] = 1
         G_gps_y[i, j] = 1
-        #G_gps_z[i, j] = 1
     
     G_gps = block_diag((G_gps_x, G_gps_y)).toarray()
-    #G_gps = block_diag((G_gps_x, G_gps_y, G_gps_z)).toarray()
 
     # Laplacian smoothing matrix 
     Lap = Laplacian_velmap(nrows, ncols, float(self._grid_inc[0]), float(self._grid_inc[1]))
@@ -76,23 +73,21 @@ def compute_velmap(myVelfield, self, smoothing_constant):
 
     # Uncertainities
     SIG_gps = np.append(se, sn)
-    #SIG_gps = np.append(se, sn, su)
     COV_gps = np.diag(SIG_gps**2)
 
 
     # Solving inverse problem
     d = np.concatenate((ve, vn, np.zeros((full_Lap.shape[0]))))
     G = np.vstack(( np.hstack((G_gps, np.zeros((G_gps.shape[0], G_plane.shape[1])))), np.hstack((full_Lap, np.zeros((full_Lap.shape[0], G_plane.shape[1])))) ))
-    # should add Gmatrix for ENU
 
     L2SIG = block_diag((COV_gps, smoothing_constant * np.eye(full_Lap.shape[0]))).toarray()
 
-    mask3 = np.isnan(d) | np.isnan(np.sum(G, axis=1))
-    d = d[~mask3]
-    G = G[~mask3, :]
+    mask = np.isnan(d) | np.isnan(np.sum(G, axis=1))
+    d = d[~mask]
+    G = G[~mask, :]
 
-    L2SIG = L2SIG[~mask3, :]
-    L2SIG = L2SIG[:, ~mask3]
+    L2SIG = L2SIG[~mask, :]
+    L2SIG = L2SIG[:, ~mask]
 
     try:
         Lsig = np.linalg.cholesky(L2SIG)
