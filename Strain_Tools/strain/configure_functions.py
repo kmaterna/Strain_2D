@@ -5,7 +5,7 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'xdata', 'ydata', 'outdir', 'method_specific', 'write_metrics']);
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir']);
 
-avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  loc_avg_grad\n  wavelets\n  visr\n "
+avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  loc_avg_grad\n  wavelets\n  visr\n  velmap\n"
 help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
                "  USAGE 1: strain_rate_compute.py config.txt      <-- for running a strain calculation\n" \
                "  USAGE 2: strain_rate_compute.py --help          <-- for printing help message\n" \
@@ -97,6 +97,7 @@ def write_example_strain_config(outfile):
     configobj["wavelets"] = {}
     configobj["geostats"] = {}
     configobj["strain-comparison"] = {}
+    configobj["velmap"] = {}
     genconfig = configobj["general"];
     genconfig["method"] = "delaunay"
     genconfig["output_dir"] = "Output"
@@ -137,9 +138,12 @@ def write_example_strain_config(outfile):
     d5["range_north"] = "0.342";  # This is 38 km / 111 km / deg
     d5["nugget_north"] = "6";
     d5["trend"] = "0";
+    d6 = configobj["velmap"];
+    d6["smoothing_constant"] = "1e-2"; 
     dcomps = configobj["strain-comparison"];
     dcomps["output_dir"] = "Output/_strain_comparison"
     dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/loc_avg_grad:Output/visr"
+    
     with open(outfile, 'w') as configfile:
         configobj.write(configfile)
     print("Writing file %s " % outfile);
@@ -149,7 +153,7 @@ def write_example_strain_config(outfile):
 def comparison_cmd_parser(args):
     """The configfile is passed as arg"""
     if len(args) < 2:
-        args = ("", "--help");   # help message
+        args = ("", "--help", "-h");   # help message
     if args[1] == '--help':
         print(comps_help_message);
         sys.exit(0);
