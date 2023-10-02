@@ -41,7 +41,7 @@ def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels);
-        fig.plot(x=elon, y=nlat, style='c0.04i', color='black', pen='0.4p,white');  # station locations
+        fig.plot(x=elon, y=nlat, style='c0.04i', fill='black', pen='0.4p,white');  # station locations
         fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
                  direction=[e, n]);  # displacement vectors
         fig.plot(x=region[0] + 0.9, y=region[2] + 0.1, style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
@@ -64,7 +64,7 @@ def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels);
-        fig.plot(x=elon, y=nlat, style='c0.02i', color='black');  # station locations
+        fig.plot(x=elon, y=nlat, style='c0.02i', fill='black');  # station locations
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);
@@ -99,7 +99,7 @@ def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(),
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels);
-        fig.plot(x=elon, y=nlat, style='c0.02i', color='black');  # station locations
+        fig.plot(x=elon, y=nlat, style='c0.02i', fill='black');  # station locations
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);
@@ -133,7 +133,7 @@ def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positi
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels);
-        fig.plot(x=elon, y=nlat, style='c0.02i', color='black');  # station locations
+        fig.plot(x=elon, y=nlat, style='c0.02i', fill='black');  # station locations
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);
@@ -167,7 +167,7 @@ def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0");
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels);
-        fig.plot(x=elon, y=nlat, style='c0.02i', color='black');  # station locations
+        fig.plot(x=elon, y=nlat, style='c0.02i', fill='black');  # station locations
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n);
@@ -198,7 +198,7 @@ def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_ei
     fig.basemap(region=region, projection=proj, frame="+t\"Dilatation\"");
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0");
 
-    fig.plot(data=polygon_outdir_file, pen="thinner,black", color="+z", cmap=outdir+"/mycpt.cpt");
+    fig.plot(data=polygon_outdir_file, pen="thinner,black", fill="+z", cmap=outdir+"/mycpt.cpt");
     fig.coast(borders='2', shorelines='1.0p,black', water='lightblue', map_scale="n0.12/0.12+c"+str(region[2])+"+w50");
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
@@ -231,7 +231,7 @@ def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0");
 
     # color by value
-    fig.plot(data=second_inv_polygon_file, pen="thinner,black", color="+z", cmap=outdir + "/mycpt.cpt");
+    fig.plot(data=second_inv_polygon_file, pen="thinner,black", fill="+z", cmap=outdir + "/mycpt.cpt");
     fig.coast(borders='2', shorelines='1.0p,black', water='lightblue', map_scale="n0.12/0.12+c"+str(region[2])+"+w50");
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs);
