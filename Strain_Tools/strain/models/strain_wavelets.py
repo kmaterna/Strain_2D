@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.interpolate as interp
-import subprocess
+import os
 from strain.models.strain_2d import Strain_2d
 from .. import utilities, velocity_io
 
@@ -17,7 +17,7 @@ class wavelets(Strain_2d):
         # Setup for Matlab calculation
         configure_file = self._outdir + "surfacevel2strain_config_params.txt"
         velocity_file = self._outdir + "vel_wavelets.txt";
-        subprocess.call(['mkdir', '-p', self._code_dir+'/matlab_output'], shell=False);
+        os.makedirs(self._code_dir+'/matlab_output', exist_ok=True);
         write_to_wavelets_vel_format(myVelfield, velocity_file);
         write_wavelets_parameter_file(self._data_range, self._code_dir, self._qmin, self._qmax, self._qsec,
                                       velocity_file, configure_file);
@@ -175,7 +175,7 @@ def nn_interp(x, y, vals, newx, newy):
 
 
 def report_on_misfits_wavelets(residfile):
-    [elon, nlat, Sn, Se, resid_Vn, resid_Ve] = np.loadtxt(residfile, usecols=(0, 1, 3, 4, 6, 7), unpack=True);
+    [elon, nlat, _, _, resid_Vn, resid_Ve] = np.loadtxt(residfile, usecols=(0, 1, 3, 4, 6, 7), unpack=True);
     #  From Compearth code on Matlab file:
     #  fprintf(fid, stfmt, dlon(ii), dlat(ii), su(ii) * 1e3, sn(ii) * 1e3, se(ii) * 1e3, Vmat(ii,:));
     residfield = [];
