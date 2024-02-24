@@ -21,7 +21,10 @@ conda env create -f requirements.yml
 conda activate Strain_2D
 ```   
 
-Then, to install this library within the newly created conda environment, run in the top level directory of the repo: ```python setup.py install```
+Then, to install this library within the newly created conda environment, run in the top level directory of the repo: 
+```
+pip install . 
+```
 
 We have not yet tested the installation on Windows. Let us know if you have used the software on Windows!
 

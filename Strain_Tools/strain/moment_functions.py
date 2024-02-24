@@ -1,10 +1,13 @@
 # Computing moment via Savage and Simpson, 1997
 
-import argparse, sys
+import argparse
+import sys
+import os
 import numpy as np
 from . import strain_tensor_toolbox, utilities
 
 help_message = "Compute moment accumulation rate via method of Savage and Simpson (1997) "
+
 
 def cmd_parser(cmdargs):
     """Simple command line parser for moment accumulation rate calculator. Returns a dictionary of params."""
@@ -29,6 +32,7 @@ def cmd_parser(cmdargs):
     config_default = {};
     p.set_defaults(**config_default)
     config = vars(p.parse_args())
+    config['outdir'] = os.path.split(config['outfile'])[0]
     return config;
 
 
@@ -41,8 +45,8 @@ def moment_coordinator(MyParams):
     # Input, Compute, Output
     lons, lats, exx, exy, eyy = utilities.read_basic_fields_from_netcdf(MyParams["netcdf"]);
     landmask = utilities.make_gmt_landmask(np.array(lons), np.array(lats), MyParams["landmask"]);
-    Mo = compute_moments_loop(lons, lats, exx, exy, eyy, landmask, MyParams["mu"], MyParams["depth"]);
-    write_Mo_outputs(MyParams, Mo);
+    Mo, moment_map = compute_moments_loop(lons, lats, exx, exy, eyy, landmask, MyParams["mu"], MyParams["depth"]);
+    write_Mo_outputs(MyParams, Mo, lons, lats, moment_map);
     return Mo;
 
 
@@ -69,20 +73,40 @@ def compute_moments_loop(lons, lats, exx, exy, eyy, landmask, mu, depth):
     exx = np.multiply(exx, landmask);
     exy = np.multiply(exy, landmask);
     eyy = np.multiply(eyy, landmask);
+    moment_map = np.zeros(np.shape(exx))
     for i in range(len(lats)):
         for j in range(len(lons)):
             if landmask[i][j] > 0:
-                Mo = Mo + get_savage_simpson_moment(exx[i][j], exy[i][j], eyy[i][j], mu, depth, area_km2);
-    return Mo;
+                incremental_moment = get_savage_simpson_moment(exx[i][j], exy[i][j], eyy[i][j], mu, depth, area_km2)
+                Mo = Mo + incremental_moment
+                moment_map[i][j] = incremental_moment
+    return Mo, moment_map
 
 
-def write_Mo_outputs(MyParams, Mo):
-    print("Writing file %s " % MyParams["outfile"]);
-    print("Moment Accumulation Rate: %f e18 N-m / year" % (Mo/1e18));
-    ofile = open(MyParams["outfile"], 'w');
-    ofile.write("Mu: %f GPa\n" % (MyParams["mu"]) );
-    ofile.write("Depth: %f km\n" % (MyParams["depth"]));
-    ofile.write("Infile: %s\n" % (MyParams["netcdf"]));
-    ofile.write("Moment rate accumulation: %f e18 N-m / year\n" % (Mo/1e18));
-    ofile.close();
-    return;
+def write_Mo_outputs(MyParams, Mo, lons, lats, moment_map):
+    print("Writing file %s " % MyParams["outfile"])
+    print("Moment Accumulation Rate: %f e18 N-m / year" % (Mo/1e18))
+    ofile = open(MyParams["outfile"], 'w')
+    ofile.write("Mu: %f GPa\n" % (MyParams["mu"]))
+    ofile.write("Depth: %f km\n" % (MyParams["depth"]))
+    ofile.write("Infile: %s\n" % (MyParams["netcdf"]))
+    ofile.write("Moment rate accumulation: %f e18 N-m / year\n" % (Mo/1e18))
+    ofile.close()
+
+    moment_outfile = os.path.join(MyParams['outdir'], 'moment_rate_map.txt')
+    comment = ("# Moment rate accumulation rate, in N-m per year, with depth = " + str(MyParams["depth"]) +
+               " km and shear modulus = " + str(MyParams["mu"]) + " GPa")
+    write_text_grid_quantity(moment_outfile, lons, lats, moment_map, comment=comment)
+    return
+
+
+def write_text_grid_quantity(outfile, lons_1d, lats_1d, quantity, comment=""):
+    """Write a text file representation of a grid"""
+    ofile = open(outfile, 'w')
+    print("Writing file %s " % outfile)
+    ofile.write("# " + comment + "\n")
+    for i in range(len(lats_1d)):
+        for j in range(len(lons_1d)):
+            ofile.write("%f %f %f\n" % (lons_1d[j], lats_1d[i], quantity[i][j]))
+    ofile.close()
+    return

@@ -67,7 +67,8 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
                              MyParams.outdir + 'azimuth.png', positive_eigs, negative_eigs);
 
     if MyParams.write_metrics:  # optional: we can automatically compute a metric of the mag. of strain field
-        output_params = {"netcdf": output_filename,
+        output_params = {"outdir": MyParams.outdir,
+                         "netcdf": output_filename,
                          "landmask": MyParams.outdir+"landmask.grd",
                          "mu": 30,
                          "depth": 11,
