@@ -45,11 +45,11 @@ def compute_strain_components_from_dx(dudx, dvdx, dudy, dvdy):
     :returns: strain and rotation components
     :rtype: list
     """
-    exx = dudx;
-    exy = (0.5 * (dvdx + dudy));
-    eyy = dvdy;
-    rot = (0.5 * (dvdx - dudy));
-    return [exx, exy, eyy, rot];
+    exx = dudx
+    exy = (0.5 * (dvdx + dudy))
+    eyy = dvdy
+    rot = (0.5 * (dvdx - dudy))
+    return [exx, exy, eyy, rot]
 
 
 def compute_derived_quantities(exx, exy, eyy):
@@ -69,22 +69,22 @@ def compute_derived_quantities(exx, exy, eyy):
     dilatation = exx + eyy
 
     # Azimuth is tricky so leaving it as a for-loop for now
-    azimuth = np.zeros(np.shape(exx));
-    [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy);
+    azimuth = np.zeros(np.shape(exx))
+    [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy)
 
-    dshape = np.shape(exx);
+    dshape = np.shape(exx)
     if len(dshape) == 1:
-        datalength = dshape[0];
-        print("Computing strain invariants for 1d dataset with length %d." % datalength);
+        datalength = dshape[0]
+        print("Computing strain invariants for 1d dataset with length %d." % datalength)
         for i in range(datalength):
-            azimuth[i] = compute_max_shortening_azimuth(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i]);
+            azimuth[i] = compute_max_shortening_azimuth(e1[i], e2[i], v00[i], v01[i], v10[i], v11[i])
     elif len(dshape) == 2:
-        print("Computing strain invariants for 2d dataset.");
+        print("Computing strain invariants for 2d dataset.")
         for j in range(dshape[0]):
             for i in range(dshape[1]):
                 azimuth[j][i] = compute_max_shortening_azimuth(e1[j][i], e2[j][i], v00[j][i], v01[j][i],
-                                                               v10[j][i], v11[j][i]);
-    return [I2nd, max_shear, dilatation, azimuth];
+                                                               v10[j][i], v11[j][i])
+    return [I2nd, max_shear, dilatation, azimuth]
 
 
 def compute_eigenvectors(exx, exy, eyy):
@@ -96,24 +96,24 @@ def compute_eigenvectors(exx, exy, eyy):
     :param eyy: strain component, float or 1d array
     :rtype: list
     """
-    e1, e2 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx));  # eigenvalues
-    v00, v01 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx));
-    v10, v11 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx));  # eigenvectors
-    dshape = np.shape(exx);
+    e1, e2 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx))  # eigenvalues
+    v00, v01 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx))
+    v10, v11 = np.zeros(np.shape(exx)), np.zeros(np.shape(exx))  # eigenvectors
+    dshape = np.shape(exx)
     if len(dshape) == 1:
         for i in range(len(exx)):
-            [e11, e22, v] = eigenvector_eigenvalue(exx[i], exy[i], eyy[i]);
-            e1[i], e2[i] = e11, e22;  # convention of this code returns negative eigenvalues compared to my other codes
-            v00[i], v10[i] = v[0][0], v[1][0];
-            v01[i], v11[i] = v[0][1], v[1][1];
+            [e11, e22, v] = eigenvector_eigenvalue(exx[i], exy[i], eyy[i])
+            e1[i], e2[i] = e11, e22  # convention of this code returns negative eigenvalues compared to my other codes
+            v00[i], v10[i] = v[0][0], v[1][0]
+            v01[i], v11[i] = v[0][1], v[1][1]
     elif len(dshape) == 2:
         for j in range(dshape[0]):
             for i in range(dshape[1]):
-                [e11, e22, v] = eigenvector_eigenvalue(exx[j][i], exy[j][i], eyy[j][i]);
-                e1[j][i], e2[j][i] = e11, e22;
-                v00[j][i], v01[j][i] = v[0][0], v[0][1];
-                v10[j][i], v11[j][i] = v[1][0], v[1][1];
-    return [e1, e2, v00, v01, v10, v11];
+                [e11, e22, v] = eigenvector_eigenvalue(exx[j][i], exy[j][i], eyy[j][i])
+                e1[j][i], e2[j][i] = e11, e22
+                v00[j][i], v01[j][i] = v[0][0], v[0][1]
+                v10[j][i], v11[j][i] = v[1][0], v[1][1]
+    return [e1, e2, v00, v01, v10, v11]
 
 
 def eigenvector_eigenvalue(exx, exy, eyy):
@@ -128,11 +128,11 @@ def eigenvector_eigenvalue(exx, exy, eyy):
     :rtype: list
     """
     if np.isnan(np.sum([exx, exy, eyy])):
-        v = [[np.nan, np.nan], [np.nan, np.nan]];
-        return [0, 0, v];
-    T = np.array([[exx, exy], [exy, eyy]]);  # the tensor
-    w, v = np.linalg.eig(T);  # The eigenvectors and eigenvalues (principal strains) of the strain rate tensor
-    return [w[0], w[1], v];
+        v = [[np.nan, np.nan], [np.nan, np.nan]]
+        return [0, 0, v]
+    T = np.array([[exx, exy], [exy, eyy]])  # the tensor
+    w, v = np.linalg.eig(T)  # The eigenvectors and eigenvalues (principal strains) of the strain rate tensor
+    return [w[0], w[1], v]
 
 
 def compute_max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
@@ -159,12 +159,12 @@ def compute_max_shortening_azimuth(e1, e2, v00, v01, v10, v11):
     strike = np.arctan2(maxv[1], maxv[0])
     theta = 90 - m.degrees(strike)
     if np.isnan(theta):
-        return np.nan;
+        return np.nan
     if theta < 0:
         theta = 180 + theta
     elif theta > 180:
         theta = theta - 180
-    assert (theta < 180), ValueError("Error: computing an azimuth over 180 degrees.");
+    assert (theta < 180), ValueError("Error: computing an azimuth over 180 degrees.")
     return theta
 
 
@@ -175,12 +175,12 @@ def angle_mean_math(azimuth_values):
     :returns: an average azimuth and standard deviation of azimuths, in degrees
     :rtype: float
     """
-    sin_list, cos_list = [], [];
+    sin_list, cos_list = [], []
     for phi in azimuth_values:
-        sin_list.append(np.sin(2 * np.radians(90 - phi)));
-        cos_list.append(np.cos(2 * np.radians(90 - phi)));
-    s = np.nanmean(sin_list);
-    c = np.nanmean(cos_list);
+        sin_list.append(np.sin(2 * np.radians(90 - phi)))
+        cos_list.append(np.cos(2 * np.radians(90 - phi)))
+    s = np.nanmean(sin_list)
+    c = np.nanmean(cos_list)
     R = ((s ** 2 + c ** 2) ** .5)
     sd = np.degrees((-2 * np.log(R)) ** .5) / 2
     # V = 1 - R
@@ -193,7 +193,7 @@ def angle_mean_math(azimuth_values):
         theta = 180 + theta
     elif theta > 180:
         theta = theta - 180
-    return theta, sd;
+    return theta, sd
 
 
 def calc_strain_uncertainty(VarE, VarN, grid_x, grid_y, exx, eyy, exy):

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Strain_2d(ABC):
     """
     Implement a generic 2D strain rate method

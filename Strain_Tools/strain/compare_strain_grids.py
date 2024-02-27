@@ -40,11 +40,11 @@ def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
     mean_ds, std_ds: xarray Dataset - writes these to NETCDF
     """
     # here we extract each grid of plot_type into an xarray.Dataset
-    strain_values_ds = velocity_io.read_multiple_strain_netcdfs(MyParams, plot_type);
-    utilities.check_coregistered_shapes(strain_values_ds);
+    strain_values_ds = velocity_io.read_multiple_strain_netcdfs(MyParams, plot_type)
+    utilities.check_coregistered_shapes(strain_values_ds)
 
     # here we compute mean and standard deviation
-    mean_stds_ds = compute_grid_statistics(strain_values_ds, statistics_function);
+    mean_stds_ds = compute_grid_statistics(strain_values_ds, statistics_function)
 
     mean_stds_ds.to_netcdf(os.path.join(MyParams.outdir, "means_stds_"+plot_type+".nc"))
     if "dila" in plot_type or "max_shear" in plot_type:
@@ -60,15 +60,15 @@ def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
 
 def visualize_grid_means(MyParams, ds):
     """ Make pygmt plots of the means of all quantities """
-    pygmt_plots.plot_I2nd(ds['I2'], (), MyParams.range_strain, MyParams.outdir, MyParams.outdir + "/means_I2nd.png");
+    pygmt_plots.plot_I2nd(ds['I2'], (), MyParams.range_strain, MyParams.outdir, MyParams.outdir + "/means_I2nd.png")
     pygmt_plots.plot_dilatation(ds['dilatation'], (), MyParams.range_strain, MyParams.outdir,
-                                MyParams.outdir + "/means_dila.png");
+                                MyParams.outdir + "/means_dila.png")
     pygmt_plots.plot_maxshear(ds['max_shear'], (), MyParams.range_strain, MyParams.outdir,
-                              MyParams.outdir + "/means_max_shear.png");
+                              MyParams.outdir + "/means_max_shear.png")
     pygmt_plots.plot_azimuth(ds['azimuth'], (), MyParams.range_strain, MyParams.outdir,
-                             MyParams.outdir + "/means_azimuth.png");
+                             MyParams.outdir + "/means_azimuth.png")
     pygmt_plots.plot_rotation(ds['rotation'], [], MyParams.range_strain, MyParams.outdir,
-                              MyParams.outdir + "/means_rot.png");
+                              MyParams.outdir + "/means_rot.png")
     plt.close('all')  # clear the memory cache
 
 
@@ -82,20 +82,20 @@ def compute_grid_statistics(strain_values_ds, statistic_function):
     Returns a dataset with two layers, mean and standard deviation
     """
 
-    x = np.array(strain_values_ds['x']);
-    y = np.array(strain_values_ds['y']);
-    num_grids = len(strain_values_ds.data_vars.items());
+    x = np.array(strain_values_ds['x'])
+    y = np.array(strain_values_ds['y'])
+    num_grids = len(strain_values_ds.data_vars.items())
 
     # Unpacking into 3D numpy array
-    comparative_strain_values = np.zeros((len(y), len(x), num_grids));
+    comparative_strain_values = np.zeros((len(y), len(x), num_grids))
     for i, (varname, da) in enumerate(strain_values_ds.data_vars.items()):
-        comparative_strain_values[:, :, i] = np.array(da);
+        comparative_strain_values[:, :, i] = np.array(da)
 
     mean_vals = np.nan * np.ones([len(y), len(x)])
     sd_vals = np.nan * np.ones([len(y), len(x)])
     for j in range(len(y)):
         for i in range(len(x)):
-            mean_vals[j][i], sd_vals[j][i] = statistic_function(comparative_strain_values[j][i][:]);
+            mean_vals[j][i], sd_vals[j][i] = statistic_function(comparative_strain_values[j][i][:])
 
     # Repacking result into DS
     mean_stds_ds = xr.Dataset(
@@ -108,7 +108,7 @@ def compute_grid_statistics(strain_values_ds, statistic_function):
             "y": ('y', y),
         },
     )
-    return mean_stds_ds;
+    return mean_stds_ds
 
 
 def simple_means_statistics(value_list):
@@ -118,33 +118,33 @@ def simple_means_statistics(value_list):
     mean_val = np.nanmean(value_list)
     sd_val = np.nanstd(value_list)
     if mean_val == float("-inf"):
-        mean_val = np.nan;
-    return mean_val, sd_val;
+        mean_val = np.nan
+    return mean_val, sd_val
 
 
 def log_means_statistics(value_list):
     """
     Take mean and standard deviation of a list of values that are log quantities
     """
-    value_list = [10 ** x for x in value_list];
-    mean_val = np.nanmean(value_list);
+    value_list = [10 ** x for x in value_list]
+    mean_val = np.nanmean(value_list)
     sd_val = np.nanstd(value_list)
     if mean_val != float("-inf"):
         mean_val = np.log10(mean_val)
     else:
         mean_val = np.nan
     sd_val = np.log10(sd_val)
-    return mean_val, sd_val;
+    return mean_val, sd_val
 
 
 def angular_means_statistics(value_list):
     """
     Take mean and standard deviation of a list of values that are azimuths
     """
-    mean_val, sd_val = np.nan, np.nan;
-    theta, sd = strain_tensor_toolbox.angle_mean_math(value_list);
+    mean_val, sd_val = np.nan, np.nan
+    theta, sd = strain_tensor_toolbox.angle_mean_math(value_list)
     if theta != float("-inf"):
         mean_val = theta
     if sd != float("inf"):
         sd_val = sd
-    return mean_val, sd_val;
+    return mean_val, sd_val

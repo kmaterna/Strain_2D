@@ -20,9 +20,9 @@ def strain_coordinator(MyParams):
     """
     Main function for strain computation
     """
-    velField = input_manager.inputs(MyParams);
-    strain_model = get_model(MyParams.strain_method);  # getting an object of type that inherits from Strain_2d
-    constructed_object = strain_model(MyParams);   # calling the constructor, building strain model from our params
-    [Ve, Vn, rot, exx, exy, eyy, vels, resids] = constructed_object.compute(velField);  # computing strain
-    output_manager.outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, vels, resids);  # 2D grid output format
+    velField = input_manager.inputs(MyParams)
+    strain_model = get_model(MyParams.strain_method)  # getting an object of type that inherits from Strain_2d
+    constructed_object = strain_model(MyParams)   # calling the constructor, building strain model from our params
+    [Ve, Vn, rot, exx, exy, eyy, vels, resids] = constructed_object.compute(velField)  # computing strain
+    output_manager.outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, vels, resids)  # 2D grid output format
     return

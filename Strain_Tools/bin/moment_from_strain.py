@@ -7,5 +7,5 @@ import sys
 from strain import moment_functions
 
 if __name__ == "__main__":
-    MyParams = moment_functions.cmd_parser(cmdargs=sys.argv);
-    moment_functions.moment_coordinator(MyParams);
+    MyParams = moment_functions.cmd_parser(cmdargs=sys.argv)
+    moment_functions.moment_coordinator(MyParams)

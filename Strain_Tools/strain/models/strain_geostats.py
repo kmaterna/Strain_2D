@@ -178,9 +178,9 @@ class geostats(Strain_2d):
         var_dil, var_shear = calc_strain_uncertainty(np.square(Se), np.square(Sn), self._grid_inc[0], self._grid_inc[1], exx, eyy, exy)
 
         # Report observed and residual velocities within bounding box
-        velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range);
-        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box);
-        residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield);
+        velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range)
+        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box)
+        residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield)
 
         # Return the strain rates etc. in the same units as other methods
         return Ve, Vn, rot*1000, exx*1000, exy*1000, eyy*1000, velfield_within_box, residual_velfield
@@ -197,7 +197,7 @@ def krige(xy, XY, data, model, ktype='ok'):
         raise RuntimeError('SIG matrix is not positive definite, probably meaning it is ill-conditioned')
 
     # create the data/grid covariance and point-wise terms
-    sig0 = compute_covariance(model, xy, XY); 
+    sig0 = compute_covariance(model, xy, XY)
     sig2 = model.getSigma00()
 
     # Do different things, depending on if SK, OK, or UK is desired
@@ -264,7 +264,8 @@ def ordinary_kriging(SIG, sig0, data, sig2):
     ])
     B = np.vstack([sig0, np.ones((1, N))])
     lam_nu, _, _, _ = np.linalg.lstsq(A, B, rcond=None)
-    lam = lam_nu[:-1, :]; nu = -lam_nu[-1, :]
+    lam = lam_nu[:-1, :]
+    nu = -lam_nu[-1, :]
     Dest = np.dot(lam.T, data)
     Dsig = []
     for k in range(lam.shape[1]):
