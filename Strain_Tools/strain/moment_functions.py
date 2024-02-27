@@ -34,7 +34,7 @@ def cmd_parser(cmdargs):
     config_default = {}
     p.set_defaults(**config_default)
     config = vars(p.parse_args())
-    config['outdir'] = os.path.split(config['outfile'])[0]
+    config['outdir'] = os.path.split(config['netcdf'])[0]
     return config
 
 
