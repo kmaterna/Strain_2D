@@ -100,7 +100,7 @@ def check_coregistered_shapes(strain_values_ds):
     for varname, da in strain_values_ds.data_vars.items():
         nparray = np.array(strain_values_ds[varname]);
         arrayshape = np.shape(nparray);
-        assert (arrayshape == (len(y), len(x)), ValueError(
+        assert arrayshape == (len(y), len(x), ValueError(
             "Error! Not all arrays have the same shape!  Cannot compare."));
     print("All methods have the same shape.");
     return;
@@ -225,17 +225,19 @@ def make_gmt_landmask(lons, lats, grd_filename):
     :param grd_filename: string
     :returns: landmask, 2D array
     """
-    gmt_range_string, gmt_inc_string = get_gmt_range_inc(np.array(lons), np.array(lats));
+    gmt_range_string, gmt_inc_string = get_gmt_range_inc(np.array(lons), np.array(lats))
     subprocess.call(['gmt', 'grdlandmask', '-G'+grd_filename, '-R'+gmt_range_string, '-I'+gmt_inc_string, '-r'],
-                    shell=False);  # guarantee pixel node registration
-    print('gmt grdlandmask -G'+grd_filename+' -R'+gmt_range_string+'-I'+gmt_inc_string+' -r');
-    landmask_array = read_landmask(grd_filename);
-    return landmask_array;
+                    shell=False)  # guarantee pixel node registration
+    print('gmt grdlandmask -G'+grd_filename+' -R'+gmt_range_string+'-I'+gmt_inc_string+' -r')
+    landmask_array = read_landmask(grd_filename)
+    if np.shape(landmask_array) != (len(lats), len(lons)):
+        raise ValueError("Error! Landmask does not match the shape of lats/lons array.")
+    return landmask_array
 
 
 def read_landmask(netcdf_name):
     """Read the pixel node grd file created by gmt grdlandmask"""
-    print("Reading landmask %s " % netcdf_name);
-    ds = xr.open_dataset(netcdf_name);
-    landmask = np.array(ds["z"]);
-    return landmask;
+    print("Reading landmask %s " % netcdf_name)
+    ds = xr.open_dataset(netcdf_name)
+    landmask = np.array(ds["z"])
+    return landmask

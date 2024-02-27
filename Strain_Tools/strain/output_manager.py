@@ -74,7 +74,8 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
                          "depth": 11,
                          "outfile": MyParams.outdir+"strain_metrics.txt",
                          "obs_velfile": MyParams.outdir + 'obs_vels.txt',
-                         "resid_velfile": MyParams.outdir + 'residual_vels.txt'}
+                         "resid_velfile": MyParams.outdir + 'residual_vels.txt',
+                         "use_landmask": 1}
         moment_functions.moment_coordinator(output_params);
         data_misfits.misfits_coordinator(output_params);  # append-mode
 
