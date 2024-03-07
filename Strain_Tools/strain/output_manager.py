@@ -10,14 +10,14 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
     """Every strain method goes through this function at the end of its output stage"""
     print("------------------------------\nWriting 2d outputs:")
 
-    if len(myVelfield) != len(residfield):
-        raise ValueError("Error! Velocity field and residual field have different lengths.")
-
     # Write residual velocities.  Filter observations by range_strain bounding box.
     # TODO: Residual field should be identical to observed except for VE/VN/VU. Currently SE/SN/SU are not the same?
     # TODO: Alternatively, just everything to one file and have two extra columns with the residuals appended.
     velocity_io.write_stationvels(myVelfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.')
     velocity_io.write_stationvels(residfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.')
+
+    if len(myVelfield) != len(residfield):
+        raise ValueError("Error! Velocity field and residual field have different lengths.")
 
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy)
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy)
