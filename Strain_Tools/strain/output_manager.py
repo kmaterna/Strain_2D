@@ -17,7 +17,8 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
     velocity_io.write_stationvels(residfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.')
 
     if len(myVelfield) != len(residfield):
-        raise ValueError("Error! Velocity field and residual field have different lengths.")
+        raise ValueError("Error! Velocity field and residual field have different lengths "
+                         "("+str(len(myVelfield))+" vs "+str(len(residfield))+").")
 
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy)
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy)
