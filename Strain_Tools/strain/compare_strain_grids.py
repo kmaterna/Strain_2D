@@ -41,7 +41,6 @@ def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
     """
     # here we extract each grid of plot_type into an xarray.Dataset
     strain_values_ds = velocity_io.read_multiple_strain_netcdfs(MyParams, plot_type)
-    utilities.check_coregistered_shapes(strain_values_ds)
 
     # here we compute mean and standard deviation
     mean_stds_ds = compute_grid_statistics(strain_values_ds, statistics_function)
