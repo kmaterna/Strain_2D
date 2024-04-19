@@ -46,7 +46,7 @@ def compare_grid_means(MyParams, plot_type, statistics_function, mask=None):
     # here we compute mean and standard deviation
     mean_stds_ds = compute_grid_statistics(strain_values_ds, statistics_function)
 
-    mean_stds_ds.to_netcdf(os.path.join(MyParams.outdir, "means_stds_"+plot_type+".nc"))
+    mean_stds_ds.to_netcdf(os.path.join(MyParams.outdir, "means_stds_"+str(plot_type)+".nc"))
     if "dila" in plot_type or "max_shear" in plot_type:
         pygmt_plots.plot_method_differences(
             strain_values_ds,

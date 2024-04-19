@@ -141,7 +141,10 @@ def read_multiple_strain_netcdfs(MyParams, plot_type):
     building_dict = {}
     ds = []
     for key, value in MyParams.strain_dict.items():
-        specific_filename = glob.glob(value + os.sep + '*' + "_strain.nc")[0]
+        search_filenames = glob.glob(value + os.path.sep + '*' + "_strain.nc")
+        if len(search_filenames) == 0:
+            raise ValueError("Error! Found no files matching pattern: %s" % value + os.path.sep + '*' + "_strain.nc")
+        specific_filename = search_filenames[0]
         ds = xr.load_dataset(specific_filename)
         building_dict[key] = ds[plot_type]
 
