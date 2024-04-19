@@ -12,6 +12,7 @@ from strain.models.strain_2d import Strain_2d
 import subprocess
 import sys
 import os
+import shutil
 from .. import utilities
 
 
@@ -80,9 +81,9 @@ def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, 
 
     # We convert that text file into grids, which we will write as GMT grd files.
     [Ve, Vn, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file, xdata, ydata)
-    subprocess.call(['mv', strain_config_file, tempdir], shell=False)
-    subprocess.call(['mv', strain_data_file, tempdir], shell=False)
-    subprocess.call(['mv', strain_output_file, tempdir], shell=False)
+    shutil.move(src=strain_config_file, dst=os.path.join(tempdir, strain_config_file))
+    shutil.move(src=strain_data_file, dst=os.path.join(tempdir, strain_data_file))
+    shutil.move(src=strain_output_file, dst=os.path.join(tempdir, strain_output_file))
     print("Success computing strain via Visr method.\n")
 
     return [Ve, Vn, rot, exx, exy, eyy]

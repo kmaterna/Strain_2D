@@ -7,6 +7,8 @@
 import numpy as np
 import subprocess
 import xarray as xr
+import os
+import shutil
 from .. import velocity_io, strain_tensor_toolbox, utilities
 from strain.models.strain_2d import Strain_2d
 
@@ -65,11 +67,13 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     # You should experiment with Fd and C values to find something that you like (good fit without overfitting).
     # For Northern California, I like -Fd0.01 -C0.005. -R-125/-121/38/42.2
 
-    subprocess.call(['rm', 'tempgps.txt'], shell=False)
-    subprocess.call(['rm', 'gmt.history'], shell=False)
-    subprocess.call(['mv', 'misfitfile.txt', tempoutdir], shell=False)
-    subprocess.call(['mv', 'nc_u.nc', tempoutdir], shell=False)
-    subprocess.call(['mv', 'nc_v.nc', tempoutdir], shell=False)
+    if os.path.isfile('tempgps.txt'):
+        os.remove('tempgps.txt')
+    if os.path.isfile('gmt.history'):
+        os.remove('gmt.history')
+    shutil.move(src='misfitfile.txt', dst=os.path.join(tempoutdir, 'misfitfile.txt'))
+    shutil.move(src='nc_u.nc', dst=os.path.join(tempoutdir, 'nc_u.nc'))
+    shutil.move(src='nc_v.nc', dst=os.path.join(tempoutdir, 'nc_v.nc'))
 
     # Get ready to do strain calculation.
     file1 = tempoutdir+"nc_u.nc"
