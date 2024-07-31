@@ -14,7 +14,10 @@ def station_vels_to_arrays(vectors):
 
 
 def filter_vectors_to_land_only(region, elon, nlat, e, n):
-    maskfile = pygmt.grdlandmask(region=region, spacing='10m', resolution='i')
+    if region[1] - region[0] < 0.2:
+        maskfile = pygmt.grdlandmask(region=region, spacing='1s', resolution='h')
+    else:
+        maskfile = pygmt.grdlandmask(region=region, spacing='10m', resolution='i')
     points, newelon, newnlat, newe, newn = [], [], [], [], []
     for i in range(len(elon)):
         points.append(np.array([elon[i], nlat[i]]))   # build np array of points
