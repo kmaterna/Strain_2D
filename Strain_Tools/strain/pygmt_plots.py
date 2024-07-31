@@ -44,9 +44,9 @@ def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
         fig.plot(x=elon, y=nlat, style='c0.04i', fill='black', pen='0.4p,white')  # station locations
         fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
                  direction=[e, n])  # displacement vectors
-        fig.plot(x=region[0] + 0.9, y=region[2] + 0.1, style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
-                 direction=[[20], [0]])  # scale vector
-        fig.text(x=region[0] + 0.5, y=region[2] + 0.1, text="20 mm/yr", font='10p,Helvetica,black')
+        fig.plot(x=region[0], y=region[2], style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
+                 direction=[[20], [0]], offset="0.9i/0.1i")  # scale vector
+        fig.text(x=region[0], y=region[2], text="20 mm/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="0/300",
                  frame=["x50", "y+L\"Rad/Ka\""])
     print("Saving rotation figure as %s." % outfile)
@@ -76,11 +76,12 @@ def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_
         fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
                  direction=[e, n])
     # Scale vector
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[200], [0]])
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[-200], [0]])
-    fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black')
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
+    fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black',
+             offset='0.4i/0.1i')
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="-200/200",
                  frame=["x50", "y+L\"Nanostr/yr\""])
     print("Saving dilatation figure as %s." % outfile)
@@ -111,11 +112,11 @@ def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(),
         fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
                  direction=[e, n])
     # Scale vector
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[200], [0]])
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[-200], [0]])
-    fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black')
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
+    fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="-1/5",
                  frame=["x1", "y+L\"Log10(I2)\""])
     print("Saving I2nd figure as %s." % outfile)
@@ -145,11 +146,11 @@ def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positi
         fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
                  direction=[e, n])
     # Scale vector
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[200], [0]])
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[-200], [0]])
-    fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black')
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
+    fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="0/300",
                  frame=["x50", "y+L\"Nanostr/yr\""])
     print("Saving MaxShear figure as %s." % outfile)
@@ -179,11 +180,11 @@ def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_
         fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
                  direction=[e, n])
     # Scale vector
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[200], [0]])
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[-200], [0]])
-    fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black')
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
+    fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="0/180",
                  frame=["x30", "y+L\"Deg from North\""])
     print("Saving azimuth figure as %s." % outfile)
@@ -211,11 +212,11 @@ def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_ei
         fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
                  direction=[e, n])
     # Scale vector
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[200], [0]])
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[-200], [0]])
-    fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black')
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
+    fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset="0.4i/0.1i")
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="-200/200",
                  frame=["x50", "y+L\"Nanostr/yr\""])
     print("Saving dilatation figure as %s." % outfile)
@@ -244,11 +245,11 @@ def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs
         fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
                  direction=[e, n])
     # Scale vector
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[200], [0]])
-    fig.plot(x=region[0] + 1.1, y=region[2] + 0.1, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
-             pen='0.6p,black', direction=[[-200], [0]])
-    fig.text(x=region[0] + 0.4, y=region[2] + 0.1, text="200 ns/yr", font='10p,Helvetica,black')
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
+    fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
+             pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
+    fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset="0.4i/0.1i")
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="-1/5",
                  frame=["x1", "y+L\"Log(I2nd)\""])
     print("Saving I2nd figure as %s." % outfile)
