@@ -2,6 +2,19 @@ import pygmt
 import numpy as np
 
 
+def get_map_scale(region):
+    """ region = [W E S N]"""
+    if region[1] - region[0] < 0.15:
+        map_scale = 1
+    elif region[1] - region[0] < 1:
+        map_scale = 10
+    elif region[1] - region[0] < 5:
+        map_scale = 50
+    else:
+        map_scale = 50
+    return map_scale
+
+
 def station_vels_to_arrays(vectors):
     """ Unpack a list of station_vels vectors into arrays for pygmt plotting """
     elon, nlat, e, n = [], [], [], []
@@ -14,8 +27,8 @@ def station_vels_to_arrays(vectors):
 
 
 def filter_vectors_to_land_only(region, elon, nlat, e, n):
-    if region[1] - region[0] < 0.2:
-        maskfile = pygmt.grdlandmask(region=region, spacing='1s', resolution='h')
+    if region[1] - region[0] < 0.15:
+        maskfile = pygmt.grdlandmask(region=region, spacing='10s', resolution='h')
     else:
         maskfile = pygmt.grdlandmask(region=region, spacing='10m', resolution='i')
     points, newelon, newnlat, newe, newn = [], [], [], [], []
@@ -37,11 +50,12 @@ def filter_vectors_to_land_only(region, elon, nlat, e, n):
 def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
     proj = 'M4i'
     fig = pygmt.Figure()
+    scalesize = get_map_scale(region)
     pygmt.makecpt(cmap="magma", series="0/300/1", truncate="0.3/1.0", background="o", output=outdir+"/mycpt.cpt")
     fig.basemap(region=region, projection=proj, frame="+t\"Rotation\"")
     fig.grdimage(rotation_array, region=region, cmap=outdir+"/mycpt.cpt")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
-              map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0")
+              map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels)
         fig.plot(x=elon, y=nlat, style='c0.04i', fill='black', pen='0.4p,white')  # station locations
@@ -60,11 +74,12 @@ def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
 def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure()
+    scalesize = get_map_scale(region)
     pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o", output=outdir+"/mycpt.cpt")
     fig.basemap(region=region, projection=proj, frame="+t\"Dilatation\"")
     fig.grdimage(dila_array, region=region, cmap=outdir+"/mycpt.cpt")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
-              map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0")
+              map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels)
         fig.plot(x=elon, y=nlat, style='c0.02i', fill='black')  # station locations
@@ -96,11 +111,12 @@ def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(),
     plotting_array = np.log10(np.abs(I2_array))  # for plotting the map of second invariant
     proj = 'M4i'
     fig = pygmt.Figure()
+    scalesize = get_map_scale(region)
     pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=outdir+"/mycpt.cpt")
     fig.basemap(region=region, projection=proj, frame="+t\"Second Invariant\"")
     fig.grdimage(plotting_array, region=region, cmap=outdir+"/mycpt.cpt")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
-              map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0")
+              map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels)
         fig.plot(x=elon, y=nlat, style='c0.02i', fill='black')  # station locations
@@ -130,11 +146,12 @@ def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(),
 def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure()
+    scalesize = get_map_scale(region)
     pygmt.makecpt(cmap="polar", series="0/300/2", truncate="0/1.0", background="o", output=outdir+"/mycpt.cpt")
     fig.basemap(region=region, projection=proj, frame="+t\"Maximum Shear\"")
     fig.grdimage(max_shear_array, projection=proj, region=region, cmap=outdir+"/mycpt.cpt")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
-              map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0")
+              map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels)
         fig.plot(x=elon, y=nlat, style='c0.02i', fill='black')  # station locations
@@ -164,11 +181,12 @@ def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positi
 def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure()
+    scalesize = get_map_scale(region)
     pygmt.makecpt(cmap="rainbow", series="0/180/1", background="o", output=outdir+"/mycpt.cpt")
     fig.basemap(region=region, projection=proj, frame="+t\"Azimuth of Max Shortening\"")
     fig.grdimage(azimuth_array, region=region, cmap=outdir+"/mycpt.cpt")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
-              map_scale="n0.12/0.12+c" + str(region[2]) + "+w50", frame="1.0")
+              map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
         elon, nlat, e, n = station_vels_to_arrays(station_vels)
         fig.plot(x=elon, y=nlat, style='c0.02i', fill='black')  # station locations
@@ -198,12 +216,14 @@ def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_
 def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure()
+    scalesize = get_map_scale(region)
     pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o", output=outdir+"/mycpt.cpt")
     fig.basemap(region=region, projection=proj, frame="+t\"Dilatation\"")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0")
 
     fig.plot(data=polygon_outdir_file, pen="thinner,black", fill="+z", cmap=outdir+"/mycpt.cpt")
-    fig.coast(borders='2', shorelines='1.0p,black', water='lightblue', map_scale="n0.12/0.12+c"+str(region[2])+"+w50")
+    fig.coast(borders='2', shorelines='1.0p,black', water='lightblue',
+              map_scale="n0.12/0.12+c"+str(region[2])+"+w"+str(scalesize))
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
@@ -230,13 +250,15 @@ def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_ei
 def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs=(), negative_eigs=()):
     proj = 'M4i'
     fig = pygmt.Figure()
+    scalesize = get_map_scale(region)
     pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=outdir+"/mycpt.cpt")
     fig.basemap(region=region, projection=proj, frame="+t\"Second Invariant\"")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0")
 
     # color by value
     fig.plot(data=second_inv_polygon_file, pen="thinner,black", fill="+z", cmap=outdir + "/mycpt.cpt")
-    fig.coast(borders='2', shorelines='1.0p,black', water='lightblue', map_scale="n0.12/0.12+c"+str(region[2])+"+w50")
+    fig.coast(borders='2', shorelines='1.0p,black', water='lightblue',
+              map_scale="n0.12/0.12+c"+str(region[2])+"+w"+str(scalesize))
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
