@@ -7,10 +7,14 @@ import pandas as pd
 
 from xarray import Dataset
 
+<<<<<<< HEAD
 from strain.strain_tensor_toolbox import (
     calc_strain_uncertainty, compute_derived_quantities, compute_eigenvectors,
 )
 from . import velocity_io, pygmt_plots, moment_functions, data_misfits
+=======
+from . import strain_tensor_toolbox, velocity_io, pygmt_plots, moment_functions, data_misfits
+>>>>>>> a146071 (take meand of strain rate components instead of MS and Dil)
 
 
 def outputs_2d(Ve, Vn, Se, Sn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
