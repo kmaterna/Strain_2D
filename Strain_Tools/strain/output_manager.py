@@ -1,8 +1,12 @@
 # The output manager for Strain analysis.
 # ----------------- OUTPUTS -------------------------
-import numpy as np
 import os
+
+import numpy as np
+import pandas as pd
+
 from xarray import Dataset
+
 from . import strain_tensor_toolbox, velocity_io, pygmt_plots, moment_functions, data_misfits
 
 
@@ -12,12 +16,21 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
 
     # Write residual velocities.  Filter observations by range_strain bounding box.
     # TODO: Residual field should be identical to observed except for VE/VN/VU. Currently SE/SN/SU are not the same?
-    # TODO: Alternatively, just everything to one file and have two extra columns with the residuals appended.
     velocity_io.write_stationvels(myVelfield, MyParams.outdir + 'obs_vels.txt', header='Obs Velocity.')
     velocity_io.write_stationvels(residfield, MyParams.outdir + 'residual_vels.txt', header='Obs-minus-model.')
 
+    df_obs = pd.read_csv(MyParams.outdir + 'obs_vels.txt', sep='\s+', skiprows=1)
+    df_res = pd.read_csv(MyParams.outdir + 'residual_vels.txt', sep='\s+', skiprows=1).rename(columns={'VE(mm)':'VE_res(mm)', 'VN(mm)':'VN_res(mm)'})
+    df_obs = df_obs.merge(
+        df_res[['lon(deg)', 'lat(deg)', 'VE_res(mm)', 'VN_res(mm)']], 
+        left_on=['lon(deg)', 'lat(deg)'],
+        right_on=['lon(deg)', 'lat(deg)'], 
+        how='left'
+    )
+    df_obs.to_csv(MyParams.outdir + 'combined_vels.txt', index=False)
+
     if len(myVelfield) != len(residfield):
-        raise ValueError("Error! Velocity field and residual field have different lengths "
+        print("WARNING: Velocity field and residual field have different lengths "
                          "("+str(len(myVelfield))+" vs "+str(len(residfield))+").")
 
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy)

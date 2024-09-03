@@ -17,7 +17,7 @@ class wavelets(Strain_2d):
         # Setup for Matlab calculation
         configure_file = self._outdir + "surfacevel2strain_config_params.txt"
         velocity_file = self._outdir + "vel_wavelets.txt"
-        os.makedirs(self._code_dir+'/matlab_output', exist_ok=True)
+        os.makedirs(self._code_dir+ os.sep + 'matlab_output', exist_ok=True)
         write_to_wavelets_vel_format(myVelfield, velocity_file)
         write_wavelets_parameter_file(self._data_range, self._code_dir, self._qmin, self._qmax, self._qsec,
                                       velocity_file, configure_file)

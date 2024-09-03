@@ -48,13 +48,13 @@ def filter_vectors_to_land_only(region, elon, nlat, e, n):
     return newelon, newnlat, newe, newn
 
 
-def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
+def plot_rotation(rotation_array, station_vels, region, outdir, outfile,peak_max_shear = 300):
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="magma", series="0/300/1", truncate="0.3/1.0", background="o",
-                  output=os.path.join(outdir, "mycpt.cpt"))
-    fig.basemap(region=region, projection=proj, frame="+tRotation")
+    pygmt.makecpt(cmap="magma", series=f"0/{peak_max_shear}/1", truncate="0.3/1.0", 
+                  background="o", output=os.path.join(outdir, "mycpt.cpt"))
+    fig.basemap(region=region, projection=proj, frame="+t\"Rotation\"")
     fig.grdimage(rotation_array, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
@@ -73,11 +73,11 @@ def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
     return
 
 
-def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=(), peak_dil=75):
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="vik", series="-200/200/2", background="o",
+    pygmt.makecpt(cmap="vik", series=f"-{peak_dil}/{peak_dil}/2", background="o", 
                   output=os.path.join(outdir, "mycpt.cpt"))
     fig.basemap(region=region, projection=proj, frame="+tDilatation")
     fig.grdimage(dila_array, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
@@ -103,9 +103,9 @@ def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_
              pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
-    fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black',
+    fig.text(x=region[0], y=region[2], text=f"{peak_dil} ns/yr", font='10p,Helvetica,black',
              offset='0.4i/0.1i')
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="-200/200",
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate=f"-{peak_dil}/{peak_dil}",
                  frame=["x50", "y+LNanostr/yr"])
     print("Saving dilatation figure as %s." % outfile)
     fig.savefig(outfile)
@@ -150,11 +150,11 @@ def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(),
     return
 
 
-def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=()):
+def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positive_eigs=(), negative_eigs=(),peak_max_shear=200):
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="vik", series="0/300/2", truncate="0/1.0", background="o",
+    pygmt.makecpt(cmap="vik", series=f"0/{peak_max_shear}/2", truncate="0/1.0", background="o",
                   output=os.path.join(outdir, "mycpt.cpt"))
     fig.basemap(region=region, projection=proj, frame="+tMaximum Shear")
     fig.grdimage(max_shear_array, projection=proj, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
@@ -180,8 +180,8 @@ def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positi
              pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
-    fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="0/300",
+    fig.text(x=region[0], y=region[2], text=f"{peak_max_shear} ns/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate=f"0/{peak_max_shear}",
                  frame=["x50", "y+LNanostr/yr"])
     print("Saving MaxShear figure as %s." % outfile)
     fig.savefig(outfile)
