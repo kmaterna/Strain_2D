@@ -174,14 +174,22 @@ def make_output_grids_from_strain_out(infile, xdata, ydata):
         if 'index' in temp or 'longitude' in temp or 'deg' in temp:
             continue
         else:
+            # breakpoint()
             x.append(float(temp[0]))
             y.append(float(temp[1]))
             Ve.append(float(temp[2]))
             Vn.append(float(temp[4]))
-            rotation.append(float(line[53:60]))
-            exx.append(float(temp[9]))
-            exy.append(float(temp[11]))
-            eyy.append(float(temp[13]))
+            try:
+                rotation.append(float(line[53:60].strip()))
+                exx.append(float(temp[9]))
+                exy.append(float(temp[11]))
+                eyy.append(float(temp[13]))
+                
+            except ValueError:
+                rotation.append(np.nan)
+                exx.append(float(line[66:75]))
+                exy.append(float(line[83:92]))
+                eyy.append(float(line[100:109]))
     ifile.close()
 
     if len(set(x)) == 0 and len(set(y)) == 0:
@@ -208,6 +216,7 @@ def make_output_grids_from_strain_out(infile, xdata, ydata):
         eyy_grd[yindex][xindex] = eyy[i]
 
     return [Ve_grd, Vn_grd, rot_grd, exx_grd, exy_grd, eyy_grd]
+
 
 
 def check_fortran_executable(path_to_executable):
