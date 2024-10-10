@@ -9,7 +9,7 @@ from scipy.spatial.distance import pdist, cdist, squareform
 
 from strain.models.strain_2d import Strain_2d
 from .. import utilities
-from strain.strain_tensor_toolbox import strain_on_regular_grid, calc_strain_uncertainty
+from strain.strain_tensor_toolbox import strain_on_regular_grid
 from strain.utilities import getVels
 
 
@@ -139,13 +139,13 @@ class geostats(Strain_2d):
             self._XY = XY
             self._grid_shape = XY_shape
 
-    def krige_east(self, model, ktype='ok'):
+    def krige_east(self, ktype='ok'):
         """
         Interpolate velocities using kriging
         """
         return krige(self._xy, self._XY, self._easting, self._model_east, ktype=ktype)
 
-    def krige_north(self, model, ktype='ok'):
+    def krige_north(self, ktype='ok'):
         """
         Interpolate velocities using kriging
         """
@@ -154,7 +154,7 @@ class geostats(Strain_2d):
     def compute(self, myVelfield):
         """Compute the interpolated velocity field"""
 
-        dlon, dlat, e, n, se, sn = getVels(myVelfield)
+        dlon, dlat, e, n, _, _ = getVels(myVelfield)
         xy = np.stack([dlon, dlat], axis=-1)
         data = np.stack([e, n], axis=1)
         self.setPoints(xy=xy, data=data)
@@ -171,19 +171,13 @@ class geostats(Strain_2d):
         dx, dy = self._grid_inc[0] * 111 * np.cos(np.deg2rad(self._strain_range[2])), self._grid_inc[1] * 111
         exx, eyy, exy, rot = strain_on_regular_grid(dx, dy, Ve, Vn)
 
-        # Right now we aren't calculating uncertainties for any method except geostats.
-        # We might want to consider exploring adding uncertainties to other methods if
-        # they are amenable; e.g. local average gradient and visr *should* be able to 
-        # provide them. Others may not (wavelets, gpsgridder esp). 
-        var_dil, var_shear = calc_strain_uncertainty(np.square(Se), np.square(Sn), self._grid_inc[0], self._grid_inc[1], exx, eyy, exy)
-
         # Report observed and residual velocities within bounding box
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range)
         model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box)
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield)
 
         # Return the strain rates etc. in the same units as other methods
-        return Ve, Vn, rot*1000, exx*1000, exy*1000, eyy*1000, velfield_within_box, residual_velfield
+        return Ve, Vn, Se, Sn, rot*1000, exx*1000, exy*1000, eyy*1000, velfield_within_box, residual_velfield
         
 
 def krige(xy, XY, data, model, ktype='ok'):

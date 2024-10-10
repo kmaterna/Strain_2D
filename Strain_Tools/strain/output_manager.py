@@ -7,10 +7,13 @@ import pandas as pd
 
 from xarray import Dataset
 
-from . import strain_tensor_toolbox, velocity_io, pygmt_plots, moment_functions, data_misfits
+from strain.strain_tensor_toolbox import (
+    calc_strain_uncertainty, compute_derived_quantities, compute_eigenvectors,
+)
+from . import velocity_io, pygmt_plots, moment_functions, data_misfits
 
 
-def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
+def outputs_2d(Ve, Vn, Se, Sn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
     """Every strain method goes through this function at the end of its output stage"""
     print("------------------------------\nWriting 2d outputs:")
 
@@ -33,8 +36,15 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
         print("WARNING: Velocity field and residual field have different lengths "
                          "("+str(len(myVelfield))+" vs "+str(len(residfield))+").")
 
-    [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy)
-    [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy)
+    [I2nd, max_shear, dilatation, azimuth] = compute_derived_quantities(exx, exy, eyy)
+    [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy)
+
+    # Right now we aren't calculating uncertainties for any method except geostats.
+    # We might want to consider exploring adding uncertainties to other methods if
+    # they are amenable; e.g. local average gradient and visr *should* be able to
+    # provide them. Others may not (wavelets, gpsgridder esp).
+    var_dil, var_shear = calc_strain_uncertainty(np.square(Se), np.square(Sn), MyParams.inc[0], MyParams.inc[1], exx, eyy, exy)
+
 
     # get grid eigenvectors for plotting
     [positive_eigs, negative_eigs] = get_grid_eigenvectors(MyParams.xdata, MyParams.ydata, e1, e2, v00, v01, v10, v11)
@@ -46,6 +56,8 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
         {
             "Ve": (("y", "x"), Ve),
             "Vn": (("y", "x"), Vn),
+            "Se": (("y", "x"), Se),
+            "Sn": (("y", "x"), Sn),
             "exx": (("y", "x"), exx),
             "eyy": (("y", "x"), eyy),
             "exy": (("y", "x"), exy),
@@ -53,7 +65,9 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
             "rotation":  (("y", "x"), rot),
             "I2":  (("y", "x"), I2nd),
             "dilatation":  (("y", "x"), dilatation),
+            "dil_sigma": (("y", "x"), np.sqrt(var_dil)),
             "max_shear":  (("y", "x"), max_shear),
+            "max_shear_sigma": (("y", "x"), np.sqrt(var_shear)),
         },
         coords={
             "x": ('x', MyParams.xdata),
@@ -99,8 +113,8 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
 def outputs_1d(xcentroid, ycentroid, polygon_vertices, rot, exx, exy, eyy, range_strain, myVelfield, outdir):
     print("------------------------------\nWriting 1d outputs:")
     exx, exy, eyy = np.array(exx), np.array(exy), np.array(eyy)
-    [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy)
-    [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy)
+    [I2nd, max_shear, dilatation, azimuth] = compute_derived_quantities(exx, exy, eyy)
+    [e1, e2, v00, v01, v10, v11] = compute_eigenvectors(exx, exy, eyy)
     [positive_eigs, negative_eigs] = get_list_eigenvectors(xcentroid, ycentroid, e1, e2, v00, v01, v10, v11)
     I2nd = np.log10(np.abs(I2nd))  # for convenient plotting
 
