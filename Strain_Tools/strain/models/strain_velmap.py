@@ -26,7 +26,7 @@ class velmap(Strain_2d):
         model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box);
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield);
         
-        return [Ve, Vn, None, None, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield];
+        return [Ve, Vn, np.empty(Ve.shape), np.empty(Vn.shape), rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield];
    
 
 def compute_velmap(myVelfield, self, smoothing_constant):

@@ -97,23 +97,33 @@ def compute_grid_statistics(strain_grid_list, stat=np.nanmean):
     eyy_std = np.nanstd([ds['eyy'].data for ds in strain_grid_list], axis=0)
     exy_std = np.nanstd([ds['exy'].data for ds in strain_grid_list], axis=0)
 
+    ms_std = np.nanstd([ds['max_shear'].data for ds in strain_grid_list], axis=0)
+    dil_std = np.nanstd([ds['dilatation'].data for ds in strain_grid_list], axis=0)
+
     try:
         Se = stat([ds['Se'].data for ds in strain_grid_list], axis=0)
         Sn = stat([ds['Sn'].data for ds in strain_grid_list], axis=0)
     except KeyError:
-        pass
+        Se = np.empty(Ve.shape)
+        Sn = np.empty(Vn.shape)
 
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy)
 
     # Repacking result into DS
     mean_stds_ds = xr.Dataset(
         {
+            "Ve":  (("y", "x"), Ve),
+            "Vn":  (("y", "x"), Vn),
+            "Se":  (("y", "x"), Se),
+            "Sn":  (("y", "x"), Sn),
             "exx": (("y", "x"), exx),
             "eyy": (("y", "x"), eyy),
             "exy": (("y", "x"), exy),
             "rotation": (("y", "x"), rot),
             "max_shear": (("y", "x"), max_shear),
+            "max_shear_sigma": (("y", "x"), ms_std),
             "dilatation": (("y", "x"), dilatation),
+            "dilatation_sigma": (("y", "x"), dil_std),
             "I2": (("y", "x"), I2nd),
             "azimuth": (("y", "x"), azimuth),
             "exx_std": (("y", "x"), exx_std),

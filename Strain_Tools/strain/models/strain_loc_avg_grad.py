@@ -143,7 +143,7 @@ def compute_loc_avg_grad(myVelfield, xlons, ylats, radiuskm, nstations):
 
     print("Success computing strain via loc_avg_grad method.\n")
 
-    return [Ve, Vn, None, None, rot, exx, exy, eyy]
+    return [Ve, Vn, np.empty(Ve.shape), np.empty(Vn.shape), rot, exx, exy, eyy]
 
 
 def velfield_to_LAG_non_utm(myVelfield):
