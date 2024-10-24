@@ -102,7 +102,7 @@ This library uses the following units, definitions, and sign conventions:
 \epsilon_{xx} = \frac{du}{dx}. \,\,\,\,\,\,\,\,\,\,\,\,\,\,\, \epsilon_{xy} = \frac{1}{2} * (\frac{dv}{dx} + \frac{du}{dy}). \,\,\,\,\,\,\,\,\,\,\,\,\,\,\,   \epsilon_{yy} = \frac{dv}{dy}. 
 ```
 
-* Rotation:  units of (1e-3 radians)/yr, or radians / Ka.
+* Rotation:  units of (1e-9 radians)/yr, or radians / Ga.  Positive means clockwise. 
  ```math      
 W = \frac{1}{2} * (\frac{dv}{dx} - \frac{du}{dy})
 ```

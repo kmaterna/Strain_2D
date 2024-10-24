@@ -67,7 +67,7 @@ def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
                  direction=[[20], [0]], offset="0.9i/0.1i")  # scale vector
         fig.text(x=region[0], y=region[2], text="20 mm/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
     fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="0/300",
-                 frame=["x50", "y+LRad/Ka"])
+                 frame=["x50", "y+LRad/Ga"])
     print("Saving rotation figure as %s." % outfile)
     fig.savefig(outfile)
     return

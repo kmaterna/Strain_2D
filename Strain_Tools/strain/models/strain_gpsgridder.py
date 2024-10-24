@@ -91,4 +91,4 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     [exx, eyy, exy, rot] = strain_tensor_toolbox.strain_on_regular_grid(xinc, yinc, udata * 1000, vdata * 1000)
 
     print("Success computing strain via gpsgridder method.\n")
-    return [udata, vdata, abs(rot), exx, exy, eyy]
+    return [udata, vdata, rot, exx, exy, eyy]
