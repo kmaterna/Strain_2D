@@ -21,7 +21,7 @@ comps_help_message = "  Welcome to a geodetic strain-rate comparison tool.\n\n" 
 
 
 def strain_cmd_parser(cmdargs):
-    """The configfile is passed as arg"""
+    """The configfile is passed as arg. This function will create the output directory if it does not exist. """
     if len(cmdargs) < 2:
         print(help_message)
         sys.exit(0)
@@ -40,17 +40,28 @@ def strain_cmd_parser(cmdargs):
             MyParams = read_strain_config(configfile)
             print_Params(MyParams)
             os.makedirs(str(MyParams.outdir), exist_ok=True)
-            shutil.copyfile(configfile, str(MyParams.outdir)+'/'+configfile)
+            shutil.copyfile(configfile, os.path.join(str(MyParams.outdir), configfile))
             return MyParams
 
 
-def read_strain_config(configfile):
-    """Build a Params structure from the configfile and set up the output directory"""
+def read_strain_config(configfile, desired_method=None):
+    """
+    Build a Params structure from the configfile and set up the output directory.
+    Will only read the configuration parameters of the chosen method.
+    An optional method override is provided for testing purposes.
+
+    :param configfile: string, filename
+    :param desired_method: optional, string, can override the chosen method in the config file to read other values
+    :returns: a Params named tuple
+    """
     assert os.path.isfile(configfile), FileNotFoundError("Error! config file "+configfile+" was not found.")
 
     config = configparser.ConfigParser()
     config.read(configfile)
-    strain_method = config.get('general', 'method')
+    if desired_method is None:
+        strain_method = config.get('general', 'method')
+    else:
+        strain_method = desired_method
     output_dir = config.get('general', 'output_dir')
     input_file = config.get('general', 'input_vel_file')
     write_metrics = config.getint('general', 'write_metrics') if config.has_option('general', 'write_metrics') else 0
@@ -67,7 +78,7 @@ def read_strain_config(configfile):
         method_specific[item] = config.get(strain_method, item)
 
     # Cleanup and Grid Specification
-    output_dir = output_dir + '/' + strain_method + '/'
+    output_dir = os.path.join(output_dir, strain_method, '')
     range_strain = utilities.get_float_range(range_strain)
     range_data = utilities.get_float_range(range_data)
     inc = utilities.get_float_inc(inc)

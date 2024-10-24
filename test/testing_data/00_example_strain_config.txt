@@ -1,0 +1,53 @@
+[general]
+method = delaunay
+output_dir = test/testing_data/output
+input_vel_file = 
+write_metrics = 0
+
+[strain]
+range_strain = -125/-120/39.5/42.5
+range_data = -125/-119/39.5/42.5
+inc = 0.5/0.5
+
+[delaunay]
+
+[delaunay_flat]
+
+[visr]
+distance_weighting = gaussian
+spatial_weighting = voronoi
+min_max_inc_smooth = 1/100/1
+weighting_threshold = 2
+uncertainty_threshold = 0.05
+executable = contrib/visr/visr.exe
+
+[gpsgridder]
+poisson = 0.5
+fd = 0.01
+eigenvalue = 0.0005
+
+[loc_avg_grad]
+estimateradiuskm = 80
+nstations = 8
+
+[wavelets]
+code_dir = 
+qmin = 4
+qmax = 7
+qsec = 7
+output_tag = 
+
+[geostats]
+model_type = Gaussian
+sill_east = 20
+range_east = 0.2613
+nugget_east = 3
+sill_north = 20
+range_north = 0.342
+nugget_north = 6
+trend = 0
+
+[strain-comparison]
+output_dir = Output/_strain_comparison
+input_dirs = Output/delaunay:Output/gpsgridder:Output/loc_avg_grad:Output/visr
+
