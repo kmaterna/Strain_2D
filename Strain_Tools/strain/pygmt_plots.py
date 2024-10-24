@@ -86,13 +86,15 @@ def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
+                     direction=[e, n])
     if negative_eigs:
         elon, nlat, e, n = station_vels_to_arrays(negative_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
+                     direction=[e, n])
     # Scale vector
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
@@ -123,13 +125,15 @@ def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(),
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
+                     direction=[e, n])
     if negative_eigs:
         elon, nlat, e, n = station_vels_to_arrays(negative_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
+                     direction=[e, n])
     # Scale vector
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
@@ -158,13 +162,15 @@ def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positi
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
+                     direction=[e, n])
     if negative_eigs:
         elon, nlat, e, n = station_vels_to_arrays(negative_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
+                     direction=[e, n])
     # Scale vector
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
@@ -193,13 +199,15 @@ def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
+                     direction=[e, n])
     if negative_eigs:
         elon, nlat, e, n = station_vels_to_arrays(negative_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
+                     direction=[e, n])
     # Scale vector
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
@@ -227,13 +235,15 @@ def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_ei
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
+                     direction=[e, n])
     if negative_eigs:
         elon, nlat, e, n = station_vels_to_arrays(negative_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
+                     direction=[e, n])
     # Scale vector
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")
@@ -262,13 +272,15 @@ def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs
     if positive_eigs:
         elon, nlat, e, n = station_vels_to_arrays(positive_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+e+a40+gblue+h0.5+p0.3p,blue+z0.003+n0.3', pen='0.6p,blue',
+                     direction=[e, n])
     if negative_eigs:
         elon, nlat, e, n = station_vels_to_arrays(negative_eigs)
         elon, nlat, e, n = filter_vectors_to_land_only(region, elon, nlat, e, n)
-        fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
-                 direction=[e, n])
+        if len(elon) > 0:
+            fig.plot(x=elon, y=nlat, style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3', pen='0.6p,black',
+                     direction=[e, n])
     # Scale vector
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[200], [0]], offset="0.9i/0.1i")

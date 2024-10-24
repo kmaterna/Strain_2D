@@ -23,6 +23,11 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
     [I2nd, max_shear, dilatation, azimuth] = strain_tensor_toolbox.compute_derived_quantities(exx, exy, eyy)
     [e1, e2, v00, v01, v10, v11] = strain_tensor_toolbox.compute_eigenvectors(exx, exy, eyy)
 
+    # get grid eigenvectors for plotting
+    [positive_eigs, negative_eigs] = get_grid_eigenvectors(MyParams.xdata, MyParams.ydata, e1, e2, v00, v01, v10, v11)
+    velocity_io.write_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt')
+    velocity_io.write_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt')
+
     # First create an xarray data multi-cube to write
     ds = Dataset(
         {
@@ -49,11 +54,6 @@ def outputs_2d(Ve, Vn, rot, exx, exy, eyy, MyParams, myVelfield, residfield):
 
     print("Max I2: %f " % (np.nanmax(I2nd)))
     print("Min/Max rot:   %f,   %f " % (np.nanmin(rot), np.nanmax(rot)))
-
-    # get grid eigenvectors for plotting
-    [positive_eigs, negative_eigs] = get_grid_eigenvectors(MyParams.xdata, MyParams.ydata, e1, e2, v00, v01, v10, v11)
-    velocity_io.write_gmt_format(positive_eigs, MyParams.outdir + 'positive_eigs.txt')
-    velocity_io.write_gmt_format(negative_eigs, MyParams.outdir + 'negative_eigs.txt')
 
     # PYGMT PLOTS
     pygmt_plots.plot_rotation(ds['rotation'], myVelfield, MyParams.range_strain, MyParams.outdir,
