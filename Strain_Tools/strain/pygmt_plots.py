@@ -1,5 +1,6 @@
 import pygmt
 import numpy as np
+import os
 
 
 def get_map_scale(region):
@@ -51,9 +52,10 @@ def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="magma", series="0/300/1", truncate="0.3/1.0", background="o", output=outdir+"/mycpt.cpt")
-    fig.basemap(region=region, projection=proj, frame="+t\"Rotation\"")
-    fig.grdimage(rotation_array, region=region, cmap=outdir+"/mycpt.cpt")
+    pygmt.makecpt(cmap="magma", series="0/300/1", truncate="0.3/1.0", background="o",
+                  output=os.path.join(outdir, "mycpt.cpt"))
+    fig.basemap(region=region, projection=proj, frame="+tRotation")
+    fig.grdimage(rotation_array, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
@@ -64,8 +66,8 @@ def plot_rotation(rotation_array, station_vels, region, outdir, outfile):
         fig.plot(x=region[0], y=region[2], style='v0.20+e+a40+gblack+h0+p1p,black+z0.04', pen='0.6p,black',
                  direction=[[20], [0]], offset="0.9i/0.1i")  # scale vector
         fig.text(x=region[0], y=region[2], text="20 mm/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="0/300",
-                 frame=["x50", "y+L\"Rad/Ka\""])
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="0/300",
+                 frame=["x50", "y+LRad/Ka"])
     print("Saving rotation figure as %s." % outfile)
     fig.savefig(outfile)
     return
@@ -75,9 +77,10 @@ def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o", output=outdir+"/mycpt.cpt")
-    fig.basemap(region=region, projection=proj, frame="+t\"Dilatation\"")
-    fig.grdimage(dila_array, region=region, cmap=outdir+"/mycpt.cpt")
+    pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o",
+                  output=os.path.join(outdir, "mycpt.cpt"))
+    fig.basemap(region=region, projection=proj, frame="+tDilatation")
+    fig.grdimage(dila_array, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
@@ -102,8 +105,8 @@ def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_
              pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
     fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black',
              offset='0.4i/0.1i')
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="-200/200",
-                 frame=["x50", "y+L\"Nanostr/yr\""])
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="-200/200",
+                 frame=["x50", "y+LNanostr/yr"])
     print("Saving dilatation figure as %s." % outfile)
     fig.savefig(outfile)
     return
@@ -114,9 +117,9 @@ def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(),
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=outdir+"/mycpt.cpt")
-    fig.basemap(region=region, projection=proj, frame="+t\"Second Invariant\"")
-    fig.grdimage(plotting_array, region=region, cmap=outdir+"/mycpt.cpt")
+    pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=os.path.join(outdir, "mycpt.cpt"))
+    fig.basemap(region=region, projection=proj, frame="+tSecond Invariant")
+    fig.grdimage(plotting_array, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
@@ -140,8 +143,8 @@ def plot_I2nd(I2_array, station_vels, region, outdir, outfile, positive_eigs=(),
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
     fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="-1/5",
-                 frame=["x1", "y+L\"Log10(I2)\""])
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="-1/5",
+                 frame=["x1", "y+LLog10(I2)"])
     print("Saving I2nd figure as %s." % outfile)
     fig.savefig(outfile)
     return
@@ -151,9 +154,10 @@ def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positi
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="polar", series="0/300/2", truncate="0/1.0", background="o", output=outdir+"/mycpt.cpt")
-    fig.basemap(region=region, projection=proj, frame="+t\"Maximum Shear\"")
-    fig.grdimage(max_shear_array, projection=proj, region=region, cmap=outdir+"/mycpt.cpt")
+    pygmt.makecpt(cmap="polar", series="0/300/2", truncate="0/1.0", background="o",
+                  output=os.path.join(outdir, "mycpt.cpt"))
+    fig.basemap(region=region, projection=proj, frame="+tMaximum Shear")
+    fig.grdimage(max_shear_array, projection=proj, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
@@ -177,8 +181,8 @@ def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positi
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
     fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="0/300",
-                 frame=["x50", "y+L\"Nanostr/yr\""])
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="0/300",
+                 frame=["x50", "y+LNanostr/yr"])
     print("Saving MaxShear figure as %s." % outfile)
     fig.savefig(outfile)
     return
@@ -188,9 +192,9 @@ def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="rainbow", series="0/180/1", background="o", output=outdir+"/mycpt.cpt")
-    fig.basemap(region=region, projection=proj, frame="+t\"Azimuth of Max Shortening\"")
-    fig.grdimage(azimuth_array, region=region, cmap=outdir+"/mycpt.cpt")
+    pygmt.makecpt(cmap="rainbow", series="0/180/1", background="o", output=os.path.join(outdir, "mycpt.cpt"))
+    fig.basemap(region=region, projection=proj, frame="+tAzimuth of Max Shortening")
+    fig.grdimage(azimuth_array, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c" + str(region[2]) + "+w"+str(scalesize), frame="1.0")
     if station_vels:
@@ -214,8 +218,8 @@ def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
     fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset='0.4i/0.1i')
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="0/180",
-                 frame=["x30", "y+L\"Deg from North\""])
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="0/180",
+                 frame=["x30", "y+LDeg from North"])
     print("Saving azimuth figure as %s." % outfile)
     fig.savefig(outfile)
     return
@@ -225,11 +229,12 @@ def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_ei
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o", output=outdir+"/mycpt.cpt")
-    fig.basemap(region=region, projection=proj, frame="+t\"Dilatation\"")
+    pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o",
+                  output=os.path.join(outdir, "mycpt.cpt"))
+    fig.basemap(region=region, projection=proj, frame="+tDilatation")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0")
 
-    fig.plot(data=polygon_outdir_file, pen="thinner,black", fill="+z", cmap=outdir+"/mycpt.cpt")
+    fig.plot(data=polygon_outdir_file, pen="thinner,black", fill="+z", cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(borders='2', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c"+str(region[2])+"+w"+str(scalesize))
     if positive_eigs:
@@ -250,8 +255,8 @@ def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_ei
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
     fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset="0.4i/0.1i")
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="-200/200",
-                 frame=["x50", "y+L\"Nanostr/yr\""])
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="-200/200",
+                 frame=["x50", "y+LNanostr/yr"])
     print("Saving dilatation figure as %s." % outfile)
     fig.savefig(outfile)
     return
@@ -261,12 +266,12 @@ def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=outdir+"/mycpt.cpt")
-    fig.basemap(region=region, projection=proj, frame="+t\"Second Invariant\"")
+    pygmt.makecpt(cmap="batlow", series="-1/5/0.1", background="o", output=os.path.join(outdir, "mycpt.cpt"))
+    fig.basemap(region=region, projection=proj, frame="+tSecond Invariant")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0")
 
     # color by value
-    fig.plot(data=second_inv_polygon_file, pen="thinner,black", fill="+z", cmap=outdir + "/mycpt.cpt")
+    fig.plot(data=second_inv_polygon_file, pen="thinner,black", fill="+z", cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(borders='2', shorelines='1.0p,black', water='lightblue',
               map_scale="n0.12/0.12+c"+str(region[2])+"+w"+str(scalesize))
     if positive_eigs:
@@ -287,8 +292,8 @@ def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs
     fig.plot(x=region[0], y=region[2], style='v0.20+b+a40+gred+h0.5+p0.3p,black+z0.003+n0.3',
              pen='0.6p,black', direction=[[-200], [0]], offset="0.9i/0.1i")
     fig.text(x=region[0], y=region[2], text="200 ns/yr", font='10p,Helvetica,black', offset="0.4i/0.1i")
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=outdir+"/mycpt.cpt", truncate="-1/5",
-                 frame=["x1", "y+L\"Log(I2nd)\""])
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/0i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="-1/5",
+                 frame=["x1", "y+LLog(I2nd)"])
     print("Saving I2nd figure as %s." % outfile)
     fig.savefig(outfile)
     return
@@ -296,7 +301,8 @@ def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs
 
 def plot_method_differences(strain_values_ds, average_strains, region, outdir, outfile):
     """Useful for dilatation and max shear based on values in the color bar"""
-    pygmt.makecpt(cmap="polar", series="-300/300/2", truncate="-1.0/1.0", background="o", output=outdir+"/mycpt.cpt")
+    pygmt.makecpt(cmap="polar", series="-300/300/2", truncate="-1.0/1.0", background="o",
+                  output=os.path.join(outdir, "mycpt.cpt"))
     fig = pygmt.Figure()
     proj = 'M2.2i'
     numrows = 2
@@ -311,11 +317,12 @@ def plot_method_differences(strain_values_ds, average_strains, region, outdir, o
                     for counter, (varname, da) in enumerate(strain_values_ds.data_vars.items()):
                         if counter == index:
                             plotting_data = np.subtract(da, average_strains)  # testing
-                            fig.grdimage(plotting_data, projection=proj, region=region, cmap=outdir+"/mycpt.cpt")
+                            fig.grdimage(plotting_data, projection=proj, region=region,
+                                         cmap=os.path.join(outdir, "mycpt.cpt"))
                             fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black',
                                       water='lightblue')
                             fig.text(position="BL", text=varname+" minus mean", region=region, offset='0/0.1i')
-    fig.colorbar(position="JCR+w4.0i+v+o0.7i/-0.5i", cmap=outdir+"/mycpt.cpt", truncate="-300/300",
-                 frame=["x50", "y+L\"Nanostr/yr\""])
+    fig.colorbar(position="JCR+w4.0i+v+o0.7i/-0.5i", cmap=os.path.join(outdir, "mycpt.cpt"), truncate="-300/300",
+                 frame=["x50", "y+LNanostr/yr"])
     print("Saving Method Differences as %s." % outfile)
     fig.savefig(outfile)
