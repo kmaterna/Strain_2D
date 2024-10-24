@@ -30,6 +30,8 @@ def read_stationvels(input_file):
             name = temp[8]
         else:
             name = ''
+        if SE == 0 or SN == 0 or SU == 0:
+            raise ValueError("Error!  You have provided velocities with zero uncertainty. Please revise.")
         mystation = StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=VU, se=SE, sn=SN, su=SU, name=name)
         myVelfield.append(mystation)
     ifile.close()

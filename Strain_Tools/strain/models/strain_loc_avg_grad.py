@@ -120,13 +120,13 @@ def compute_loc_avg_grad(myVelfield, xlons, ylats, radiuskm, nstations):
                 dy = np.array([[dV], [dxV], [dyV]])
                 modelx = np.dot(np.linalg.inv(G), dx)
                 modely = np.dot(np.linalg.inv(G), dy)
-                Uxx[j, i] = modelx[1]
-                Uyy[j, i] = modely[2]
-                Uxy[j, i] = modelx[2]
-                Uyx[j, i] = modely[1]
+                Uxx[j, i] = modelx[1][0]
+                Uyy[j, i] = modely[2][0]
+                Uxy[j, i] = modelx[2][0]
+                Uyx[j, i] = modely[1][0]
 
-                Ve[j, i] = 1000 * (modelx[0] + modelx[1]*SelectStations[0, 1] + modelx[2]*SelectStations[0, 2])  # mm
-                Vn[j, i] = 1000 * (modely[0] + modely[1]*SelectStations[0, 1] + modely[2]*SelectStations[0, 2])  # mm
+                Ve[j, i] = 1000 * (modelx[0][0] + modelx[1][0]*SelectStations[0, 1] + modelx[2][0]*SelectStations[0, 2])  # mm
+                Vn[j, i] = 1000 * (modely[0][0] + modely[1][0]*SelectStations[0, 1] + modely[2][0]*SelectStations[0, 2])  # mm
 
             # skipping misfit right now
             # misfit estimation   d = m1 + m2 x + m3 y
