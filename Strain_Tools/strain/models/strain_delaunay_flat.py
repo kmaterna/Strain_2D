@@ -54,7 +54,7 @@ class delaunay_flat(Strain_2d):
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield)
 
         print("Success computing strain via Delaunay method.\n")
-        return [Ve, Vn, -rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
+        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
 
 
 # ----------------- COMPUTE -------------------------
@@ -139,7 +139,7 @@ def compute_with_delaunay_polygons(myVelfield):
         exx.append(np.multiply(exx_triangle, 1000))
         exy.append(np.multiply(exy_triangle, 1000))
         eyy.append(np.multiply(eyy_triangle, 1000))
-        rot.append(abs(np.multiply(rotation_triangle, 1000)))
+        rot.append(np.multiply(-rotation_triangle, 1000))  # sign convention clockwise is positive
 
     print("Success computing strain via delaunay flat-earth method.\n")
 
