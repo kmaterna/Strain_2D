@@ -78,7 +78,7 @@ class Tests(unittest.TestCase):
         self.assertLess(abs(exx1[0]-exx1[0]), abs(exx1[0]*0.05))  # less than 5% difference
         self.assertLess(abs(exy1[0]-exy2[0]), abs(exy1[0]*0.05))  # less than 5% difference
         self.assertLess(abs(eyy1[0]-eyy2[0]), abs(eyy1[0]*0.05))  # less than 5% difference
-        # self.assertLess(rot1[0]-rot2[0], rot1[0]*0.05)  # less than 5% difference
+        self.assertLess(abs(rot1[0]-rot2[0]), abs(rot1[0]*0.05))  # less than 5% difference
         return
 
     def test_azimuth_math(self):

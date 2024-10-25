@@ -380,6 +380,11 @@ def strain_sphere(phi, theta, u_phi, u_theta, s_phi, s_theta, weight, paramsel):
 
         r_PHITHETA = covE[1, 2] / np.sqrt(covE[1, 1] * covE[2, 2])
 
+        # Recover the sign convention: positive is clockwise.
+        # If the radial component of the omega vector points down, it's counter-clockwise
+        if omega_r < 0:
+            OMEGA = -OMEGA
+
     else:
         OMEGA = np.nan
         THETA_p = np.nan

@@ -38,45 +38,46 @@ class Tests(unittest.TestCase):
         # Delaunay on Flat Earth
         strain_model = get_model("delaunay_flat")  # getting an object of type that inherits from Strain_2d
         constructed_object = strain_model(delaunay_flat_params)  # calling constructor, build strain model from params
-        [Ve, Vn, rot, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
-        output_manager.outputs_2d(Ve, Vn, rot, exx, exy, eyy, delaunay_flat_params, vels, resids)  # 2D grid outputs
-        print("DELAUNAY_FLAT:", rot[3][3])
+        [Ve, Vn, rot_flat, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
+        output_manager.outputs_2d(Ve, Vn, rot_flat, exx, exy, eyy, delaunay_flat_params, vels, resids)  # 2D grid outputs
 
         # Delaunay
         strain_model = get_model("delaunay")  # getting an object of type that inherits from Strain_2d
         constructed_object = strain_model(delaunay_params)  # calling constructor, building strain model from params
-        [Ve, Vn, rot, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
-        output_manager.outputs_2d(Ve, Vn, rot, exx, exy, eyy, delaunay_params, vels, resids)  # 2D grid output format
-        print("DELAUNAY:", rot[3][3])
+        [Ve, Vn, rot_del, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
+        output_manager.outputs_2d(Ve, Vn, rot_del, exx, exy, eyy, delaunay_params, vels, resids)  # 2D grid output format
 
         # gpsgridder
         strain_model = get_model("gpsgridder")  # getting an object of type that inherits from Strain_2d
         constructed_object = strain_model(gpsgridder_params)  # calling constructor, building strain model from params
-        [Ve, Vn, rot, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
-        output_manager.outputs_2d(Ve, Vn, rot, exx, exy, eyy, gpsgridder_params, vels, resids)  # 2D grid output format
-        print("GPSGRIDDER:", rot[3][3])
+        [Ve, Vn, rot_gps, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
+        output_manager.outputs_2d(Ve, Vn, rot_gps, exx, exy, eyy, gpsgridder_params, vels, resids)  # 2D grid output format
 
         # visr
         # Requires the fortran executable to be compiled on your architecture and findable.
         strain_model = get_model("visr")  # getting an object of type that inherits from Strain_2d
         constructed_object = strain_model(visr_params)  # calling constructor, building strain model from params
-        [Ve, Vn, rot, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
-        output_manager.outputs_2d(Ve, Vn, rot, exx, exy, eyy, visr_params, vels, resids)  # 2D grid output format
-        print("VISR:", rot[3][3])
+        [Ve, Vn, rot_visr, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
+        output_manager.outputs_2d(Ve, Vn, rot_visr, exx, exy, eyy, visr_params, vels, resids)  # 2D grid output format
 
         # local_average_gradient
         strain_model = get_model("loc_avg_grad")  # getting an object of type that inherits from Strain_2d
         constructed_object = strain_model(lag_params)  # calling constructor, building strain model from params
-        [Ve, Vn, rot, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
-        output_manager.outputs_2d(Ve, Vn, rot, exx, exy, eyy, lag_params, vels, resids)  # 2D grid output format
-        print("LOC_AVG_GRAD:", rot[3][3])
+        [Ve, Vn, rot_lag, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
+        output_manager.outputs_2d(Ve, Vn, rot_lag, exx, exy, eyy, lag_params, vels, resids)  # 2D grid output format
 
         # geostats
         strain_model = get_model("geostats")  # getting an object of type that inherits from Strain_2d
         constructed_object = strain_model(geostats_params)  # calling constructor, building strain model from params
-        [Ve, Vn, rot, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
-        output_manager.outputs_2d(Ve, Vn, rot, exx, exy, eyy, geostats_params, vels, resids)  # 2D grid output format
-        print("GEOSTATS:", rot[3][3])
+        [Ve, Vn, rot_geo, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
+        output_manager.outputs_2d(Ve, Vn, rot_geo, exx, exy, eyy, geostats_params, vels, resids)  # 2D grid output format
+
+        print("DELAUNAY_FLAT:", rot_flat[3][3])
+        print("DELAUNAY:", rot_del[3][3])
+        print("GPSGRIDDER:", rot_gps[3][3])
+        print("VISR:", rot_visr[3][3])
+        print("LOC_AVG_GRAD:", rot_lag[3][3])
+        print("GEOSTATS:", rot_geo[3][3])
 
 
 if __name__ == "__main__":
