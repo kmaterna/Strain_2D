@@ -1,7 +1,7 @@
 [general]
 method = delaunay
 output_dir = test/testing_data/output
-input_vel_file = 
+input_vel_file = test/testing_data/euler_pole_rotation_vels.txt
 write_metrics = 0
 
 [strain]

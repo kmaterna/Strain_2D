@@ -1,5 +1,5 @@
 import unittest
-from strain import velocity_io, configure_functions, output_manager
+from strain import input_manager, configure_functions, output_manager
 from strain.internal_coordinator import get_model
 import os
 
@@ -17,7 +17,6 @@ class Tests(unittest.TestCase):
         print("Testing Euler Pole rotation for rotation units.")
         # Create the hard-coded setup to the test problem
         config_file = "test/testing_data/00_example_strain_config.txt"
-        myvelfield = velocity_io.read_stationvels("test/testing_data/euler_pole_rotation_vels.txt")
 
         # Read the config parameters
         delaunay_params = configure_functions.read_strain_config(config_file, desired_method='delaunay')
@@ -33,6 +32,9 @@ class Tests(unittest.TestCase):
         os.makedirs(str(visr_params.outdir), exist_ok=True)
         os.makedirs(str(lag_params.outdir), exist_ok=True)
         os.makedirs(str(geostats_params.outdir), exist_ok=True)
+
+        # Input pipeline
+        myvelfield = input_manager.inputs(delaunay_params)
 
         # Running several example strain methods on the simple dataset
         # Delaunay on Flat Earth
