@@ -93,24 +93,33 @@ I have not included the following techniques for the reasons given:
 2.  <ins>NDInterp</ins>: based on Numpy's linear interpolation of the velocity field. It turns out to be basically the same as Delaunay.  
 
 ### Units and Sign Conventions
-This library uses the following units and sign conventions: 
-* station velocities: units of mm/yr in the internal format
-* strain rates (exx, exy, eyy):
-    * exx = dudx
-    * exy = 0.5 * (dvdx + dudy) .  Tensor shear strain rate (*not engineering shear strain rate*)
-    * units: nanostrain / yr (1e-9 / yr)
-* Rotation:
-    * W = 0.5 * (dvdx - dudy)
-    * units: (1e-3 radians)/yr, or radians / Ka
-* Second invariant:
-    * Log of I2 = 0.5 * (exx * eyy - exy * exy)
-    * units: (nanostrain/yr)^2  (very unusual units; usually plotted on log scale for clarity)
-* Dilatation: Positive means extension and negative means shortening.
-    * Dilatation = exx + eyy
-    * units: nanostrain / year  
-* Max Shear: 
-    * e_max = 0.5 * sqrt((exx - eyy)^2 + 4*exy^2) .  Tensor shear strain rate (*not engineering shear strain rate*)
-    * units: nanostrain / year
+This library uses the following units, definitions, and sign conventions: 
+* station velocities: units of mm/yr in the internal format.
+* strain rates:  units of nanostrain / yr (1e-9 / yr).
+    * Shear strain is tensor shear strain rate (*not engineering shear strain rate*)
+ 
+```math      
+\epsilon_{xx} = \frac{du}{dx}. \,\,\,\,\,\,\,\,\,\,\,\,\,\,\, \epsilon_{xy} = \frac{1}{2} * (\frac{dv}{dx} + \frac{du}{dy}). \,\,\,\,\,\,\,\,\,\,\,\,\,\,\,   \epsilon_{yy} = \frac{dv}{dy}. 
+```
+
+* Rotation:  units of (1e-9 radians)/yr, or radians / Ga.  Positive means clockwise. 
+ ```math      
+W = \frac{1}{2} * (\frac{dv}{dx} - \frac{du}{dy})
+```
+* Second invariant: units of (nanostrain/yr)^2  (very unusual units; usually plotted on log scale for clarity).
+```math      
+I2 = \frac{1}{2} * (\epsilon_{xx} * \epsilon_{yy} - {\epsilon_{xy}}^2)
+```
+* Dilatation: units of nanostrain/year.
+   * Positive means extension and negative means shortening. 
+ ```math      
+Dilatation = \epsilon_{xx} + \epsilon_{yy}
+```
+* Max Shear: units of nanostrain / year. 
+    * Tensor shear strain rate (*not engineering shear strain rate*)
+ ```math      
+\epsilon_{max} = \frac{1}{2} * \sqrt{{(\epsilon_{xx} - \epsilon_{yy})}^2 + 4{\epsilon_{xy}}^2}
+```
 
 ### Internal Library API
 If you're interested in contributing your own type of strain computation, I am happy to add new methods to the library.  You would need to build a Python 'compute' function that matches the API of the other compute functions in the repository (see strain/models/strain_2d.py for template). 
@@ -133,8 +142,8 @@ where:
 * lats is a 1D array of latitudes, in increasing order
 * Ve and Vn are 2D arrays of geodetic velocities, if the method computed interpolated velocities (not every method does this)
 * rot_grd, exx_grd, exy_grd, eyy_grd are 2D arrays that correspond to lons/lats grids
-    * exx/exy/eyy have units of nanostrain
-    * rot has units of radians/Ka
+    * exx/exy/eyy have units of nanostrain/yr
+    * rot has units of radians/Ga with positive meaning clockwise
 
 ### Example:
 To reproduce the figure in the README:  

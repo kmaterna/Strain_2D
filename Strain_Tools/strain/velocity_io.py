@@ -1,10 +1,19 @@
-import collections
 import glob
 import os
-
 import xarray as xr
 
-StationVel = collections.namedtuple('StationVel', ['elon', 'nlat', 'e', 'n', 'u', 'se', 'sn', 'su', 'name'])
+
+class StationVel:
+    def __init__(self, elon, nlat, e, n, u, se, sn, su, name=''):
+        self.elon = elon
+        self.nlat = nlat
+        self.e = e
+        self.n = n
+        self.u = u
+        self.se = se
+        self.sn = sn
+        self.su = su
+        self.name = name
 
 
 def read_stationvels(input_file):
@@ -81,7 +90,7 @@ def read_gmt_format(filename, wrap_lons_greater_than_180=False):
         se, sn = float(temp[4]), float(temp[5])
         if wrap_lons_greater_than_180 and lon > 180:  # catch for longitudes like 240°E (should be -120°E)
             lon = lon - 360
-        myVelfield.append(StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=0, se=se, sn=sn, su=0.1, name=''))
+        myVelfield.append(StationVel(elon=lon, nlat=lat, e=VE, n=VN, u=0, se=se, sn=sn, su=0.1))
     ifile.close()
     return myVelfield
 

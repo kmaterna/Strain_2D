@@ -139,7 +139,7 @@ def compute_with_delaunay_polygons(myVelfield):
         exx.append(np.multiply(exx_triangle, 1000))
         exy.append(np.multiply(exy_triangle, 1000))
         eyy.append(np.multiply(eyy_triangle, 1000))
-        rot.append(abs(np.multiply(rotation_triangle, 1000)))
+        rot.append(np.multiply(-rotation_triangle, 1000))  # sign convention clockwise is positive
 
     print("Success computing strain via delaunay flat-earth method.\n")
 
