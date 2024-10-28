@@ -142,8 +142,8 @@ where:
 * lats is a 1D array of latitudes, in increasing order
 * Ve and Vn are 2D arrays of geodetic velocities, if the method computed interpolated velocities (not every method does this)
 * rot_grd, exx_grd, exy_grd, eyy_grd are 2D arrays that correspond to lons/lats grids
-    * exx/exy/eyy have units of nanostrain
-    * rot has units of radians/Ka
+    * exx/exy/eyy have units of nanostrain/yr
+    * rot has units of radians/Ga with positive meaning clockwise
 
 ### Example:
 To reproduce the figure in the README:  
