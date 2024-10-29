@@ -107,6 +107,7 @@ def write_example_strain_config(outfile):
     configobj["delaunay"] = {}
     configobj["delaunay_flat"] = {}
     configobj["visr"] = {}
+    configobj["simple_visr"] = {}
     configobj["gpsgridder"] = {}
     configobj["loc_avg_grad"] = {}
     configobj["wavelets"] = {}
@@ -131,6 +132,10 @@ def write_example_strain_config(outfile):
     d1["num_creeping_faults"] = "0"
     d1["creep_file"] = "crp.dat"
     d1["executable"] = "../contrib/visr/visr.exe"
+    d1s = configobj["simple_visr"]
+    d1s["weighting_threshold"] = "2"
+    d1s["distance_method"] = "gaussian"
+    d1s["coverage_method"] = "voronoi"
     d2 = configobj["gpsgridder"]
     d2["poisson"] = "0.5"
     d2["fd"] = "0.01"
@@ -158,7 +163,7 @@ def write_example_strain_config(outfile):
     dcomps = configobj["strain-comparison"]
     dcomps["output_dir"] = "Output/_strain_comparison"
     dcomps["input_dirs"] = "Output/delaunay:Output/gpsgridder:Output/loc_avg_grad:Output/visr"
-    
+
     with open(outfile, 'w') as configfile:
         configobj.write(configfile)
     print("Writing file %s " % outfile)

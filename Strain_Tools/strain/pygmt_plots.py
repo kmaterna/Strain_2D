@@ -77,7 +77,7 @@ def plot_dilatation(dila_array, station_vels, region, outdir, outfile, positive_
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o",
+    pygmt.makecpt(cmap="vik", series="-200/200/2", background="o",
                   output=os.path.join(outdir, "mycpt.cpt"))
     fig.basemap(region=region, projection=proj, frame="+tDilatation")
     fig.grdimage(dila_array, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
@@ -154,7 +154,7 @@ def plot_maxshear(max_shear_array, station_vels, region, outdir, outfile, positi
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="polar", series="0/300/2", truncate="0/1.0", background="o",
+    pygmt.makecpt(cmap="vik", series="0/300/2", truncate="0/1.0", background="o",
                   output=os.path.join(outdir, "mycpt.cpt"))
     fig.basemap(region=region, projection=proj, frame="+tMaximum Shear")
     fig.grdimage(max_shear_array, projection=proj, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
@@ -192,7 +192,7 @@ def plot_azimuth(azimuth_array, station_vels, region, outdir, outfile, positive_
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="rainbow", series="0/180/1", background="o", output=os.path.join(outdir, "mycpt.cpt"))
+    pygmt.makecpt(cmap="romaO", series="0/180/1", background="o", output=os.path.join(outdir, "mycpt.cpt"))
     fig.basemap(region=region, projection=proj, frame="+tAzimuth of Max Shortening")
     fig.grdimage(azimuth_array, region=region, cmap=os.path.join(outdir, "mycpt.cpt"))
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue',
@@ -229,7 +229,7 @@ def plot_dilatation_1D(region, polygon_outdir_file, outdir, outfile, positive_ei
     proj = 'M4i'
     fig = pygmt.Figure()
     scalesize = get_map_scale(region)
-    pygmt.makecpt(cmap="polar", series="-200/200/2", reverse=True, background="o",
+    pygmt.makecpt(cmap="vik", series="-200/200/2", reverse=True, background="o",
                   output=os.path.join(outdir, "mycpt.cpt"))
     fig.basemap(region=region, projection=proj, frame="+tDilatation")
     fig.coast(region=region, projection=proj, borders='1', shorelines='1.0p,black', water='lightblue', frame="1.0")
@@ -301,7 +301,7 @@ def plot_I2nd_1D(region, second_inv_polygon_file, outdir, outfile, positive_eigs
 
 def plot_method_differences(strain_values_ds, average_strains, region, outdir, outfile):
     """Useful for dilatation and max shear based on values in the color bar"""
-    pygmt.makecpt(cmap="polar", series="-300/300/2", truncate="-1.0/1.0", background="o",
+    pygmt.makecpt(cmap="vik", series="-300/300/2", truncate="-1.0/1.0", background="o",
                   output=os.path.join(outdir, "mycpt.cpt"))
     fig = pygmt.Figure()
     proj = 'M2.2i'
