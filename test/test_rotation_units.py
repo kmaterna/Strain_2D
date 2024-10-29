@@ -16,13 +16,14 @@ class Tests(unittest.TestCase):
         """
         print("Testing Euler Pole rotation for rotation units.")
         # Create the hard-coded setup to the test problem
-        config_file = "test/testing_data/00_example_strain_config.txt"
+        config_file = "test/testing_data/test_strain_config.txt"
 
         # Read the config parameters
         delaunay_params = configure_functions.read_strain_config(config_file, desired_method='delaunay')
         delaunay_flat_params = configure_functions.read_strain_config(config_file, desired_method='delaunay_flat')
         gpsgridder_params = configure_functions.read_strain_config(config_file, desired_method='gpsgridder')
         visr_params = configure_functions.read_strain_config(config_file, desired_method='visr')
+        simple_visr_params = configure_functions.read_strain_config(config_file, desired_method='simple_visr')
         lag_params = configure_functions.read_strain_config(config_file, desired_method='loc_avg_grad')
         geostats_params = configure_functions.read_strain_config(config_file, desired_method='geostats')
         os.makedirs(name=os.path.join("test", "testing_data", "output"), exist_ok=True)  # make parent dir for outputs
@@ -30,6 +31,7 @@ class Tests(unittest.TestCase):
         os.makedirs(str(delaunay_flat_params.outdir), exist_ok=True)
         os.makedirs(str(gpsgridder_params.outdir), exist_ok=True)
         os.makedirs(str(visr_params.outdir), exist_ok=True)
+        os.makedirs(str(simple_visr_params.outdir), exist_ok=True)
         os.makedirs(str(lag_params.outdir), exist_ok=True)
         os.makedirs(str(geostats_params.outdir), exist_ok=True)
 
@@ -62,6 +64,12 @@ class Tests(unittest.TestCase):
         [Ve, Vn, rot_visr, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
         output_manager.outputs_2d(Ve, Vn, rot_visr, exx, exy, eyy, visr_params, vels, resids)  # 2D grid output format
 
+        # simple_visr
+        strain_model = get_model("simple_visr")  # getting an object of type that inherits from Strain_2d
+        constructed_object = strain_model(simple_visr_params)  # calling constructor, building strain model from params
+        [Ve, Vn, rot_simple_visr, exx, exy, eyy, vels, resids] = constructed_object.compute(myvelfield)  # computing strain
+        output_manager.outputs_2d(Ve, Vn, rot_simple_visr, exx, exy, eyy, simple_visr_params, vels, resids)  # 2D grid output format
+
         # local_average_gradient
         strain_model = get_model("loc_avg_grad")  # getting an object of type that inherits from Strain_2d
         constructed_object = strain_model(lag_params)  # calling constructor, building strain model from params
@@ -78,6 +86,7 @@ class Tests(unittest.TestCase):
         print("DELAUNAY:", rot_del[3][3])
         print("GPSGRIDDER:", rot_gps[3][3])
         print("VISR:", rot_visr[3][3])
+        print("SIMPLE_VISR:", rot_simple_visr[3][3])
         print("LOC_AVG_GRAD:", rot_lag[3][3])
         print("GEOSTATS:", rot_geo[3][3])
 

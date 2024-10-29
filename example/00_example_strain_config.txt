@@ -21,6 +21,11 @@ weighting_threshold = 2
 uncertainty_threshold = 0.05
 executable = ../contrib/visr/visr.exe
 
+[simple_visr]
+weighting_threshold = 2
+distance_method = gaussian
+coverage_method = voronoi
+
 [gpsgridder]
 poisson = 0.5
 fd = 0.01

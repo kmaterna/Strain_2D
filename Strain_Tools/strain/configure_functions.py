@@ -9,7 +9,7 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'xdata', 'ydata', 'outdir', 'method_specific', 'write_metrics'])
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir'])
 
-avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  loc_avg_grad\n  wavelets\n  visr\n  velmap\n"
+avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  loc_avg_grad\n  wavelets\n  visr\n  simple_visr\n   velmap\n"
 help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
                "  USAGE 1: strain_rate_compute.py config.txt      <-- for running a strain calculation\n" \
                "  USAGE 2: strain_rate_compute.py --help          <-- for printing help message\n" \
