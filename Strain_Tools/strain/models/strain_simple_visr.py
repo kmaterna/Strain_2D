@@ -387,7 +387,7 @@ class simple_visr(Strain_2d):
         ve = v[:, 0].reshape(self._ydata.size, self._xdata.size) * 1e3  # [mm/a]
         vn = v[:, 1].reshape(self._ydata.size, self._xdata.size) * 1e3  # [mm/a]
         # reformat epsilon and omega outouts
-        rot = omega[:, 1, 0].reshape(self._ydata.size, self._xdata.size) * 1e9  # [rad/Ga]
+        rot = omega[:, 0, 1].reshape(self._ydata.size, self._xdata.size) * 1e9  # [rad/Ga]
         exx = epsilon[:, 0, 0].reshape(self._ydata.size, self._xdata.size) * 1e9  # [nanostrain/a]
         exy = epsilon[:, 0, 1].reshape(self._ydata.size, self._xdata.size) * 1e9  # [nanostrain/a]
         eyy = epsilon[:, 1, 1].reshape(self._ydata.size, self._xdata.size) * 1e9  # [nanostrain/a]
