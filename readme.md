@@ -110,8 +110,17 @@ W = \frac{1}{2} * (\frac{dv}{dx} - \frac{du}{dy})
 ```
 * Second invariant: units of (nanostrain/yr)^2  (very unusual units; usually plotted on log scale for clarity).
 ```math      
-I2 = \frac{1}{2} * (\epsilon_{xx} * \epsilon_{yy} - {\epsilon_{xy}}^2)
+I2 = \frac{1}{2} * (\epsilon_{ii} * \epsilon_{jj} - {\epsilon_{ij}}^2)
 ```
+When you expand the Einstein summation notation, this becomes:
+```math      
+I2 = \epsilon_{xx} * \epsilon_{yy} - {\epsilon_{xy}}^2
+```
+Which is the same as: 
+```math      
+I2 = \frac{1}{2} * ( tr(\epsilon_{ij})^2 - tr(\epsilon_{ij}^2) )
+```
+
 * Dilatation: units of nanostrain/year.
    * Positive means extension and negative means shortening. 
  ```math      

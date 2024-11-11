@@ -65,7 +65,7 @@ def compute_derived_quantities(exx, exy, eyy):
     """
     # Since exx etc. are numpy arrays, we can use numpy's vectorized math
     max_shear = 0.5 * np.sqrt(np.square(exx - eyy) + 4*np.square(exy))
-    I2nd = 0.5 * (exx*eyy - np.square(exy))
+    I2nd = (exx*eyy - np.square(exy))  # expanding the einstein summation notation for 2nd invariant definition
     dilatation = exx + eyy
 
     # Azimuth is tricky so leaving it as a for-loop for now
