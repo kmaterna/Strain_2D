@@ -34,7 +34,10 @@ def read_stationvels(input_file):
         except ValueError:
             continue
         lat, VE, VN, VU = float(temp[1]), float(temp[2]), float(temp[3]), float(temp[4])
-        SE, SN, SU = float(temp[5]), float(temp[6]), float(temp[7])
+        try:
+             SE, SN, SU = float(temp[5]), float(temp[6]), float(temp[7])
+        except:
+             breakpoint()
         if len(temp) > 8:
             name = temp[8]
         else:
