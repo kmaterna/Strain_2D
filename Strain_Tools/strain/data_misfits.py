@@ -27,14 +27,17 @@ def compute_misfits(resid_vels, obs_vels, outlier_tolerance=10.0):
     print("Percentage of residuals outside tolerance: %f" % (100*outlier_count/len(resid_vels)))
     print("Median absolute deviation:", np.median(misfit_total))
     print("Median chi2:", np.round(np.median(chi2_total), 5))
-    return misfit_total, chi2_total
+    normalized_chi2 = np.round(0.5 * np.sum(chi2_total)/np.sum(~np.isnan(np.array(chi2_total))),5)
+    print("Normalized Chi^2:", normalized_chi2)
+    return misfit_total, chi2_total, normalized_chi2
 
 
-def write_misfits_to_file(misfits, chi2, outfile):
+def write_misfits_to_file(misfits, chi2, chi2n, outfile):
     with open(outfile, 'a') as ofile:
         ofile.write("\n")
         ofile.write("Median absolute deviation: %.5f mm/yr\n" % (np.median(misfits)))
         ofile.write("Median chi2: %.5f\n" % (np.median(chi2)))
+        ofile.write("Normalized chi2: %.5f\n" % (np.median(chi2n)))
     return
 
 
@@ -42,6 +45,6 @@ def misfits_coordinator(params):
     """ A driver for the data-fitting misfit computation. Operates on dictionary with file i/o options in its fields"""
     obs_vels = velocity_io.read_stationvels(params["obs_velfile"])
     resid_vels = velocity_io.read_stationvels(params["resid_velfile"])
-    misfit_total, chi2_total = compute_misfits(resid_vels, obs_vels)
-    write_misfits_to_file(misfit_total, chi2_total, params["outfile"])
+    misfit_total, chi2_total, normalized_chi2 = compute_misfits(resid_vels, obs_vels)
+    write_misfits_to_file(misfit_total, chi2_total, normalized_chi2, params["outfile"])
     return

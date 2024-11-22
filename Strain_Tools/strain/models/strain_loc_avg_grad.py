@@ -21,7 +21,7 @@ class loc_avg_grad(Strain_2d):
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range)
         model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box)
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield)
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
+        return [Ve, Vn, np.empty(Ve.shape), np.empty(Vn.shape), rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
 
 
 def verify_inputs_loc_avg_grad(method_specific_dict):

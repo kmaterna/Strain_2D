@@ -27,16 +27,18 @@ class visr(Strain_2d):
         self._num_creep_faults, self._creep_file, self._exec = verify_inputs_visr(params.method_specific)
 
     def compute(self, myVelfield):
-        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(myVelfield, self._strain_range, self._grid_inc,
-                                                                    self._xdata, self._ydata,
-                                                                    self._distwgt, self._spatwgt, self._smoothincs,
-                                                                    self._wgt, self._unc_thresh, self._num_creep_faults,
-                                                                    self._creep_file, self._exec, self._tempdir)
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_visr(
+            myVelfield, self._strain_range, self._grid_inc,
+            self._xdata, self._ydata,
+            self._distwgt, self._spatwgt, self._smoothincs,
+            self._wgt, self._unc_thresh, self._num_creep_faults,
+            self._creep_file, self._exec, self._tempdir
+        )
         # Report observed and residual velocities within bounding box
         velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range)
         model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box)
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield)
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
+        return [Ve, Vn, np.empty(Ve.shape), np.empty(Vn.shape), rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
 
 
 def verify_inputs_visr(method_specific_dict):
@@ -67,8 +69,10 @@ def verify_inputs_visr(method_specific_dict):
            num_creep_faults, creep_file, executable
 
 
-def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, smoothincs, wgt, unc_thresh,
-                 num_creep_faults, creep_file, executable, tempdir):
+def compute_visr(
+        myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, smoothincs, wgt, unc_thresh,
+        num_creep_faults, creep_file, executable, tempdir
+    ):
     print("------------------------------\nComputing strain via Visr method.")
     strain_config_file = 'visr_strain.drv'
     strain_data_file = 'strain_input.txt'  # can only be 20 characters long bc fortran!
@@ -77,13 +81,19 @@ def compute_visr(myVelfield, strain_range, inc, xdata, ydata, distwgt, spatwgt, 
                               spatwgt, smoothincs, wgt, unc_thresh, num_creep_faults, creep_file)
     write_fortran_data_file(strain_data_file, myVelfield)
     check_fortran_executable(executable)
+
     call_fortran_compute(strain_config_file, executable)
 
     # We convert that text file into grids, which we will write as GMT grd files.
-    [Ve, Vn, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file, xdata, ydata)
+    try:
+        [Ve, Vn, rot, exx, exy, eyy] = make_output_grids_from_strain_out(strain_output_file, xdata, ydata)
+    except FileNotFoundError:
+        raise RuntimeError('VISR failed for some reason')
+
     shutil.move(src=strain_config_file, dst=os.path.join(tempdir, strain_config_file))
     shutil.move(src=strain_data_file, dst=os.path.join(tempdir, strain_data_file))
     shutil.move(src=strain_output_file, dst=os.path.join(tempdir, strain_output_file))
+
     print("Success computing strain via Visr method.\n")
 
     return [Ve, Vn, rot, exx, exy, eyy]

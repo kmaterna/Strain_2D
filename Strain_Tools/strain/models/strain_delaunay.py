@@ -80,7 +80,7 @@ class delaunay(Strain_2d):
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield)
 
         print("Success computing strain via Delaunay method.\n")
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
+        return [Ve, Vn, np.empty(Ve.shape), np.empty(Vn.shape), rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
 
 
 def compute_with_delaunay_polygons(myVelfield):

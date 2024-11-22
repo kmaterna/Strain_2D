@@ -196,9 +196,20 @@ def angle_mean_math(azimuth_values):
     return theta, sd
 
 
-def calc_strain_uncertainty(VarE, VarN, grid_x, grid_y, exx, eyy, exy):
-    """Calculate strain rate variance"""
-    var_dil = 0.5 * ((VarE / np.square(grid_x)) + (VarN / np.square(grid_y)))
+def calc_strain_uncertainty(VarE, VarN, grid_x, grid_y, exx, eyy, exy, mean_lat=40):
+    """
+    Calculate strain rate variance. 
+    Arguments:
+        VarE, VarN    - Variance of the easting and northing velocities
+        grid_x, grid_y- grid dimensions in degrees
+        exx, eyy, exy - strain rate components
+        mean_lat      - mean latitude of the AOI for grid size calculation
+
+    Returns:
+        var_dil, var_max_shear  - Variance of the dilatation and maximum shear strain rates
+    """
+    dx, dy = grid_x * 111 * np.cos(np.deg2rad(mean_lat)), grid_y * 111
+    var_dil = 0.5 * ((VarE / np.square(dx)) + (VarN / np.square(dy)))
 
     # need various strain rate quantities, including max shear
     max_shear = 0.5 * np.sqrt(np.square(exx - eyy) + 4*np.square(exy))

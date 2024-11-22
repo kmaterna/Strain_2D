@@ -86,26 +86,6 @@ def get_gmt_range_inc(lons, lats):
     return gmt_range_string, gmt_inc_string
 
 
-# --------- DEFENSIVE PROGRAMMING FOR COMPARING MULTIPLE GRIDS ------------------ #
-
-def check_coregistered_shapes(strain_values_ds):
-    """
-    Make sure arrays are of the same dimensions before attempting to produce any statistics
-    
-    :param strain_values_ds: xarray.DataSet of strain values from different calculations
-    :returns: None
-    """
-    x = np.array(strain_values_ds['x'])
-    y = np.array(strain_values_ds['y'])
-    for varname, da in strain_values_ds.data_vars.items():
-        nparray = np.array(strain_values_ds[varname])
-        arrayshape = np.shape(nparray)
-        assert arrayshape == (len(y), len(x), ValueError(
-            "Error! Not all arrays have the same shape!  Cannot compare."))
-    print("All methods have the same shape.")
-    return
-
-
 # --------- GRID AND VELFIELD NAMED TUPLE UTILITIES ------------------ #
 
 def make_grid(coordbox, inc):
