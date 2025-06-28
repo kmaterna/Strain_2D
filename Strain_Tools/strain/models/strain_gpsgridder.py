@@ -9,7 +9,13 @@ import subprocess
 import xarray as xr
 import os
 import shutil
-from .. import velocity_io, strain_tensor_toolbox, utilities
+from strain.strain_tensor_toolbox import strain_on_regular_grid
+from strain.velocity_io import write_gmt_format
+from strain.utilities import (
+    make_grid, filter_by_bounding_box, create_model_velfield,
+    subtract_two_velfields, get_string_range, get_string_inc,
+
+)
 from strain.models.strain_2d import Strain_2d
 
 
@@ -23,14 +29,48 @@ class gpsgridder(Strain_2d):
         self._poisson, self._fd, self._eigenvalue = verify_inputs_gpsgridder(params.method_specific)
 
     def compute(self, myVelfield):
-        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(myVelfield, self._strain_range,
-                                                                          self._grid_inc, self._poisson, self._fd,
-                                                                          self._eigenvalue, self._tempdir)
+        [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd] = compute_gpsgridder(
+            myVelfield, self._strain_range,
+            self._grid_inc, self._poisson, self._fd,
+            self._eigenvalue, self._tempdir
+        )
+
+        ########################################################
+        # check that the grids are not off-by-one
+        reduce_x, reduce_y = False, False
+        lenx, leny = len(self._xdata), len(self._ydata)
+        if Ve.shape[0] != leny:
+            if Ve.shape[0] == leny - 1:
+                reduce_y = True
+            else:
+                raise RuntimeError('Velocity is not the right shape')
+        if Ve.shape[1] != lenx:
+            if Ve.shape[1] == lenx + 1:
+                reduce_x = True
+            else:
+                raise RuntimeError('Velocity is not the right shape')
+
+        if reduce_x:
+            Ve = Ve[:,:-1]
+            Vn = Vn[:,:-1]
+            rot_grd = rot_grd[:,:-1]
+            exx_grd = exx_grd[:,:-1]
+            exy_grd = exy_grd[:,:-1]
+            eyy_grd = eyy_grd[:,:-1]
+        if reduce_y:
+            Ve = Ve[:-1,:]
+            Vn = Vn[:-1,:]
+            rot_grd = rot_grd[:-1,:]
+            exx_grd = exx_grd[:-1,:]
+            exy_grd = exy_grd[:-1,:]
+            eyy_grd = eyy_grd[:-1,:]
+        ########################################################
+
         # Report observed and residual velocities within bounding box
-        velfield_within_box = utilities.filter_by_bounding_box(myVelfield, self._strain_range)
-        model_velfield = utilities.create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box)
-        residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield)
-        return [Ve, Vn, rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
+        velfield_within_box = filter_by_bounding_box(myVelfield, self._strain_range)
+        model_velfield = create_model_velfield(self._xdata, self._ydata, Ve, Vn, velfield_within_box)
+        residual_velfield = subtract_two_velfields(velfield_within_box, model_velfield)
+        return [Ve, Vn, np.empty(Ve.shape), np.empty(Vn.shape), rot_grd, exx_grd, exy_grd, eyy_grd, velfield_within_box, residual_velfield]
 
 
 def verify_inputs_gpsgridder(method_specific_dict):
@@ -50,10 +90,10 @@ def verify_inputs_gpsgridder(method_specific_dict):
 
 def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, tempoutdir):
     print("------------------------------\nComputing strain via gpsgridder method.")
-    velocity_io.write_gmt_format(myVelfield, "tempgps.txt")
+    write_gmt_format(myVelfield, "tempgps.txt")
     command = "gmt gpsgridder tempgps.txt" + \
-              " -R" + utilities.get_string_range(range_strain, x_buffer=inc[0]/2, y_buffer=inc[1]/2) + \
-              " -I" + utilities.get_string_inc(inc) + \
+              " -R" + get_string_range(range_strain, x_buffer=inc[0]/2, y_buffer=inc[1]/2) + \
+              " -I" + get_string_inc(inc) + \
               " -S" + poisson + \
               " -Fd" + fd + \
               " -C" + eigenvalue + \
@@ -78,17 +118,21 @@ def compute_gpsgridder(myVelfield, range_strain, inc, poisson, fd, eigenvalue, t
     # Get ready to do strain calculation.
     file1 = tempoutdir+"nc_u.nc"
     file2 = tempoutdir+"nc_v.nc"
+    
+    # gpsgridder won't give back the original grid in some cases
+    lons, lats, _ = make_grid(range_strain, inc)
+    
     ds = xr.open_dataset(file1)
-    udata = ds["z"].to_numpy()
+    udata = ds["z"].interp(lat=lats,lon=lons, method='nearest', kwargs={"fill_value": "extrapolate"}).to_numpy()
     ds = xr.open_dataset(file2)
-    vdata = ds["z"].to_numpy()
+    vdata = ds["z"].interp(lat=lats,lon=lons, method='nearest', kwargs={"fill_value": "extrapolate"}).to_numpy()
 
     xinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $8}\'', shell=True))  # x-inc
     yinc = float(subprocess.check_output('gmt grdinfo -M -C '+file1+' | awk \'{print $9}\'', shell=True))  # y-inc
     xinc = xinc * 111.000 * np.cos(np.deg2rad(range_strain[2]))  # in km (not degrees)
     yinc = yinc * 111.000   # in km (not degrees)
 
-    [exx, eyy, exy, rot] = strain_tensor_toolbox.strain_on_regular_grid(xinc, yinc, udata * 1000, vdata * 1000)
+    [exx, eyy, exy, rot] = strain_on_regular_grid(xinc, yinc, udata * 1000, vdata * 1000)
 
     print("Success computing strain via gpsgridder method.\n")
-    return [udata, vdata, rot, exx, exy, eyy]
+    return [udata, vdata, abs(rot), exx, exy, eyy]
