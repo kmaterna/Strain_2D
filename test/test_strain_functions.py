@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from Strain_Tools.strain import strain_tensor_toolbox, configure_functions, velocity_io
-from Strain_Tools.strain.models import strain_delaunay_flat, strain_delaunay
+from Strain_Tools.strain.models import strain_delaunay_flat, strain_delaunay, strain_visr_py
 
 
 class Tests(unittest.TestCase):
@@ -93,6 +93,33 @@ class Tests(unittest.TestCase):
         datafile = "test/testing_data/NorCal_stationvels.txt"
         myVelfield = velocity_io.read_stationvels(datafile)
         self.assertGreater(len(myVelfield), 5)
+        return
+
+    def test_visr_py_llxy(self):
+        # The local-projection of the reference point itself maps to the origin.
+        x, y = strain_visr_py.llxy(40.0, -122.0, [40.0], [-122.0])
+        self.assertAlmostEqual(x[0], 0.0, places=6)
+        self.assertAlmostEqual(y[0], 0.0, places=6)
+        return
+
+    def test_visr_py_compute(self):
+        # Pure-Python VISR should produce finite strain on a small grid inside the network,
+        # and leave grid points with insufficient azimuthal coverage as NaN.
+        myVelfield = velocity_io.read_stationvels("test/testing_data/NorCal_stationvels.txt")
+        xdata = np.arange(-123.5, -121.5 + 1e-9, 0.5)
+        ydata = np.arange(39.0, 40.5 + 1e-9, 0.5)
+        taus = np.arange(1, 100, 1, dtype=float)
+        Ve, Vn, Se, Sn, rot, exx, exy, eyy = strain_visr_py.compute_visr_py(
+            myVelfield, xdata, ydata, taus, cutoff=2.15, wt0=2.0, unc_thresh=0.05,
+            distance_weighting="gaussian", spatial_weighting="voronoi",
+            num_creep=0, creep_file=None)
+        self.assertEqual(exx.shape, (ydata.size, xdata.size))
+        # At least some interior points should be successfully estimated
+        self.assertGreater(np.count_nonzero(np.isfinite(exx)), 0)
+        # Strain magnitudes should be physically reasonable for this region (< ~1e4 nanostrain/yr)
+        self.assertLess(np.nanmax(np.abs(exx)), 1e4)
+        # Velocity uncertainties (from solution covariance) should be positive where defined
+        self.assertTrue(np.all(Se[np.isfinite(Se)] > 0))
         return
 
 

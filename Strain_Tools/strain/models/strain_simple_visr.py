@@ -397,5 +397,8 @@ class simple_visr(Strain_2d):
             self._xdata, self._ydata, ve, vn, velfield_within_box)
         residual_velfield = utilities.subtract_two_velfields(velfield_within_box, model_velfield)
         print(" done\n")
-        # done
-        return [ve, vn, rot, exx, exy, eyy, velfield_within_box, residual_velfield]
+        # Se, Sn (velocity-uncertainty grids) are not computed by this method; return
+        # empty placeholders to match the Strain_2d compute() contract, as the other
+        # non-uncertainty methods (visr, delaunay, etc.) do.
+        return [ve, vn, np.empty(ve.shape), np.empty(vn.shape), rot, exx, exy, eyy,
+                velfield_within_box, residual_velfield]

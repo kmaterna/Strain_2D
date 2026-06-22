@@ -113,7 +113,7 @@ def getVels(velField):
     e = np.array([x.e for x in velField])
     n = np.array([x.n for x in velField])
     se = np.array([x.se for x in velField])
-    sn = np.array([x.se for x in velField])
+    sn = np.array([x.sn for x in velField])
     return lon, lat, e, n, se, sn
 
 

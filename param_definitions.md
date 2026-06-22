@@ -37,6 +37,22 @@ The result is less block-like if you use finer increments.
 
   * Based on the VISR documentation, I'm not sure where Shen et al. (2015)'s *L_0* (distance weighting threshold for ignoring the weight) gets defined. It might not get defined in the config file. 
 
+### [visr_py]
+A pure-Python port of the VISR method (no Fortran compilation required). Reproduces the
+strain-rate-interpolation path of the original Fortran `visr` program to its output precision.
+* ```distance_weighting```: string, either 'gaussian' or 'quadratic' (same meaning as [visr]).
+* ```spatial_weighting```: string, either 'voronoi' or 'azimuth' (same meaning as [visr]).
+* ```min_max_inc_smooth```: float/float/float, minimum, maximum, and incremental spatial smoothing
+  constants *D* (km), e.g. `1/100/1`. The smallest *D* whose total weight reaches the threshold is used.
+* ```weighting_threshold```: float, weighting threshold *Wt* from Shen et al. (2015).
+* ```uncertainty_threshold```: float, floor applied to input velocity uncertainties (the Fortran `rsga` reset).
+* ```num_creeping_faults```: int, optional (default 0), number of creeping fault segments.
+* ```creep_file```: string, optional, path to a text file of creeping-fault endpoints
+  (`alon alat blon blat` per line); required only if `num_creeping_faults` > 0.
+
+Unlike the Fortran wrapper, `visr_py` requires no `executable` and additionally populates
+velocity-uncertainty (Se, Sn) output layers from the solution covariance.
+
 ### [gpsgridder]
 * [See Native Documentation](http://gmt.soest.hawaii.edu/doc/latest/supplements/potential/gpsgridder.html) 
 * ```poisson```: float, poisson's ratio used in gpsgridder -S argument

@@ -76,6 +76,8 @@ Four additional config parameters are required to use this method.
 
 4.  <ins>simple_visr</ins>: A simplified Python implementation of the VISR method (Shen et al., 2015), contributed by Tobias Kohne.
 
+4b.  <ins>visr_py</ins>: A pure-Python port of the original Fortran VISR method (Shen et al., 2015) that requires no Fortran compilation. It reproduces the strain-rate-interpolation path of the Fortran `visr` program (Voronoi/azimuth spatial weighting, gaussian/quadratic distance weighting, the adaptive smoothing-distance search, and creeping-fault discontinuities) to the Fortran's output precision, and additionally returns velocity uncertainties. Use this if you want VISR results without building the executable.
+
 5.  <ins>gpsgridder</ins>: based on a thin-sheet elastic interpolation scheme from Sandwell, D. T., and P. Wessel (2016), Interpolation of 2-D vector data using constraints from elasticity, GRL.  The implementation of the code is in GMT. Three additional config parameters are required to use this method. 
 
 6.  <ins>loc_avg_grad</ins>: the weighted nearest neighbor algorithm of Mong-Han Huang and implemented in Handwerger, A. L., Huang, M. H., Fielding, E. J., Booth, A. M., & Bürgmann, R. (2019). A shift from drought to extreme rainfall drives a stable landslide to catastrophic failure. Scientific reports, 9(1), 1-12. Two additional config parameters are required to use this method.
