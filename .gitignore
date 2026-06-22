@@ -15,3 +15,13 @@ Strain_Tools/*.egg*
 .DS*
 example/Output
 test/testing_data/output/*
+TODO.md
+claude.md
+example/.ipynb_checkpoints/
+*.txt
+*.log
+*.out
+*.dat
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+*/*/.ipynb_checkpoints/
