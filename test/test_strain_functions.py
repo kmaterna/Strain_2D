@@ -1,7 +1,8 @@
 import unittest
 import numpy as np
+import scipy.sparse as sparse
 from Strain_Tools.strain import strain_tensor_toolbox, configure_functions, velocity_io
-from Strain_Tools.strain.models import strain_delaunay_flat, strain_delaunay
+from Strain_Tools.strain.models import strain_delaunay_flat, strain_delaunay, strain_okazaki
 
 
 class Tests(unittest.TestCase):
@@ -93,6 +94,43 @@ class Tests(unittest.TestCase):
         datafile = "test/testing_data/NorCal_stationvels.txt"
         myVelfield = velocity_io.read_stationvels(datafile)
         self.assertGreater(len(myVelfield), 5)
+        return
+
+    def test_okazaki_roughness_kron_build(self):
+        # The Kronecker-product build of the roughness matrix R must equal the direct
+        # double-sum definition R[(k,l),(p,q)] = X2(k,p)X0(l,q)+2X1(k,p)X1(l,q)+X0(k,p)X2(l,q).
+        n_X, n_Y = 9, 7
+        Ax0, Ax1, Ax2 = strain_okazaki._build_1d_integral_matrices(n_X)
+        Ay0, Ay1, Ay2 = strain_okazaki._build_1d_integral_matrices(n_Y)
+        csr = sparse.csr_matrix
+        R = (sparse.kron(csr(Ay0), csr(Ax2)) + 2 * sparse.kron(csr(Ay1), csr(Ax1))
+             + sparse.kron(csr(Ay2), csr(Ax0))).toarray()
+        n_basis = n_X * n_Y
+        R_direct = np.zeros((n_basis, n_basis))
+        for i in range(n_basis):
+            k, l = i % n_X, i // n_X
+            for j in range(n_basis):
+                p, q = j % n_X, j // n_X
+                R_direct[i, j] = (strain_okazaki._X2(k, p, n_X) * strain_okazaki._X0(l, q, n_Y)
+                                  + 2 * strain_okazaki._X1(k, p, n_X) * strain_okazaki._X1(l, q, n_Y)
+                                  + strain_okazaki._X0(k, p, n_X) * strain_okazaki._X2(l, q, n_Y))
+        self.assertTrue(np.allclose(R, R_direct))
+        self.assertTrue(np.allclose(R, R.T))  # R must be symmetric
+        return
+
+    def test_okazaki_compute(self):
+        # Okazaki ABIC method should produce finite, physically reasonable strain rates
+        # and populate velocity uncertainties on a small grid.
+        from collections import namedtuple
+        myVelfield = velocity_io.read_stationvels("test/testing_data/NorCal_stationvels.txt")
+        xdata = np.arange(-123.5, -121.5 + 1e-9, 0.5)
+        ydata = np.arange(39.0, 40.5 + 1e-9, 0.5)
+        Ve, Vn, Se, Sn, rot, exx, exy, eyy = strain_okazaki.compute_okazaki(
+            myVelfield, xdata, ydata, grid_km=40.0)
+        self.assertEqual(exx.shape, (ydata.size, xdata.size))
+        self.assertGreater(np.count_nonzero(np.isfinite(exx)), 0)
+        self.assertLess(np.nanmax(np.abs(exx)), 1e4)  # nanostrain/yr, physically reasonable
+        self.assertTrue(np.all(Se[np.isfinite(Se)] > 0))  # posterior velocity uncertainty positive
         return
 
 

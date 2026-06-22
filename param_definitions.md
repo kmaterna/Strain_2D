@@ -66,3 +66,14 @@ The result is less block-like if you use finer increments.
 * ```range_north```: float, range of Veast in degrees 
 * ```nugget_north```: float, point-wise variance for Vnorth in mm/yr
 * ```trend```: boolean (TODO: Not Yet Implemented)
+
+### [okazaki]
+Basis-function expansion with ABIC (Okazaki et al., 2021). The velocity field is expanded in
+2D cubic B-splines and the smoothing hyperparameter is selected objectively by minimizing ABIC.
+* ```grid_km```: float, spacing of the B-spline basis grid in km (the effective smoothing length
+  scale). Smaller values resolve finer structure but increase cost (the prior matrix grows as
+  (region/grid_km)^2). Must be fine enough that the basis grid has >= 7 nodes per dimension.
+* ```corr_leng```: float, optional (default 0). Correlation length (km) of the data-error
+  covariance; 0 means white-noise (independent) observations.
+* ```node_margin```: int, optional (default 2). Number of extra basis-node rings added beyond the
+  data/output extent; must be >= 2 for full cubic-spline support at the edges.

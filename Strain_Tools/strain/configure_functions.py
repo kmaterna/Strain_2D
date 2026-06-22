@@ -9,7 +9,7 @@ Params = collections.namedtuple("Params", ['strain_method', 'input_file', 'range
                                            'xdata', 'ydata', 'outdir', 'method_specific', 'write_metrics'])
 Comps_Params = collections.namedtuple("Comps_Params", ['range_strain', 'inc', 'strain_dict', 'outdir'])
 
-avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  loc_avg_grad\n  wavelets\n  visr\n  simple_visr\n   velmap\n"
+avail_modules = "  delaunay\n  delaunay_flat\n  geostats\n  gpsgridder\n  loc_avg_grad\n  wavelets\n  visr\n  simple_visr\n  okazaki\n   velmap\n"
 help_message = "  Welcome to a geodetic strain-rate calculator.\n\n" \
                "  USAGE 1: strain_rate_compute.py config.txt      <-- for running a strain calculation\n" \
                "  USAGE 2: strain_rate_compute.py --help          <-- for printing help message\n" \
@@ -108,6 +108,7 @@ def write_example_strain_config(outfile):
     configobj["delaunay_flat"] = {}
     configobj["visr"] = {}
     configobj["simple_visr"] = {}
+    configobj["okazaki"] = {}
     configobj["gpsgridder"] = {}
     configobj["loc_avg_grad"] = {}
     configobj["wavelets"] = {}
@@ -136,6 +137,10 @@ def write_example_strain_config(outfile):
     d1s["weighting_threshold"] = "2"
     d1s["distance_method"] = "gaussian"
     d1s["coverage_method"] = "voronoi"
+    dok = configobj["okazaki"]
+    dok["grid_km"] = "40"
+    dok["corr_leng"] = "0"
+    dok["node_margin"] = "2"
     d2 = configobj["gpsgridder"]
     d2["poisson"] = "0.5"
     d2["fd"] = "0.01"
